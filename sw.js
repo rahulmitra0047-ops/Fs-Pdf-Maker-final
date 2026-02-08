@@ -2,11 +2,12 @@
 const CACHE_NAME = 'fs-pdf-cache-v1';
 const DYNAMIC_CACHE_NAME = 'fs-pdf-dynamic-v1';
 
+// Use absolute paths for robust PWA caching
 const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon.svg'
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/icon.svg'
 ];
 
 // Install Event
@@ -40,15 +41,13 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // 1. IGNORE FIREBASE/FIRESTORE REQUESTS
-  // Firebase SDK handles its own offline persistence (IndexedDB).
-  // Caching these in SW causes conflicts and stale data.
   if (
     url.hostname.includes('firestore.googleapis.com') ||
     url.hostname.includes('firebase') ||
     url.hostname.includes('identitytoolkit') ||
-    url.href.includes('/api/py/') // Python backend calls (optional: exclude if needed)
+    url.href.includes('/api/py/')
   ) {
-    return; // Let the browser/SDK handle it
+    return;
   }
 
   // 2. Handle Navigation (HTML) - Network First, Fallback to Cache
@@ -56,14 +55,13 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .catch(() => {
-          return caches.match('./index.html');
+          return caches.match('/index.html');
         })
     );
     return;
   }
 
-  // 3. Stale-While-Revalidate for Static Assets (JS, CSS, Images)
-  // This ensures fast load but updates in background
+  // 3. Stale-While-Revalidate for Static Assets
   if (
     event.request.destination === 'script' ||
     event.request.destination === 'style' ||

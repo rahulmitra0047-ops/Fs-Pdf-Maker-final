@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -9,6 +10,7 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <title>FS PDF Maker - Premium</title>
+    <!-- Production Note: Switch to build-time Tailwind for offline PWA support -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -132,5 +134,7 @@
 </head>
   <body>
     <div id="root"></div>
+    <!-- CRITICAL: Linked main entry point for production build execution -->
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
