@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#6366F1" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <title>FS PDF Maker - Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Inter"', '"Plus Jakarta Sans"', '"Noto Sans Bengali"', 'sans-serif'],
+            },
+            colors: {
+              primary: { 
+                DEFAULT: '#6366F1', /* Indigo 500 */
+                50: '#EEF2FF', 
+                600: '#4F46E5', 
+                700: '#4338CA' 
+              },
+              surface: '#FFFFFF',
+              background: '#FAFAFA', /* Very Light Gray */
+              border: '#E2E8F0',
+              text: {
+                primary: '#111827', /* Gray 900 */
+                secondary: '#6B7280', /* Gray 500 */
+                muted: '#9CA3AF'
+              },
+              success: 'var(--color-success)',
+              error: 'var(--color-error)',
+              warning: 'var(--color-warning)'
+            },
+            borderRadius: {
+              'xl': '20px',
+              '2xl': '24px',
+            },
+            boxShadow: {
+              'soft': '0 1px 3px rgba(0,0,0,0.05)',
+              'lifted': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)',
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.3s ease-out forwards',
+              'fade-out': 'fadeOut 0.3s ease-in forwards',
+              'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'zoom-in-95': 'zoomIn95 0.2s ease-out forwards',
+              'slide-in-from-top-1': 'slideInFromTop1 0.3s ease-out forwards',
+              'slide-in-from-top-2': 'slideInFromTop2 0.3s ease-out forwards',
+              'slide-in-from-bottom-2': 'slideInFromBottom2 0.3s ease-out forwards',
+              'slide-in-from-right-4': 'slideInFromRight4 0.3s ease-out forwards',
+            },
+            keyframes: {
+              fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+              fadeOut: { '0%': { opacity: '1' }, '100%': { opacity: '0' } },
+              slideUp: { '0%': { transform: 'translateY(10px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+              zoomIn95: { '0%': { transform: 'scale(0.95)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } },
+              slideInFromTop1: { '0%': { transform: 'translateY(-0.25rem)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+              slideInFromTop2: { '0%': { transform: 'translateY(-0.5rem)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+              slideInFromBottom2: { '0%': { transform: 'translateY(0.5rem)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+              slideInFromRight4: { '0%': { transform: 'translateX(1rem)', opacity: '0' }, '100%': { transform: 'translateX(0)', opacity: '1' } },
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      :root {
+        --color-primary: #6366F1;
+        --color-bg: #FAFAFA;
+        --color-surface: #FFFFFF;
+        --color-border: #E5E7EB;
+        --color-text: #111827;
+        --color-text-secondary: #6B7280;
+        --radius-xl: 20px;
+      }
+
+      body {
+        background-color: var(--color-bg);
+        color: var(--color-text);
+        font-family: "Inter", "Noto Sans Bengali", sans-serif;
+        -webkit-tap-highlight-color: transparent;
+        overflow-x: hidden;
+      }
+      
+      .page-shell {
+        min-height: 100vh;
+        background-color: var(--color-bg);
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      
+      .content-container {
+        max-width: 640px; 
+        margin: 0 auto;
+        padding: 24px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .scrollbar-hide::-webkit-scrollbar { display: none; }
+      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      
+      /* Animation Utilities Helper for Tailwind Arbitrary Matches */
+      .animate-in { animation-duration: 0.3s; animation-fill-mode: forwards; }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.39.0",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom": "https://esm.sh/react-dom@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0",
+    "zustand": "https://esm.sh/zustand@^5.0.11",
+    "dexie": "https://esm.sh/dexie@^4.3.0",
+    "firebase/": "https://esm.sh/firebase@^12.8.0/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

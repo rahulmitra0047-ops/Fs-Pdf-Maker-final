@@ -1,0 +1,7 @@
+{
+  "name": "FS PDF Maker",
+  "description": "A premium mobile-first MCQ management web application with offline-first capabilities using IndexedDB.",
+  "requestFramePermissions": [
+    "clipboard-read"
+  ]
+}
