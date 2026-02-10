@@ -1,39 +1,43 @@
+
 {
   "name": "FS PDF MAKER",
   "short_name": "FS PDF",
-  "start_url": "./index.html",
+  "start_url": "/#/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#FAFAFA",
   "theme_color": "#6366F1",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon.svg",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "icon.svg",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "screenshots": [
     {
-      "src": "screenshot-mobile.svg",
+      "src": "/screenshot-mobile.svg",
       "sizes": "750x1334",
       "type": "image/svg+xml",
       "form_factor": "narrow",
       "label": "Home Screen"
     },
     {
-      "src": "screenshot-desktop.svg",
+      "src": "/screenshot-desktop.svg",
       "sizes": "1280x800",
       "type": "image/svg+xml",
       "form_factor": "wide",
@@ -45,19 +49,19 @@
       "name": "Create PDF",
       "short_name": "Create",
       "description": "Create a new MCQ Document",
-      "url": "./#/create",
-      "icons": [{ "src": "icon.svg", "sizes": "192x192" }]
+      "url": "/#/create",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "Live Exam",
       "short_name": "Exam",
       "description": "Start a Practice Session",
-      "url": "./#/live-mcq",
-      "icons": [{ "src": "icon.svg", "sizes": "192x192" }]
+      "url": "/#/live-mcq",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ],
   "share_target": {
-    "action": "./",
+    "action": "/",
     "method": "GET",
     "enctype": "application/x-www-form-urlencoded",
     "params": {
