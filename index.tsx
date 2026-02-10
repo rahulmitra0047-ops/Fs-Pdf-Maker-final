@@ -19,7 +19,11 @@ console.error = (...args) => {
 };
 
 // PWA Service Worker Registration with Update Detection
-if ('serviceWorker' in navigator) {
+// Only register in production to avoid dev conflicts and meet PWA standards
+const meta = import.meta as any;
+const isProduction = meta.env ? meta.env.PROD : false;
+
+if (isProduction && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
