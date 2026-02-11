@@ -263,6 +263,7 @@ export interface AppSettings {
   soundEnabled: boolean;
   vibrationEnabled: boolean;
   railwayBaseUrl?: string;
+  geminiApiKeys?: string[]; // Added for AI rotation
   lastBackupTimestamp?: number;
 }
 

@@ -20,6 +20,10 @@ const SettingsPage: React.FC = () => {
   const [isEditingUrl, setIsEditingUrl] = useState(false);
   const [isTestingConnection, setIsTestingConnection] = useState(false);
   
+  // AI Keys state
+  const [apiKeysInput, setApiKeysInput] = useState('');
+  const [isEditingAi, setIsEditingAi] = useState(false);
+
   // Storage Stats
   const [storageUsage, setStorageUsage] = useState<{usage: number, quota: number} | null>(null);
   
@@ -35,7 +39,10 @@ const SettingsPage: React.FC = () => {
   useEffect(() => {
       backupService.estimateUsage().then(setStorageUsage);
       sessionStorage.removeItem('import_success_msg');
-  }, []);
+      if (settings.geminiApiKeys) {
+        setApiKeysInput(settings.geminiApiKeys.join('\n'));
+      }
+  }, [settings.geminiApiKeys]);
 
   const loadAuditLogs = async () => {
       try {
@@ -65,6 +72,13 @@ const SettingsPage: React.FC = () => {
           setIsEditingUrl(false);
           toast.success('Server URL updated');
       }
+  };
+
+  const saveAiKeys = async () => {
+    const keys = apiKeysInput.split('\n').map(k => k.trim()).filter(Boolean);
+    await updateSettings({ geminiApiKeys: keys });
+    setIsEditingAi(false);
+    toast.success(`${keys.length} API keys updated`);
   };
 
   const handleTestConnection = async () => {
@@ -246,7 +260,49 @@ const SettingsPage: React.FC = () => {
             </div>
         </div>
 
-        {/* 3. Data Management */}
+        {/* 3. AI Configuration */}
+        <h3 className="text-[13px] font-semibold text-[#9CA3AF] tracking-[0.5px] mt-[28px] mb-[14px]">Gemini AI Configuration</h3>
+        <div className="bg-white border border-[#F3F4F6] rounded-[18px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-[20px]">
+            <div className="flex justify-between items-center mb-3">
+                <span className="text-[15px] font-medium text-[#111827]">Gemini API Keys</span>
+                <button 
+                    onClick={() => {
+                        setIsEditingAi(!isEditingAi);
+                    }}
+                    className="text-[13px] font-medium text-[#6366F1]"
+                >
+                    {isEditingAi ? 'Cancel' : 'Edit Keys'}
+                </button>
+            </div>
+            
+            {isEditingAi ? (
+                <div className="animate-in fade-in slide-in-from-top-1">
+                    <p className="text-[11px] text-gray-400 mb-2">Enter multiple keys (one per line) for automatic rotation.</p>
+                    <textarea 
+                        value={apiKeysInput}
+                        onChange={(e) => setApiKeysInput(e.target.value)}
+                        rows={4}
+                        className="w-full bg-[#F9FAFB] border border-[#F3F4F6] rounded-[12px] p-[12px] text-[13px] text-[#111827] font-mono outline-none focus:border-[#6366F1] resize-none mb-3"
+                        placeholder="Paste your Gemini keys here..."
+                    />
+                    <PremiumButton fullWidth onClick={saveAiKeys} size="sm">Save Keys</PremiumButton>
+                </div>
+            ) : (
+                <div className="bg-[#F9FAFB] border border-[#F3F4F6] rounded-[12px] p-[16px] flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600">
+                            <Icon name="sparkles" size="sm" />
+                        </div>
+                        <div>
+                            <span className="text-[14px] font-semibold text-[#111827]">{settings.geminiApiKeys?.length || 0} Keys Active</span>
+                            <p className="text-[11px] text-gray-400">Rotation enabled for stability</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+
+        {/* 4. Data Management */}
         <h3 className="text-[13px] font-semibold text-[#9CA3AF] tracking-[0.5px] mt-[28px] mb-[14px]">Data Management</h3>
         <div className="bg-white border border-[#F3F4F6] rounded-[18px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-[20px]">
             <div className="flex justify-between items-center mb-3">
@@ -290,7 +346,7 @@ const SettingsPage: React.FC = () => {
             </div>
         </div>
 
-        {/* 4. Advanced */}
+        {/* 5. Advanced */}
         <h3 className="text-[13px] font-semibold text-[#9CA3AF] tracking-[0.5px] mt-[28px] mb-[14px]">Advanced</h3>
         <div className="bg-white border border-[#F3F4F6] rounded-[18px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-[20px]">
             <div className="flex justify-between items-center mb-3">
@@ -332,7 +388,7 @@ const SettingsPage: React.FC = () => {
             </button>
         </div>
 
-        {/* 5. Danger Zone */}
+        {/* 6. Danger Zone */}
         <h3 className="text-[13px] font-semibold text-[#EF4444] tracking-[0.5px] mt-[28px] mb-[14px]">Danger Zone</h3>
         <div className="bg-[#FEF2F2] border border-[#FEE2E2] rounded-[18px] p-[18px]">
             <button 

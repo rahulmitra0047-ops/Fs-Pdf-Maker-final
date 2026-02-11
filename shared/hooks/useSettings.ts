@@ -8,7 +8,8 @@ const DEFAULT_SETTINGS: AppSettings = {
   theme: 'system', 
   soundEnabled: true,
   vibrationEnabled: true,
-  railwayBaseUrl: 'https://super-duper-spoon-production-b6e8.up.railway.app'
+  railwayBaseUrl: 'https://super-duper-spoon-production-b6e8.up.railway.app',
+  geminiApiKeys: []
 };
 
 export const useSettings = () => {

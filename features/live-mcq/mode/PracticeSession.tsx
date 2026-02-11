@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { mcqSetService, attemptService, mcqStatsService } from '../../../core/storage/services';
 import { MCQSet, MCQ, Attempt } from '../../../types';
@@ -8,12 +8,19 @@ import PremiumButton from '../../../shared/components/PremiumButton';
 import { generateUUID } from '../../../core/storage/idGenerator';
 import { useToast } from '../../../shared/context/ToastContext';
 import CheckmarkIcon from '../../../shared/components/CheckmarkIcon';
+import Icon from '../../../shared/components/Icon';
+import { GoogleGenAI } from "@google/genai";
+import { useSettings } from '../../../shared/hooks/useSettings';
+
+// API Rotation Counter (Static to persist across re-renders in the session)
+let lastApiKeyIndex = 0;
 
 const PracticeSession: React.FC = () => {
   const { setId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const toast = useToast();
+  const { settings } = useSettings();
 
   const [set, setSet] = useState<MCQSet | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,24 +44,25 @@ const PracticeSession: React.FC = () => {
   const [isFinished, setIsFinished] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   
+  // AI State
+  const [aiExplanations, setAiExplanations] = useState<Record<string, string>>({});
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  
   // Custom Session Info
   const customState = location.state as { mcqIds?: string[]; source?: string; sourceName?: string; customMCQs?: MCQ[] } | undefined;
 
   useEffect(() => {
     const initSession = async () => {
         if (customState?.customMCQs && customState.customMCQs.length > 0) {
-             // 1. Direct MCQs passed (e.g. from Random Mix)
              setSessionMCQs(customState.customMCQs);
              setLoading(false);
         } else if (customState?.mcqIds && customState.mcqIds.length > 0) {
-             // 2. MCQ IDs passed (e.g. from Practice All)
              const allSets = await mcqSetService.getAll();
              const allMcqs = allSets.flatMap(s => s.mcqs);
              const filtered = allMcqs.filter(m => customState.mcqIds!.includes(m.id));
              setSessionMCQs(filtered);
              setLoading(false);
         } else if (setId) {
-            // 3. Standard Set Mode
             const s = await mcqSetService.getById(setId);
             if (s) {
                 setSet(s);
@@ -74,11 +82,9 @@ const PracticeSession: React.FC = () => {
 
   const startSession = () => {
       let mcqs = [...sessionMCQs];
-      
       if (options.shuffleQuestions) {
           mcqs = mcqs.sort(() => Math.random() - 0.5);
       }
-      
       setSessionMCQs(mcqs);
       setStartTime(Date.now());
       setCurrentIndex(0);
@@ -87,24 +93,79 @@ const PracticeSession: React.FC = () => {
       setShowSettings(false);
   };
 
+  const handleAiExplain = async () => {
+    const currentMCQ = sessionMCQs[currentIndex];
+    if (aiExplanations[currentMCQ.id]) return;
+
+    setIsAiLoading(true);
+    try {
+      // API Rotation Logic - Try settings first, then process.env
+      const apiKeys = (settings.geminiApiKeys?.length ? settings.geminiApiKeys : (process.env.API_KEY || "").split(',')).map(k => k.trim()).filter(Boolean);
+      
+      if (apiKeys.length === 0) throw new Error("No API Key configured. Please go to Settings.");
+      
+      const currentKey = apiKeys[lastApiKeyIndex % apiKeys.length];
+      lastApiKeyIndex++; // Increment for next call
+
+      const ai = new GoogleGenAI({ apiKey: currentKey });
+      const model = 'gemini-3-pro-preview';
+
+      const prompt = `তুমি একজন বিশেষজ্ঞ শিক্ষক। নিচের MCQ টি অত্যন্ত গভীরভাবে বিশ্লেষণ করো এবং প্রতিটি পয়েন্ট বিস্তারিত বাংলায় ব্যাখ্যা করো।
+      
+      প্রশ্ন: ${currentMCQ.question}
+      অপশনসমূহ:
+      A) ${currentMCQ.optionA}
+      B) ${currentMCQ.optionB}
+      C) ${currentMCQ.optionC}
+      D) ${currentMCQ.optionD}
+      সঠিক উত্তর: ${currentMCQ.answer}
+
+      তোমার ব্যাখ্যাটি নিচের সুন্দর ও সুশৃঙ্খল ফরম্যাটে দাও:
+      
+      ### ✅ কেন সঠিক উত্তরটি ঠিক?
+      (এখানে সঠিক উত্তরের পেছনের মূল কারণ এবং ধারণাটি বিস্তারিতভাবে বুঝিয়ে বলো)
+
+      ### ❌ বাকি অপশনগুলো কেন ভুল?
+      (এখানে অন্য তিনটি অপশন কেন সঠিক নয়, তা আলাদা আলাদা পয়েন্ট আকারে সংক্ষেপে ব্যাখ্যা করো)
+      * **অপশন [বাকি ১]:** ...
+      * **অপশন [বাকি ২]:** ...
+      * **অপশন [বাকি ৩]:** ...
+
+      ### 💡 প্রো-টিপ (Pro-Tip)
+      (এই বিষয়টির ওপর ভবিষ্যতে মনে রাখার মতো একটি ছোট কৌশল বা অতিরিক্ত তথ্য দাও)
+
+      ভাষা: উত্তরটি সম্পূর্ণ পরিষ্কার এবং প্রাঞ্জল বাংলায় হবে।
+      ফরম্যাটিং: সুন্দর পয়েন্ট এবং বোল্ড টেক্সট ব্যবহার করবে।`;
+
+      const response = await ai.models.generateContent({
+        model: model,
+        contents: prompt,
+      });
+
+      if (response.text) {
+        setAiExplanations(prev => ({ ...prev, [currentMCQ.id]: response.text || '' }));
+      } else {
+        throw new Error("Empty response from AI");
+      }
+    } catch (e: any) {
+      console.error("AI Error:", e);
+      toast.error(e.message || "AI ব্যাখ্যা তৈরি করতে ব্যর্থ হয়েছে। পরে চেষ্টা করুন।");
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
   const handleAnswer = (optionKey: string) => {
-      // If already answered, ignore
       const currentMCQ = sessionMCQs[currentIndex];
       if (answers[currentMCQ.id]) return;
 
       const isCorrect = currentMCQ.answer === optionKey;
-      
       setAnswers(prev => ({ ...prev, [currentMCQ.id]: optionKey }));
       setResults(prev => ({ ...prev, [currentMCQ.id]: isCorrect }));
 
-      // Feedback
-      if (isCorrect) {
-          if (options.soundEnabled) { /* Play ding */ }
-      } else {
-          if (options.vibrationEnabled && navigator.vibrate) navigator.vibrate(200);
+      if (!isCorrect && options.vibrationEnabled && navigator.vibrate) {
+          navigator.vibrate(200);
       }
-      
-      // Update Stats (fire and forget)
       updateStats(currentMCQ.id, isCorrect);
   };
   
@@ -144,9 +205,7 @@ const PracticeSession: React.FC = () => {
   const finishSession = async () => {
       setIsFinished(true);
       toast.info("Saving results...");
-      
       try {
-          // Calculate Stats
           const total = sessionMCQs.length;
           const correctCount = Object.values(results).filter(Boolean).length;
           const score = correctCount;
@@ -155,7 +214,7 @@ const PracticeSession: React.FC = () => {
 
           const attempt: Attempt = {
               id: generateUUID(),
-              setId: setId, // undefined if custom
+              setId: setId,
               mode: 'practice',
               score,
               total,
@@ -165,97 +224,71 @@ const PracticeSession: React.FC = () => {
               completedAt: Date.now()
           };
 
-          // Await creation to ensure data is in DB before navigation
           await attemptService.create(attempt);
-          
           navigate(`/live-mcq/result/${attempt.id}`, { replace: true });
       } catch (error) {
-          console.error("Failed to save attempt", error);
-          toast.error("Failed to save result. Please try again.");
+          toast.error("Failed to save result.");
           setIsFinished(false);
       }
   };
 
   const handleExit = () => {
-      if (setId) {
-          // Explicit navigation for sets is safe because structure is /set/:id -> /practice/:id
-          navigate(`/live-mcq/set/${setId}`, { replace: true });
-      } else {
-          // For custom sessions (Topic/Subtopic/Exam Center), we MUST use browser history back
-          // because we don't have a stable "parent" URL to reconstruct. 
-          // Since these sessions require `location.state` to exist, the user must have navigated 
-          // here from within the app, so the history stack is guaranteed to be valid.
-          navigate(-1);
-      }
+      if (setId) navigate(`/live-mcq/set/${setId}`, { replace: true });
+      else navigate(-1);
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white"><div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div></div>;
 
   const currentMCQ = sessionMCQs[currentIndex];
-  
   if (!currentMCQ) return <div className="p-10 text-center">No questions available. <button onClick={handleExit} className="text-blue-500">Go Back</button></div>;
 
   const hasAnswered = !!answers[currentMCQ?.id];
   const selectedOption = answers[currentMCQ?.id];
+  const aiExplanation = aiExplanations[currentMCQ?.id];
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
         {/* Header */}
         <div className="h-[60px] bg-white border-b border-gray-100 flex items-center justify-between px-5 sticky top-0 z-20">
-            <button 
-                onClick={() => setShowExitConfirm(true)} 
-                className="text-[#6B7280] p-2 -ml-2 hover:bg-gray-50 rounded-full transition-colors active:scale-95"
-            >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 6L6 18M6 6l12 12"></path>
-                </svg>
+            <button onClick={() => setShowExitConfirm(true)} className="text-[#6B7280] p-2 -ml-2 hover:bg-gray-50 rounded-full transition-colors active:scale-95">
+                <Icon name="x" size="md" />
             </button>
             <div className="font-semibold text-[16px] text-[#111827]">
                 Practice <span className="text-[#6366F1]">{currentIndex + 1}</span><span className="text-[#9CA3AF]">/{sessionMCQs.length}</span>
             </div>
-            <div className="w-[22px]"></div> {/* Spacer */}
+            <div className="w-[22px]"></div>
         </div>
 
-        {/* Custom Progress Bar */}
+        {/* Progress Bar */}
         <div className="h-[3px] bg-[#F3F4F6] w-full">
-            <div 
-                className="h-full bg-[#6366F1] rounded-r-[4px] transition-all duration-300 ease-out" 
-                style={{ width: `${((currentIndex + 1) / sessionMCQs.length) * 100}%` }}
-            ></div>
+            <div className="h-full bg-[#6366F1] rounded-r-[4px] transition-all duration-300 ease-out" style={{ width: `${((currentIndex + 1) / sessionMCQs.length) * 100}%` }}></div>
         </div>
 
         {/* Question Area */}
         <div className="flex-1 p-5 pb-32 overflow-y-auto">
             {currentMCQ && (
                 <div className="max-w-xl mx-auto animate-in fade-in slide-in-from-bottom-2 duration-300" key={currentMCQ.id}>
-                    {/* Question Card */}
                     <div className="bg-[#F9FAFB] rounded-[18px] p-[22px] mb-6">
                         <h2 className="text-[17px] font-semibold text-[#111827] leading-[1.6]">
                             {currentMCQ.question}
                         </h2>
                     </div>
 
-                    {/* Options */}
                     <div className="flex flex-col gap-[10px]">
                         {['A', 'B', 'C', 'D'].map((opt) => {
                             const text = currentMCQ[`option${opt}` as keyof MCQ] as string;
-                            
-                            // Visual States
                             let containerClass = "bg-white border-[1.5px] border-[#F3F4F6]";
                             let circleClass = "bg-[#F3F4F6] text-[#6B7280]";
                             let textClass = "text-[#374151]";
 
                             if (hasAnswered) {
                                 if (opt === currentMCQ.answer) {
-                                    // Correct
                                     containerClass = "bg-[#ECFDF5] border-[#059669]";
                                     circleClass = "bg-[#059669] text-white";
                                 } else if (opt === selectedOption) {
-                                    // Wrong Selection
                                     containerClass = "bg-[#FEF2F2] border-[#EF4444]";
                                     circleClass = "bg-[#EF4444] text-white";
                                 } else {
-                                    // Not selected, not answer
                                     containerClass = "bg-white border-[#F3F4F6] opacity-60";
                                 }
                             }
@@ -265,40 +298,68 @@ const PracticeSession: React.FC = () => {
                                     key={opt}
                                     onClick={() => handleAnswer(opt)}
                                     disabled={hasAnswered}
-                                    className={`
-                                        w-full rounded-[16px] p-[16px] px-[18px] 
-                                        flex items-center text-left
-                                        transition-all duration-150 ease-out
-                                        ${containerClass}
-                                        ${!hasAnswered ? 'active:scale-[0.98]' : ''}
-                                    `}
+                                    className={`w-full rounded-[16px] p-[16px] px-[18px] flex items-center text-left transition-all duration-150 ease-out ${containerClass} ${!hasAnswered ? 'active:scale-[0.98]' : ''}`}
                                 >
                                     <div className={`w-[32px] h-[32px] rounded-full flex items-center justify-center text-[14px] font-semibold flex-shrink-0 ${circleClass}`}>
-                                        {hasAnswered && opt === currentMCQ.answer ? (
-                                            <CheckmarkIcon size={16} color="white" className="ml-0" />
-                                        ) : hasAnswered && opt === selectedOption ? (
-                                            <span className="text-[14px]">✕</span>
-                                        ) : (
-                                            opt
-                                        )}
+                                        {hasAnswered && opt === currentMCQ.answer ? <CheckmarkIcon size={16} color="white" className="ml-0" /> : hasAnswered && opt === selectedOption ? <span className="text-[14px]">✕</span> : opt}
                                     </div>
-                                    <span className={`text-[16px] font-normal ml-[14px] leading-snug ${textClass}`}>
-                                        {text}
-                                    </span>
+                                    <span className={`text-[16px] font-normal ml-[14px] leading-snug ${textClass}`}>{text}</span>
                                 </button>
                             );
                         })}
                     </div>
 
-                    {/* Explanation */}
-                    {hasAnswered && options.showExplanation && currentMCQ.explanation && (
-                        <div className="mt-6 bg-blue-50 border border-blue-100 p-5 rounded-[18px] animate-in fade-in slide-in-from-top-2">
-                            <div className="flex items-center gap-2 mb-2 text-blue-700 font-bold text-xs uppercase tracking-wide">
-                                <span>💡</span> Explanation
+                    {/* Standard Explanation & AI Trigger */}
+                    {hasAnswered && (
+                        <div className="mt-8 space-y-4">
+                            {/* AI Action Row */}
+                            <div className="flex items-center justify-between px-1">
+                                <span className="text-[13px] font-bold text-[#9CA3AF] uppercase tracking-wider">Solution</span>
+                                {!aiExplanation && (
+                                    <button 
+                                        onClick={handleAiExplain}
+                                        disabled={isAiLoading}
+                                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full text-xs font-bold shadow-lg shadow-indigo-200 active:scale-95 transition-all disabled:opacity-50"
+                                    >
+                                        <Icon name="sparkles" size="sm" className={isAiLoading ? 'animate-spin' : ''} />
+                                        {isAiLoading ? 'Analyzing...' : 'Explain with AI'}
+                                    </button>
+                                )}
                             </div>
-                            <p className="text-[15px] text-blue-900 leading-relaxed whitespace-pre-wrap">
-                                {currentMCQ.explanation}
-                            </p>
+
+                            {/* Standard Explanation */}
+                            {options.showExplanation && currentMCQ.explanation && (
+                                <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-5 rounded-[20px]">
+                                    <p className="text-[15px] text-[#475569] leading-relaxed italic">{currentMCQ.explanation}</p>
+                                </div>
+                            )}
+
+                            {/* AI Premium Explanation Box */}
+                            {(isAiLoading || aiExplanation) && (
+                                <div className={`relative overflow-hidden rounded-[24px] p-[2px] transition-all duration-500 animate-in fade-in slide-in-from-top-4`}>
+                                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 opacity-20 animate-pulse"></div>
+                                    <div className="relative bg-white/70 backdrop-blur-xl border border-white/50 rounded-[22px] p-6 shadow-xl">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
+                                                <Icon name="sparkles" size="sm" />
+                                            </div>
+                                            <h4 className="font-bold text-[16px] text-gray-900">Detailed AI Analysis</h4>
+                                        </div>
+                                        
+                                        {isAiLoading ? (
+                                            <div className="space-y-3">
+                                                <div className="h-4 bg-gray-200/50 rounded w-3/4 animate-pulse"></div>
+                                                <div className="h-4 bg-gray-200/50 rounded w-full animate-pulse"></div>
+                                                <div className="h-4 bg-gray-200/50 rounded w-5/6 animate-pulse"></div>
+                                            </div>
+                                        ) : (
+                                            <div className="text-[15px] text-gray-700 leading-relaxed space-y-4 whitespace-pre-wrap ai-content">
+                                                {aiExplanation}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
@@ -306,7 +367,7 @@ const PracticeSession: React.FC = () => {
         </div>
 
         {/* Footer Controls */}
-        <div className="fixed bottom-0 left-0 right-0 px-5 py-4 bg-white z-20">
+        <div className="fixed bottom-0 left-0 right-0 px-5 py-4 bg-white z-20 border-t border-gray-50">
             <div className="max-w-xl mx-auto">
                 {hasAnswered ? (
                     <PremiumButton fullWidth onClick={nextQuestion} disabled={isFinished} size="lg">
@@ -320,83 +381,40 @@ const PracticeSession: React.FC = () => {
             </div>
         </div>
 
-        {/* Settings Modal (Custom Design) */}
+        {/* Settings Modal */}
         {showSettings && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                {/* Backdrop */}
-                <div 
-                    className="absolute inset-0 bg-black/40 backdrop-blur-[4px] transition-opacity"
-                    onClick={() => setShowSettings(false)} 
-                />
-                
-                {/* Modal Container */}
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-[4px] transition-opacity" onClick={() => setShowSettings(false)} />
                 <div className="relative w-full max-w-[360px] bg-white rounded-[24px] p-[28px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200">
-                    
-                    {/* Header */}
                     <div className="flex justify-between items-center mb-[24px]">
                         <h3 className="text-[20px] font-bold text-[#111827]">Practice Settings</h3>
-                        <button 
-                            onClick={() => setShowSettings(false)}
-                            className="text-[#9CA3AF] hover:text-[#6B7280] transition-colors p-1"
-                        >
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M18 6L6 18M6 6l12 12"></path>
-                            </svg>
-                        </button>
+                        <button onClick={() => setShowSettings(false)} className="text-[#9CA3AF] hover:text-[#6B7280] p-1"><Icon name="x" size="md" /></button>
                     </div>
-
-                    {/* Options */}
                     <div className="space-y-[10px]">
-                        {/* Shuffle Row */}
                         <label className="flex items-center justify-between p-[16px] bg-[#F9FAFB] border border-[#F3F4F6] rounded-[14px] cursor-pointer group select-none transition-colors">
                             <span className="text-[15px] font-medium text-[#374151]">Shuffle Questions</span>
                             <div className="relative flex items-center">
-                                <input 
-                                    type="checkbox" 
-                                    checked={options.shuffleQuestions} 
-                                    onChange={e => setOptions({...options, shuffleQuestions: e.target.checked})}
-                                    className="peer sr-only" 
-                                />
+                                <input type="checkbox" checked={options.shuffleQuestions} onChange={e => setOptions({...options, shuffleQuestions: e.target.checked})} className="peer sr-only" />
                                 <div className="w-[22px] h-[22px] bg-white border-2 border-[#D1D5DB] rounded-[6px] transition-all peer-checked:bg-[#6366F1] peer-checked:border-[#6366F1] flex items-center justify-center">
-                                    <svg className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
+                                    <svg className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                 </div>
                             </div>
                         </label>
-
-                        {/* Explanation Row */}
                         <label className="flex items-center justify-between p-[16px] bg-[#F9FAFB] border border-[#F3F4F6] rounded-[14px] cursor-pointer group select-none transition-colors">
-                            <span className="text-[15px] font-medium text-[#374151]">Show Explanation</span>
+                            <span className="text-[15px] font-medium text-[#374151]">Show Solution</span>
                             <div className="relative flex items-center">
-                                <input 
-                                    type="checkbox" 
-                                    checked={options.showExplanation} 
-                                    onChange={e => setOptions({...options, showExplanation: e.target.checked})}
-                                    className="peer sr-only" 
-                                />
+                                <input type="checkbox" checked={options.showExplanation} onChange={e => setOptions({...options, showExplanation: e.target.checked})} className="peer sr-only" />
                                 <div className="w-[22px] h-[22px] bg-white border-2 border-[#D1D5DB] rounded-[6px] transition-all peer-checked:bg-[#6366F1] peer-checked:border-[#6366F1] flex items-center justify-center">
-                                    <svg className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
+                                    <svg className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                 </div>
                             </div>
                         </label>
                     </div>
-
-                    {/* Start Button */}
-                    <button 
-                        onClick={startSession}
-                        className="w-full mt-[20px] bg-[#6366F1] text-white font-semibold text-[16px] py-[16px] rounded-[16px] active:scale-[0.98] transition-transform shadow-[0_4px_12px_rgba(99,102,241,0.2)] hover:bg-[#5a5dd9]"
-                    >
-                        Start Practice
-                    </button>
-
+                    <button onClick={startSession} className="w-full mt-[20px] bg-[#6366F1] text-white font-semibold text-[16px] py-[16px] rounded-[16px] active:scale-[0.98] transition-transform shadow-[0_4px_12px_rgba(99,102,241,0.2)]">Start Practice</button>
                 </div>
             </div>
         )}
 
-        {/* Exit Confirmation (Standard Modal) */}
         <PremiumModal isOpen={showExitConfirm} onClose={() => setShowExitConfirm(false)} title="Exit Practice?" size="sm">
             <div className="space-y-4">
                 <p className="text-sm text-gray-500">Your progress will not be saved.</p>
@@ -406,6 +424,15 @@ const PracticeSession: React.FC = () => {
                 </div>
             </div>
         </PremiumModal>
+        
+        <style>{`
+            .ai-content h3 { font-size: 1.1rem; font-weight: 800; color: #1E1B4B; margin-top: 1.5rem; margin-bottom: 0.75rem; border-left: 4px solid #6366F1; padding-left: 0.75rem; }
+            .ai-content b, .ai-content strong { color: #4338CA; font-weight: 700; }
+            .ai-content ul { list-style-type: none; padding-left: 0; margin-top: 0.5rem; }
+            .ai-content li { margin-bottom: 10px; position: relative; padding-left: 22px; line-height: 1.5; }
+            .ai-content li::before { content: '•'; position: absolute; left: 0; color: #818CF8; font-weight: bold; font-size: 1.2rem; top: -2px; }
+            .ai-content p { margin-bottom: 1rem; }
+        `}</style>
     </div>
   );
 };
