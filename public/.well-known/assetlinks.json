@@ -3,9 +3,9 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "app.fspdfmaker.twa",
+      "package_name": "app.vercel.fspdfmaker.twa",
       "sha256_cert_fingerprints": [
-        "PASTE_YOUR_REAL_SHA256_FINGERPRINT_HERE"
+        "BB:71:A8:E9:0B:5C:7F:05:A5:57:34:DC:B8:C1:AE:C4:90:F3:61:66:B9:18:73:9C:48:A9:E5:1B:2B:FB:48:9F"
       ]
     }
   }
