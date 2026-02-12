@@ -1,0 +1,50 @@
+
+/* Global Styles & Variables */
+/* Note: Tailwind directives removed as we are using CDN for runtime */
+
+:root {
+  --color-primary: #6366F1;
+  --color-bg: #FAFAFA;
+  --color-surface: #FFFFFF;
+  --color-border: #E5E7EB;
+  --color-text: #111827;
+  --color-text-secondary: #6B7280;
+  --radius-xl: 20px;
+  --radius-lg: 12px;
+  --radius-md: 8px;
+  --color-success: #10B981;
+  --color-error: #EF4444;
+  --color-warning: #F59E0B;
+  --color-divider: #E5E7EB;
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: "Inter", "Noto Sans Bengali", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+.page-shell {
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  padding-top: 60px;
+  padding-bottom: 40px;
+}
+
+.content-container {
+  max-width: 640px; 
+  margin: 0 auto;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Animation Utilities Helper for Tailwind Arbitrary Matches */
+.animate-in { animation-duration: 0.3s; animation-fill-mode: forwards; }

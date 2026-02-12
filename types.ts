@@ -12,6 +12,7 @@ export interface MCQ {
   explanation?: string;
   source?: string;
   fingerprint?: string; // For deduplication
+  createdAt?: number;
 }
 
 export interface MergedSource {

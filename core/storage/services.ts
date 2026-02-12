@@ -142,6 +142,49 @@ class FirestoreService<T extends { id: string }> {
 class MCQSetFirestoreService extends FirestoreService<MCQSet> {
   constructor() { super('live_sets'); }
 
+  // Optimized to fetch all MCQs in one batch and map them, reducing N+1 queries
+  async getAll(): Promise<MCQSet[]> {
+    try {
+      // 1. Fetch Sets
+      const setsPromise = super.getAll();
+      
+      // 2. Fetch All MCQs (Filtered by isDeleted if possible, or client side)
+      // Note: fetching all MCQs might be heavy if dataset is huge (>5k), 
+      // but is significantly faster than 50+ sequential requests for lists.
+      const mcqsQ = query(collection(dbFirestore, 'live_mcqs'));
+      const mcqsPromise = getDocs(mcqsQ);
+
+      const [sets, mcqsSnap] = await Promise.all([setsPromise, mcqsPromise]);
+
+      if (sets.length === 0) return [];
+
+      // 3. Map MCQs to Sets
+      const mcqsBySetId: Record<string, MCQ[]> = {};
+      mcqsSnap.docs.forEach(doc => {
+        const data = doc.data() as any;
+        if (data.isDeleted) return;
+        
+        const setId = data.setId;
+        if (setId) {
+          if (!mcqsBySetId[setId]) mcqsBySetId[setId] = [];
+          mcqsBySetId[setId].push(data as MCQ);
+        }
+      });
+
+      // 4. Attach MCQs
+      sets.forEach(s => {
+        s.mcqs = mcqsBySetId[s.id] || [];
+        // Sort by creation time to ensure consistent order
+        s.mcqs.sort((a: any, b: any) => (a.createdAt || 0) - (b.createdAt || 0));
+      });
+
+      return sets;
+    } catch (e) {
+      console.error("Error in getAll sets", e);
+      return [];
+    }
+  }
+
   public async fetchMCQs(setId: string): Promise<MCQ[]> {
     try {
       const q = query(collection(dbFirestore, 'live_mcqs'), where('setId', '==', setId));
@@ -155,16 +198,6 @@ class MCQSetFirestoreService extends FirestoreService<MCQSet> {
     }
   }
 
-  async getAll(): Promise<MCQSet[]> {
-    const sets = await super.getAll(); // Already filters isDeleted
-    if (sets.length === 0) return [];
-    
-    await Promise.all(sets.map(async s => {
-      s.mcqs = await this.fetchMCQs(s.id);
-    }));
-    return sets;
-  }
-
   async getById(id: string): Promise<MCQSet | undefined> {
     const set = await super.getById(id);
     if (!set) return undefined;
@@ -175,6 +208,9 @@ class MCQSetFirestoreService extends FirestoreService<MCQSet> {
   async where(field: string, value: any): Promise<MCQSet[]> {
     const sets = await super.where(field, value);
     if (sets.length === 0) return [];
+    
+    // For 'where' queries, usually returns a small subset, so fetching MCQs for each is acceptable,
+    // but parallelizing it is better than sequential await.
     await Promise.all(sets.map(async s => {
       s.mcqs = await this.fetchMCQs(s.id);
     }));
@@ -286,8 +322,6 @@ class CachedFirestoreService<T extends { id: string }> extends FirestoreService<
               const fresh = await super.getById(id);
               if (isSubscribed && fresh) {
                   const currentList = (await getFromCache<T>(this.cacheKey)) || [];
-                  // If fresh is valid, update/add. If undefined (deleted/not found), handle remove?
-                  // FirestoreService.getById returns undefined if deleted.
                   const newList = currentList.some((i: any) => i.id === fresh.id) 
                       ? currentList.map((i: any) => i.id === fresh.id ? fresh : i)
                       : [...currentList, fresh];
@@ -295,7 +329,6 @@ class CachedFirestoreService<T extends { id: string }> extends FirestoreService<
                   await saveToCache(this.cacheKey, newList.filter((i: any) => !i.isDeleted));
                   callback(fresh, 'network');
               } else if (isSubscribed && !fresh && cachedItem) {
-                  // If not found in network but in cache, likely deleted or lost permissions
                   callback(null, 'network');
               }
           } catch(e) {
@@ -327,7 +360,6 @@ class CachedFirestoreService<T extends { id: string }> extends FirestoreService<
   async update(id: string, data: Partial<T>): Promise<void> {
     const current = (await getFromCache<T>(this.cacheKey)) || [];
     const optimistic = current.map((item: any) => item.id === id ? { ...item, ...data } : item);
-    // If soft deleted, filter out immediately from cache view
     const filtered = (data as any).isDeleted ? optimistic.filter((i: any) => i.id !== id) : optimistic;
     
     await saveToCache(this.cacheKey, filtered);
@@ -363,33 +395,63 @@ class CachedMCQSetService extends MCQSetFirestoreService {
         const snap = await getDocs(q);
         const networkSets = snap.docs
             .map(d => d.data() as MCQSet)
-            .filter((s: any) => !s.isDeleted); // Filter soft deletes
+            .filter((s: any) => !s.isDeleted);
 
         // 3. Delta Sync Logic
+        // Identify which sets are stale or missing MCQs
+        const idsToFetch = new Set<string>();
         const mergedSets: MCQSet[] = [];
-        const fetchPromises: Promise<void>[] = [];
 
         for (const netSet of networkSets) {
             const cachedSet = cachedSets.find(s => s.id === netSet.id);
-            
             const isStale = !cachedSet || (netSet.updatedAt > (cachedSet.updatedAt || 0));
             const hasMCQs = cachedSet && cachedSet.mcqs && cachedSet.mcqs.length > 0;
 
             if (isStale || !hasMCQs) {
-                fetchPromises.push(
-                    this.fetchMCQs(netSet.id).then(mcqs => {
-                        netSet.mcqs = mcqs;
-                    })
-                );
-                mergedSets.push(netSet); 
+                idsToFetch.add(netSet.id);
+                mergedSets.push(netSet); // Will be populated later
             } else {
                 netSet.mcqs = cachedSet!.mcqs;
                 mergedSets.push(netSet);
             }
         }
 
-        if (fetchPromises.length > 0) {
-            await Promise.all(fetchPromises);
+        // 4. Batch Fetch needed MCQs
+        if (idsToFetch.size > 0) {
+            // Optimization: If many sets need update (e.g. initial load), fetch ALL MCQs
+            // If few sets (delta), fetch individually or using 'in' query.
+            // Using threshold of 5 for switch.
+            
+            let fetchedMCQs: MCQ[] = [];
+            
+            if (idsToFetch.size > 5) {
+                // Fetch all active MCQs
+                const allMcqsQ = query(collection(dbFirestore, 'live_mcqs'));
+                const allSnap = await getDocs(allMcqsQ);
+                fetchedMCQs = allSnap.docs.map(d => d.data() as MCQ).filter((m: any) => !m.isDeleted);
+            } else {
+                // Fetch individually (Promise.all)
+                const fetchPromises = Array.from(idsToFetch).map(id => this.fetchMCQs(id));
+                const results = await Promise.all(fetchPromises);
+                fetchedMCQs = results.flat();
+            }
+
+            // Map back to sets
+            const mcqsBySetId: Record<string, MCQ[]> = {};
+            fetchedMCQs.forEach(m => {
+                const sid = (m as any).setId;
+                if(sid) {
+                    if(!mcqsBySetId[sid]) mcqsBySetId[sid] = [];
+                    mcqsBySetId[sid].push(m);
+                }
+            });
+
+            mergedSets.forEach(s => {
+                if (idsToFetch.has(s.id)) {
+                    s.mcqs = mcqsBySetId[s.id] || [];
+                    s.mcqs.sort((a: any, b: any) => (a.createdAt || 0) - (b.createdAt || 0));
+                }
+            });
         }
 
         if (isSubscribed) {
@@ -438,6 +500,7 @@ class CachedMCQSetService extends MCQSetFirestoreService {
   async getAll(): Promise<MCQSet[]> {
     const cached = await getFromCache<MCQSet>(this.cacheKey);
     if (cached) return cached.filter((i: any) => !i.isDeleted);
+    // Fallback to optimized N+1 safe super.getAll()
     const fresh = await super.getAll();
     await saveToCache(this.cacheKey, fresh);
     return fresh;

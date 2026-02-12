@@ -1,9 +1,7 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
-import { Document, MCQ, DocumentSettings, PageSetting, FooterSettings, CoverPageSettings, TableOfContentsSettings, AnswerKeySettings, WatermarkSettings } from '../../types';
-import { documentService, mcqSetService, topicService, subtopicService, logAction } from '../../core/storage/services';
-import { generateSerialId } from '../../core/storage/idGenerator';
+import { useNavigate } from 'react-router-dom';
+import { MCQ, PageSetting } from '../../types';
+import { logAction } from '../../core/storage/services';
 import { exportToPDF, downloadBlob } from '../../core/export/exportService';
 import TopBar from '../../shared/components/TopBar';
 import PremiumButton from '../../shared/components/PremiumButton';
@@ -19,53 +17,7 @@ import { calculatePages } from './utils/bookUtils';
 import MCQBookPage from './components/MCQBookPage';
 import { performShuffle, ShuffleType } from './utils/shuffleUtils';
 import ShuffleModal from './components/ShuffleModal';
-
-const DEFAULT_WATERMARK: WatermarkSettings = {
-    enabled: false,
-    text: '',
-    style: 'diagonal',
-    position: 'center',
-    fontSize: 'large',
-    opacity: 15,
-    color: '#9ca3af'
-};
-
-const DEFAULT_SETTINGS: DocumentSettings = {
-  paperSize: 'A4',
-  perColumn: 5,
-  density: 'dense',
-  fontStep: 20,
-  optionStyle: 'english',
-  fontStyle: 'classic',
-  showExplanations: false,
-  theme: 'classic',
-  borderStyle: 'solid',
-  lineSpacing: 'normal',
-  margins: { preset: 'normal', top: 8, bottom: 8, left: 8, right: 8 },
-  showAnswerInMCQ: true,
-  watermark: DEFAULT_WATERMARK,
-  pageNumberStyle: 'english',
-  showSource: true,
-};
-
-const DEFAULT_FOOTER: FooterSettings = {
-    authorName: '',
-    bookName: '',
-    showFooter: true
-};
-
-const DEFAULT_COVER: CoverPageSettings = {
-    enabled: false, mainTitle: '', subtitle: '', chapter: '', author: '', publisher: '', year: new Date().getFullYear().toString(),
-    alignment: 'center', titleColor: '#000000', layoutStyle: 'classic'
-};
-
-const DEFAULT_TOC: TableOfContentsSettings = {
-    enabled: false, title: 'Contents', numberStyle: 'english', lineStyle: 'dotted', excludeSections: []
-};
-
-const DEFAULT_ANSWER_KEY: AnswerKeySettings = {
-    enabled: false, title: 'Answer Key', columns: 5, groupByTitle: true
-};
+import { useCreatePdfState } from './hooks/useCreatePdfState';
 
 const LoadingOverlay = ({ status, onCancel }: { status: string, onCancel: () => void }) => (
     <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm text-[#111827] animate-in fade-in duration-200">
@@ -84,50 +36,26 @@ const LoadingOverlay = ({ status, onCancel }: { status: string, onCancel: () => 
 );
 
 const CreatePdfPage: React.FC = () => {
-  const { docId } = useParams();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const location = useLocation();
   const toast = useToast();
   
-  // State
-  const [document, setDocument] = useState<Document>({
-      id: '',
-      title: 'New Document',
-      mcqs: [],
-      settings: DEFAULT_SETTINGS,
-      footer: DEFAULT_FOOTER,
-      coverPage: DEFAULT_COVER,
-      toc: DEFAULT_TOC,
-      answerKey: DEFAULT_ANSWER_KEY,
-      pageSettings: [],
-      createdAt: Date.now(),
-      updatedAt: Date.now()
-  });
-  
-  const [activeTab, setActiveTab] = useState<'settings' | 'editor' | 'preview'>('editor');
-  const [settingsSubTab, setSettingsSubTab] = useState('page'); // Persist sub-tab state
-  
-  const [isDirty, setIsDirty] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Export State
-  const [isExporting, setIsExporting] = useState(false);
-  const [exportStatus, setExportStatus] = useState('');
-  
-  // Modals & Overlays
+  const {
+    document, updateDocumentState, saveDocument, isLoading, isDirty, saveStatus,
+    activeTab, setActiveTab, settingsSubTab, setSettingsSubTab,
+    isExporting, setIsExporting, exportStatus, setExportStatus,
+    showDraftRestore, setShowDraftRestore, pendingDraft, setPendingDraft, setIsDirty,
+    location, draftKey
+  } = useCreatePdfState();
+
+  // Local UI State
   const [showBulkImport, setShowBulkImport] = useState(false);
-  const [importedText, setImportedText] = useState(''); // New state for share target
+  const [importedText, setImportedText] = useState('');
   const [showSingleMCQ, setShowSingleMCQ] = useState(false);
   const [showShuffle, setShowShuffle] = useState(false);
   const [showBackConfirm, setShowBackConfirm] = useState(false);
   const [showTitleEdit, setShowTitleEdit] = useState(false);
   const [titleEditValue, setTitleEditValue] = useState('');
-  const [showDraftRestore, setShowDraftRestore] = useState(false);
-  const [pendingDraft, setPendingDraft] = useState<Document | null>(null);
   const [isFabOpen, setIsFabOpen] = useState(false);
-  
   const [editingMCQ, setEditingMCQ] = useState<MCQ | null>(null);
 
   // Preview State
@@ -135,73 +63,21 @@ const CreatePdfPage: React.FC = () => {
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
-  // Auto-Save Logic
-  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const loadedExportRef = useRef<string | null>(null);
-
-  // Draft Key
-  const draftKey = docId ? `draft_doc_${docId}` : 'draft_new_doc';
-
-  // Check for Share Capability
   const canShare = typeof navigator !== 'undefined' && !!navigator.share && !!navigator.canShare;
 
-  // Handle Share Target Data
+  // Handle Share Target
   useEffect(() => {
       const state = location.state as { importedText?: string };
       if (state?.importedText) {
           setImportedText(state.importedText);
           setShowBulkImport(true);
-          // Clear state to prevent re-opening on reload
           window.history.replaceState({}, document.title);
       }
-  }, [location]);
-
-  // Load Draft Check
-  useEffect(() => {
-      const checkDraft = async () => {
-          const savedDraft = localStorage.getItem(draftKey);
-          if (savedDraft) {
-              try {
-                  const draftDoc = JSON.parse(savedDraft) as Document;
-                  if (docId) {
-                      const dbDoc = await documentService.getById(docId);
-                      if (dbDoc && draftDoc.updatedAt > dbDoc.updatedAt) {
-                          setPendingDraft(draftDoc);
-                          setShowDraftRestore(true);
-                      }
-                  } else {
-                      setPendingDraft(draftDoc);
-                      setShowDraftRestore(true);
-                  }
-              } catch (e) {
-                  localStorage.removeItem(draftKey);
-              }
-          }
-      };
-      setTimeout(checkDraft, 500);
-  }, [docId, draftKey]);
-
-  // Save Draft Effect
-  useEffect(() => {
-      if (isDirty) {
-          setSaveStatus('unsaved');
-          if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
-          
-          autoSaveTimerRef.current = setTimeout(async () => {
-              setSaveStatus('saving');
-              localStorage.setItem(draftKey, JSON.stringify({ ...document, updatedAt: Date.now() }));
-              setSaveStatus('saved');
-          }, 2000); 
-      }
-      return () => {
-          if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
-      };
-  }, [document, isDirty, draftKey]);
+  }, [location, document.title]);
 
   const restoreDraft = () => {
       if (pendingDraft) {
-          setDocument(pendingDraft);
-          setIsDirty(true);
+          updateDocumentState(pendingDraft);
           toast.success("Draft restored");
           logAction('restore_draft', 'document', pendingDraft.id || 'new');
       }
@@ -214,10 +90,8 @@ const CreatePdfPage: React.FC = () => {
       toast.info("Draft discarded");
   };
 
-  // Pass mergedFrom to support mixed layouts
   const pageLayout = calculatePages(document.mcqs, document.settings, document.mergedFrom);
 
-  // Calculate Scale for Preview
   useEffect(() => {
     const calculateScale = () => {
       if (activeTab === 'preview' && previewContainerRef.current) {
@@ -234,145 +108,6 @@ const CreatePdfPage: React.FC = () => {
     return () => window.removeEventListener('resize', calculateScale);
   }, [activeTab, document.settings.paperSize]);
 
-  // Load Document
-  useEffect(() => {
-    const loadDoc = async () => {
-      const mode = searchParams.get('mode');
-      const source = searchParams.get('source');
-      const sourceId = searchParams.get('sourceId');
-      
-      if (mode === 'export' && sourceId) {
-          if (loadedExportRef.current === sourceId) { setIsLoading(false); return; }
-          loadedExportRef.current = sourceId;
-          try {
-              let mcqs: MCQ[] = [];
-              let docTitle = "Exported Document";
-              let sections: {title: string, startIndex: number}[] = [];
-
-              if (source === 'set') {
-                  const set = await mcqSetService.getById(sourceId);
-                  if (set) {
-                      docTitle = set.name;
-                      mcqs = set.mcqs;
-                      sections.push({ title: set.name, startIndex: 0 });
-                  }
-              } else if (source === 'subtopic') {
-                  const subtopic = await subtopicService.getById(sourceId);
-                  if (subtopic) {
-                      docTitle = subtopic.name;
-                      const sets = await mcqSetService.where('subtopicId', sourceId);
-                      sets.sort((a,b) => b.updatedAt - a.updatedAt);
-                      let currentIndex = 0;
-                      sets.forEach(s => {
-                          if (s.mcqs.length > 0) {
-                              sections.push({ title: s.name, startIndex: currentIndex });
-                              mcqs.push(...s.mcqs);
-                              currentIndex += s.mcqs.length;
-                          }
-                      });
-                  }
-              } else if (source === 'topic') {
-                  const topic = await topicService.getById(sourceId);
-                  if (topic) {
-                      docTitle = topic.name;
-                      const allSubtopics = await subtopicService.where('topicId', sourceId);
-                      const subtopicIds = allSubtopics.map(s => s.id);
-                      const allSets = await mcqSetService.getAll();
-                      const relevantSets = allSets.filter(s => subtopicIds.includes(s.subtopicId));
-                      relevantSets.sort((a, b) => b.updatedAt - a.updatedAt);
-                      let currentIndex = 0;
-                      relevantSets.forEach(s => {
-                          if (s.mcqs.length > 0) {
-                              const subName = allSubtopics.find(sub => sub.id === s.subtopicId)?.name || '';
-                              sections.push({ title: `${subName} - ${s.name}`, startIndex: currentIndex });
-                              mcqs.push(...s.mcqs);
-                              currentIndex += s.mcqs.length;
-                          }
-                      });
-                  }
-              }
-
-              if (mcqs.length > 0) {
-                  const pageSettings: PageSetting[] = [];
-                  const perPage = DEFAULT_SETTINGS.perColumn * 2;
-                  sections.forEach(sec => {
-                      const estimatedPage = Math.floor(sec.startIndex / perPage) + 1;
-                      if (!pageSettings.find(p => p.pageNumber === estimatedPage)) {
-                          pageSettings.push({ pageNumber: estimatedPage, title: sec.title });
-                      }
-                  });
-                  setDocument({
-                      id: '', title: docTitle, mcqs: mcqs, settings: DEFAULT_SETTINGS,
-                      footer: DEFAULT_FOOTER, coverPage: DEFAULT_COVER, toc: DEFAULT_TOC,
-                      answerKey: DEFAULT_ANSWER_KEY, pageSettings: pageSettings,
-                      createdAt: Date.now(), updatedAt: Date.now()
-                  });
-                  toast.success(`✓ Loaded ${mcqs.length} MCQs`);
-              } else {
-                  toast.error("Source empty");
-                  navigate('/'); 
-              }
-          } catch (e) { console.error(e); toast.error("Failed to load source"); }
-          setIsLoading(false);
-          return;
-      }
-
-      if (docId) {
-        loadedExportRef.current = null;
-        const doc = await documentService.getById(docId);
-        if (doc) {
-          setDocument({
-              ...doc,
-              settings: { ...DEFAULT_SETTINGS, ...doc.settings },
-              footer: { ...DEFAULT_FOOTER, ...doc.footer },
-              coverPage: { ...DEFAULT_COVER, ...doc.coverPage },
-              toc: { ...DEFAULT_TOC, ...doc.toc },
-              answerKey: { ...DEFAULT_ANSWER_KEY, ...doc.answerKey },
-              pageSettings: doc.pageSettings || [],
-              mergedFrom: doc.mergedFrom // Ensure mergedFrom is loaded
-          });
-        } else {
-          toast.error("Document not found");
-          navigate('/create');
-        }
-      }
-      setIsLoading(false);
-    };
-    loadDoc();
-  }, [docId, navigate, toast, searchParams]);
-
-  const updateDocumentState = (updates: Partial<Document>) => {
-      setDocument(prev => ({ ...prev, ...updates }));
-      setIsDirty(true);
-  };
-
-  const saveDocument = async (showToast = true) => {
-      let currentDoc = { ...document, updatedAt: Date.now() };
-      if (!currentDoc.id) {
-          const newId = await generateSerialId();
-          currentDoc.id = newId;
-          if (currentDoc.title === 'New Document') currentDoc.title = `Document ${newId}`;
-          await documentService.create(currentDoc);
-          logAction('create', 'document', newId);
-          setDocument(currentDoc);
-          setIsDirty(false);
-          localStorage.removeItem('draft_new_doc');
-          if(showToast) {
-            toast.success(`Saved as ${newId}`);
-            navigate(`/create/${newId}`, { replace: true });
-          }
-      } else {
-          await documentService.update(currentDoc.id, currentDoc);
-          logAction('update', 'document', currentDoc.id);
-          setDocument(currentDoc);
-          setIsDirty(false);
-          localStorage.removeItem(`draft_doc_${currentDoc.id}`);
-          if(showToast) toast.success("Changes saved");
-      }
-      return currentDoc;
-  };
-
-  // Helper to generate PDF Blob
   const generatePDFBlob = async () => {
       await saveDocument(false);
       const result = await exportToPDF({
@@ -442,17 +177,15 @@ const CreatePdfPage: React.FC = () => {
                   toast.success("Shared successfully!");
                   logAction('export', 'document', document.id, 'Share');
               } else {
-                  // Fallback if share sheet fails check but Web Share API exists (unlikely but possible on Desktop)
                   throw new Error("File sharing not supported on this device.");
               }
           } else {
               throw new Error(result.error || "Generation failed");
           }
       } catch (e: any) {
-          if (e.name !== 'AbortError') { // User cancelled share
+          if (e.name !== 'AbortError') {
               console.error(e);
               toast.error(e.message || "Share failed");
-              // Fallback to download if share fails
               if (confirm("Sharing failed. Do you want to download instead?")) {
                   handleExportPDF();
               }
@@ -498,7 +231,7 @@ const CreatePdfPage: React.FC = () => {
   const handleAddMCQs = (newMCQs: MCQ[]) => {
     updateDocumentState({ mcqs: [...document.mcqs, ...newMCQs] });
     setShowBulkImport(false);
-    setImportedText(''); // Clear imported text after use
+    setImportedText('');
   };
 
   const handleSaveSingleMCQ = (mcq: MCQ) => {
@@ -536,7 +269,6 @@ const CreatePdfPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] pb-20 pt-[112px]">
-      {/* Loading Overlay */}
       {isExporting && (
           <LoadingOverlay 
               status={exportStatus} 
@@ -579,7 +311,6 @@ const CreatePdfPage: React.FC = () => {
         title="Edit Title"
       />
 
-      {/* Tabs */}
       <div className="fixed top-[56px] left-0 right-0 z-40 bg-white border-b border-[#F3F4F6] shadow-sm">
           <div className="flex max-w-3xl mx-auto">
               {['settings', 'editor', 'preview'].map((tab) => (
@@ -629,11 +360,9 @@ const CreatePdfPage: React.FC = () => {
                       onReorder={handleReorderMCQs}
                   />
 
-                  {/* Floating Action Menu for Editor */}
                   <div className="fixed bottom-8 right-6 z-50 flex flex-col items-end gap-3">
                       {isFabOpen && (
                           <div className="flex flex-col items-end gap-3 mb-2 animate-in slide-in-from-bottom-4 duration-200">
-                              {/* Shuffle Action */}
                               <div className="flex items-center gap-3 group">
                                   <span className="bg-white px-3 py-1.5 rounded-lg shadow-md border border-[#F3F4F6] text-xs font-bold text-[#374151] opacity-0 group-hover:opacity-100 transition-opacity">Shuffle</span>
                                   <button 
@@ -643,7 +372,6 @@ const CreatePdfPage: React.FC = () => {
                                       <Icon name="shuffle" size="sm" />
                                   </button>
                               </div>
-                              {/* Bulk Import Action */}
                               <div className="flex items-center gap-3 group">
                                   <span className="bg-white px-3 py-1.5 rounded-lg shadow-md border border-[#F3F4F6] text-xs font-bold text-[#374151] opacity-0 group-hover:opacity-100 transition-opacity">Bulk Import</span>
                                   <button 
@@ -653,7 +381,6 @@ const CreatePdfPage: React.FC = () => {
                                       <Icon name="upload" size="sm" />
                                   </button>
                               </div>
-                              {/* Add MCQ Action */}
                               <div className="flex items-center gap-3 group">
                                   <span className="bg-white px-3 py-1.5 rounded-lg shadow-md border border-[#F3F4F6] text-xs font-bold text-[#374151] opacity-0 group-hover:opacity-100 transition-opacity">Add MCQ</span>
                                   <button 
@@ -723,7 +450,7 @@ const CreatePdfPage: React.FC = () => {
         onClose={() => setShowBulkImport(false)} 
         onImport={handleAddMCQs} 
         existingMCQs={document.mcqs}
-        initialText={importedText} // Pass shared text
+        initialText={importedText} 
       />
       <SingleMCQModal 
         isOpen={showSingleMCQ} 
