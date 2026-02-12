@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import PremiumModal from '../../../shared/components/PremiumModal';
@@ -78,24 +79,32 @@ const AiGenerationModal: React.FC<Props> = ({ isOpen, onClose, onImport }) => {
         },
       });
 
-      let jsonText = response.text;
+      const jsonText = response.text;
       if (!jsonText) throw new Error("No response from AI");
-
-      // Robust Cleanup
-      jsonText = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
 
       let parsedData;
       try {
         parsedData = JSON.parse(jsonText);
       } catch (e) {
-        console.error("JSON Parse Error:", jsonText);
-        throw new Error("Failed to parse AI response.");
+        // Fallback: If strict parsing fails, try cleaning markdown blocks
+        try {
+            const cleanText = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
+            parsedData = JSON.parse(cleanText);
+        } catch (innerError) {
+            console.error("JSON Parse Error:", jsonText);
+            throw new Error("Failed to parse AI response. The model output was invalid.");
+        }
       }
       
-      const rawMCQs = Array.isArray(parsedData) ? parsedData : (parsedData.mcqs || []);
+      // Strict Validation of Structure
+      if (!parsedData || typeof parsedData !== 'object') {
+          throw new Error("AI returned invalid data format.");
+      }
+
+      const rawMCQs = Array.isArray(parsedData) ? parsedData : parsedData.mcqs;
 
       if (!Array.isArray(rawMCQs) || rawMCQs.length === 0) {
-          throw new Error("AI returned no questions.");
+          throw new Error("AI returned empty question list.");
       }
 
       const generatedMCQs: MCQ[] = rawMCQs.map((m: any) => {

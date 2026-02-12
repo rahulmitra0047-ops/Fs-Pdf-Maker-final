@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Icon from '../../shared/components/Icon';
 
@@ -19,7 +20,7 @@ const UpdatePrompt: React.FC = () => {
   if (!showUpdate) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-[90] pointer-events-none">
+    <div className="fixed bottom-4 right-4 z-status pointer-events-none">
       <div className="bg-white rounded-xl shadow-2xl border border-indigo-100 p-4 animate-in slide-in-from-bottom-4 duration-500 flex items-center justify-between gap-4 pointer-events-auto max-w-sm">
         <div className="flex items-center gap-3">
           <div className="bg-indigo-100 p-2 rounded-full text-indigo-600">

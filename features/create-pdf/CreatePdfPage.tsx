@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MCQ, PageSetting } from '../../types';
@@ -20,7 +21,7 @@ import ShuffleModal from './components/ShuffleModal';
 import { useCreatePdfState } from './hooks/useCreatePdfState';
 
 const LoadingOverlay = ({ status, onCancel }: { status: string, onCancel: () => void }) => (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm text-[#111827] animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-overlay flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm text-[#111827] animate-in fade-in duration-200">
         <div className="text-4xl mb-6 animate-spin text-[#6366F1]">
             <Icon name="refresh-cw" size="2xl" />
         </div>
@@ -306,12 +307,12 @@ const CreatePdfPage: React.FC = () => {
       />
       
       <div 
-        className="fixed top-0 left-16 right-32 h-[56px] z-50 cursor-pointer" 
+        className="fixed top-0 left-16 right-32 h-[56px] z-modal cursor-pointer" 
         onClick={openTitleEdit}
         title="Edit Title"
       />
 
-      <div className="fixed top-[56px] left-0 right-0 z-40 bg-white border-b border-[#F3F4F6] shadow-sm">
+      <div className="fixed top-[56px] left-0 right-0 z-header bg-white border-b border-[#F3F4F6] shadow-sm">
           <div className="flex max-w-3xl mx-auto">
               {['settings', 'editor', 'preview'].map((tab) => (
                   <button 
@@ -360,7 +361,7 @@ const CreatePdfPage: React.FC = () => {
                       onReorder={handleReorderMCQs}
                   />
 
-                  <div className="fixed bottom-8 right-6 z-50 flex flex-col items-end gap-3">
+                  <div className="fixed bottom-8 right-6 z-modal flex flex-col items-end gap-3">
                       {isFabOpen && (
                           <div className="flex flex-col items-end gap-3 mb-2 animate-in slide-in-from-bottom-4 duration-200">
                               <div className="flex items-center gap-3 group">

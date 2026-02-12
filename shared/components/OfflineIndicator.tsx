@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Icon from './Icon';
 
@@ -32,7 +33,7 @@ const OfflineIndicator: React.FC = () => {
   if (!isOffline && !showBackOnline) return null;
 
   return (
-    <div className="fixed bottom-6 left-6 z-[40] pointer-events-none flex flex-col gap-2 items-start">
+    <div className="fixed bottom-6 left-6 z-status pointer-events-none flex flex-col gap-2 items-start">
       {isOffline && (
         <div className="pointer-events-auto bg-gray-900/95 backdrop-blur text-white text-xs font-medium py-2 pl-4 pr-2 rounded-full flex items-center gap-3 shadow-xl animate-in slide-in-from-bottom-2 border border-white/10">
           <Icon name="log-out" size="sm" className="w-3.5 h-3.5 text-red-400" />

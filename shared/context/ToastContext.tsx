@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 
 type ToastType = 'success' | 'error' | 'info';
@@ -45,7 +46,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     <ToastContext.Provider value={{ toast }}>
       {children}
       {/* Container is pointer-events-none so it doesn't block clicks underneath */}
-      <div className="fixed top-4 left-0 right-0 z-[60] flex flex-col items-center gap-2 pointer-events-none">
+      <div className="fixed top-4 left-0 right-0 z-toast flex flex-col items-center gap-2 pointer-events-none">
         {toasts.map((t) => (
           <div
             key={t.id}

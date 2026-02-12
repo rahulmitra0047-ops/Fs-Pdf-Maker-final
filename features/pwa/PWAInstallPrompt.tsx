@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Icon from '../../shared/components/Icon';
 
@@ -42,7 +43,7 @@ const PWAInstallPrompt: React.FC = () => {
   if (!showBanner) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 z-[80] pointer-events-none">
+    <div className="fixed bottom-4 left-4 z-prompt pointer-events-none">
       <div className="bg-white rounded-xl shadow-2xl border border-gray-100 p-4 animate-in slide-in-from-bottom-4 duration-500 pointer-events-auto max-w-sm">
         <div className="flex items-start gap-3">
           <div className="bg-gray-100 p-2 rounded-lg text-gray-700">
