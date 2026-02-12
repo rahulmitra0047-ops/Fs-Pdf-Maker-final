@@ -284,12 +284,20 @@ const CreatePdfPage: React.FC = () => {
 
       <TopBar 
         title={activeTab === 'documents' ? 'Recent Documents' : document.title}
-        showBack 
+        showBack={activeTab !== 'documents'}
         onBack={handleBack}
         backPath="/"
         showHome={false}
         onHome={handleBack}
-        rightAction={activeTab === 'preview' ? (
+        rightAction={
+            activeTab === 'documents' ? (
+                <button 
+                    onClick={() => navigate('/settings')}
+                    className="p-2 -mr-2 text-[#6B7280] hover:text-gray-900 rounded-full transition-colors active:scale-95"
+                >
+                    <Icon name="settings" size="md" />
+                </button>
+            ) : activeTab === 'preview' ? (
             <div className="flex items-center gap-2">
                 {canShare && (
                     <button 

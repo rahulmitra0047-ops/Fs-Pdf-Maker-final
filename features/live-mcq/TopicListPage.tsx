@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import PremiumButton from '../../shared/components/PremiumButton';
 import PremiumModal from '../../shared/components/PremiumModal';
 import PremiumInput from '../../shared/components/PremiumInput';
-import PremiumCard from '../../shared/components/PremiumCard'; // Keeping for other uses if any, or just removing
+import PremiumCard from '../../shared/components/PremiumCard';
 import { topicService, subtopicService, mcqSetService } from '../../core/storage/services';
 import { Topic, Subtopic, MCQSet } from '../../types';
 import AddMCQWizard from './components/AddMCQWizard';
@@ -37,10 +37,18 @@ const TopicListPage: React.FC = () => {
 
   // Menu State
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  
+  // FAB State
+  const [isFabOpen, setIsFabOpen] = useState(false);
 
   useEffect(() => {
-    // Click outside to close menu
-    const handleClickOutside = () => setActiveMenuId(null);
+    // Click outside to close menu and FAB
+    const handleClickOutside = () => {
+        setActiveMenuId(null);
+        // We generally don't auto-close FAB on outside click for better UX unless strictly required, 
+        // but let's keep it manual toggle for now or close if clicking content.
+        // setIsFabOpen(false); 
+    };
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
@@ -99,6 +107,7 @@ const TopicListPage: React.FC = () => {
           await topicService.create(newTopic);
           setShowCreateTopic(false);
           setNewTopicName('');
+          setIsFabOpen(false); // Close FAB on action
           toast.success("Topic created");
       } catch (e: any) {
           toast.error(e.message || "Failed to create topic");
@@ -172,27 +181,32 @@ const TopicListPage: React.FC = () => {
       }
   };
 
+  const handleFabAction = (action: 'topic' | 'mcq') => {
+      if (action === 'topic') {
+          setShowCreateTopic(true);
+      } else {
+          setShowAddWizard(true);
+      }
+      setIsFabOpen(false);
+  };
+
   if (initialLoading && topics.length === 0) return <div className="p-10 text-center text-gray-500">Loading Topics...</div>;
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] pb-20 pt-[60px]">
         {/* Custom Header */}
         <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/90 backdrop-blur-md border-b border-gray-100 z-50 px-5 flex items-center justify-between transition-all">
-            <div className="flex items-center gap-3">
-                <button 
-                    onClick={() => navigate('/')} 
-                    className="p-2 -ml-2 text-[#6B7280] hover:text-gray-900 rounded-full transition-colors active:scale-95"
-                >
-                    <Icon name="arrow-left" size="md" />
-                </button>
-            </div>
+            {/* Left: Empty placeholder for alignment since Back button is removed */}
+            <div className="w-10"></div>
+            
             <h1 className="text-[18px] font-semibold text-[#111827] absolute left-1/2 -translate-x-1/2 tracking-tight">Topics</h1>
+            
             <div className="flex items-center gap-2">
                 <button 
-                    onClick={() => setShowAddWizard(true)}
-                    className="bg-transparent border-[1.5px] border-[#6366F1] text-[#6366F1] px-4 py-2 rounded-[12px] text-[14px] font-medium active:scale-95 transition-all hover:bg-indigo-50"
+                    onClick={() => navigate('/settings')}
+                    className="p-2 -mr-2 text-[#6B7280] hover:text-gray-900 rounded-full transition-colors active:scale-95"
                 >
-                    + Add
+                    <Icon name="settings" size="md" />
                 </button>
             </div>
         </header>
@@ -207,15 +221,9 @@ const TopicListPage: React.FC = () => {
                 </div>
             ) : (
                 <div className="mt-4">
-                    {/* Count Row */}
+                    {/* Count Row (Removed inline + New Topic button) */}
                     <div className="flex justify-between items-center mb-4">
                         <span className="text-[13px] font-semibold text-[#9CA3AF] tracking-wide">{enhancedTopics.length} Topics</span>
-                        <button 
-                            onClick={() => setShowCreateTopic(true)}
-                            className="bg-transparent border-[1.5px] border-[#6366F1] text-[#6366F1] px-4 py-2 rounded-[12px] text-[13px] font-medium active:scale-95 transition-all hover:bg-indigo-50"
-                        >
-                            + New Topic
-                        </button>
                     </div>
                     
                     {/* List */}
@@ -302,6 +310,39 @@ const TopicListPage: React.FC = () => {
                     )}
                 </div>
             )}
+        </div>
+
+        {/* Floating Action Button (FAB) */}
+        <div className="fixed bottom-[84px] right-5 z-40 flex flex-col items-end gap-3">
+            {isFabOpen && (
+                <div className="flex flex-col items-end gap-3 animate-in slide-in-from-bottom-2 duration-200">
+                    <button 
+                        onClick={() => handleFabAction('mcq')}
+                        className="flex items-center gap-3 group"
+                    >
+                        <span className="bg-white px-3 py-1.5 rounded-[10px] shadow-sm border border-[#F3F4F6] text-[13px] font-bold text-[#374151]">Add MCQ</span>
+                        <div className="w-11 h-11 bg-white text-[#6366F1] border border-[#E5E7EB] rounded-full shadow-md flex items-center justify-center active:scale-95 transition-transform">
+                            <Icon name="file-text" size="sm" />
+                        </div>
+                    </button>
+                    <button 
+                        onClick={() => handleFabAction('topic')}
+                        className="flex items-center gap-3 group"
+                    >
+                        <span className="bg-white px-3 py-1.5 rounded-[10px] shadow-sm border border-[#F3F4F6] text-[13px] font-bold text-[#374151]">Add Topic</span>
+                        <div className="w-11 h-11 bg-white text-[#6366F1] border border-[#E5E7EB] rounded-full shadow-md flex items-center justify-center active:scale-95 transition-transform">
+                            <Icon name="folder" size="sm" />
+                        </div>
+                    </button>
+                </div>
+            )}
+            
+            <button 
+                onClick={() => setIsFabOpen(!isFabOpen)}
+                className={`w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 active:scale-90 ${isFabOpen ? 'bg-gray-800 text-white rotate-45' : 'bg-[#6366F1] text-white'}`}
+            >
+                <Icon name="plus" size="lg" />
+            </button>
         </div>
 
         <AddMCQWizard 
