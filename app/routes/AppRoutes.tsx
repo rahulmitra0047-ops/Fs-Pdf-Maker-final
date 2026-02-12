@@ -27,6 +27,9 @@ const CreateExamPage = lazy(() => import('../../features/live-mcq/exam/CreateExa
 const ActiveExamPage = lazy(() => import('../../features/live-mcq/exam/ActiveExamPage'));
 const AdvancedResultPage = lazy(() => import('../../features/live-mcq/exam/AdvancedResultPage'));
 
+// Learn Module Pages
+const LessonListPage = lazy(() => import('../../features/learn/LessonListPage'));
+
 const AppRoutes: React.FC = () => {
   return (
     <Suspense fallback={<SuspenseFallback />}>
@@ -35,10 +38,10 @@ const AppRoutes: React.FC = () => {
           {/* Redirect Root to First Tab (Live MCQ) */}
           <Route path="/" element={<Navigate to="/live-mcq/topics" replace />} />
           
-          {/* New Tab Routes */}
+          {/* Tab Routes */}
           <Route path="/home" element={<ComingSoonPage />} />
-          <Route path="/learn" element={<ComingSoonPage />} />
-          <Route path="/practice" element={<ComingSoonPage />} />
+          <Route path="/learn" element={<LessonListPage />} />
+          <Route path="/practice" element={<LessonListPage />} />
 
           <Route path="/create" element={<CreatePdfPage />} />
           <Route path="/create/:docId" element={<CreatePdfPage />} />
