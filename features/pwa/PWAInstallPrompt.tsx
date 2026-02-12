@@ -1,27 +1,26 @@
-
 import React, { useState, useEffect } from 'react';
-import PremiumModal from '../../shared/components/PremiumModal';
-import PremiumButton from '../../shared/components/PremiumButton';
 import Icon from '../../shared/components/Icon';
 
 const PWAInstallPrompt: React.FC = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
     const handler = (e: Event) => {
-      // Prevent standard mini-infobar
       e.preventDefault();
       setDeferredPrompt(e);
-      // Show our custom prompt if not already installed/dismissed recently
-      const hasDismissed = localStorage.getItem('pwa_prompt_dismissed');
-      if (!hasDismissed) {
-          setIsOpen(true);
+      
+      // Check if dismissed recently (7 days)
+      const lastDismissed = localStorage.getItem('pwa_prompt_dismissed');
+      if (lastDismissed) {
+          const days = (Date.now() - parseInt(lastDismissed)) / (1000 * 60 * 60 * 24);
+          if (days < 7) return;
       }
+      
+      setShowBanner(true);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
-
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
@@ -32,41 +31,49 @@ const PWAInstallPrompt: React.FC = () => {
     if (outcome === 'accepted') {
       setDeferredPrompt(null);
     }
-    setIsOpen(false);
+    setShowBanner(false);
   };
 
   const handleDismiss = () => {
-    setIsOpen(false);
-    // Hide for 7 days
+    setShowBanner(false);
     localStorage.setItem('pwa_prompt_dismissed', Date.now().toString());
   };
 
-  if (!isOpen) return null;
+  if (!showBanner) return null;
 
   return (
-    <PremiumModal isOpen={isOpen} onClose={handleDismiss} title="Install App" size="sm">
-      <div className="flex flex-col items-center text-center space-y-4">
-        <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm">
-           <Icon name="download" size="xl" />
-        </div>
-        
-        <div>
-            <h3 className="text-lg font-bold text-gray-900">Install FS PDF Maker</h3>
-            <p className="text-sm text-gray-500 mt-1">
-                Install our app for a better experience, offline access, and faster performance.
-            </p>
-        </div>
-
-        <div className="flex gap-3 w-full pt-2">
-            <PremiumButton variant="ghost" onClick={handleDismiss} className="flex-1">
-                Not Now
-            </PremiumButton>
-            <PremiumButton onClick={handleInstall} className="flex-1 shadow-lg shadow-indigo-200">
-                Install App
-            </PremiumButton>
+    <div className="fixed bottom-4 left-4 z-[80] pointer-events-none">
+      <div className="bg-white rounded-xl shadow-2xl border border-gray-100 p-4 animate-in slide-in-from-bottom-4 duration-500 pointer-events-auto max-w-sm">
+        <div className="flex items-start gap-3">
+          <div className="bg-gray-100 p-2 rounded-lg text-gray-700">
+             <Icon name="download" size="sm" />
+          </div>
+          <div className="flex-1">
+              <h4 className="text-sm font-bold text-gray-900">Install App</h4>
+              <p className="text-xs text-gray-500 mt-0.5 mb-3 leading-relaxed">
+                  Add to home screen for offline access and better performance.
+              </p>
+              <div className="flex gap-2">
+                  <button 
+                      onClick={handleInstall}
+                      className="flex-1 bg-gray-900 text-white text-xs font-bold py-2 rounded-lg hover:bg-black transition-colors"
+                  >
+                      Install
+                  </button>
+                  <button 
+                      onClick={handleDismiss}
+                      className="flex-1 bg-gray-100 text-gray-600 text-xs font-bold py-2 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                      Not Now
+                  </button>
+              </div>
+          </div>
+          <button onClick={handleDismiss} className="text-gray-400 hover:text-gray-600">
+              <Icon name="x" size="sm" />
+          </button>
         </div>
       </div>
-    </PremiumModal>
+    </div>
   );
 };
 

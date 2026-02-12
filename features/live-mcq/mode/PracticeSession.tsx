@@ -98,60 +98,79 @@ const PracticeSession: React.FC = () => {
     if (aiExplanations[currentMCQ.id]) return;
 
     setIsAiLoading(true);
+    
     try {
-      // API Rotation Logic - Try settings first, then process.env
-      const apiKeys = (settings.geminiApiKeys?.length ? settings.geminiApiKeys : (process.env.API_KEY || "").split(',')).map(k => k.trim()).filter(Boolean);
-      
-      if (apiKeys.length === 0) throw new Error("No API Key configured. Please go to Settings.");
-      
-      const currentKey = apiKeys[lastApiKeyIndex % apiKeys.length];
-      lastApiKeyIndex++; // Increment for next call
+        // API Rotation Logic
+        const apiKeys = (settings.geminiApiKeys?.length ? settings.geminiApiKeys : (process.env.API_KEY || "").split(',')).map(k => k.trim()).filter(Boolean);
+        
+        if (apiKeys.length === 0) {
+            throw new Error("No API Key configured. Please go to Settings.");
+        }
 
-      const ai = new GoogleGenAI({ apiKey: currentKey });
-      const model = 'gemini-3-pro-preview';
+        let responseText = null;
+        let attempts = 0;
+        // Limit max attempts to avoid infinite loops, even if we have 50 keys
+        const maxAttempts = Math.min(apiKeys.length, 5); 
 
-      const prompt = `তুমি একজন বিশেষজ্ঞ শিক্ষক। নিচের MCQ টি অত্যন্ত গভীরভাবে বিশ্লেষণ করো এবং প্রতিটি পয়েন্ট বিস্তারিত বাংলায় ব্যাখ্যা করো।
-      
-      প্রশ্ন: ${currentMCQ.question}
-      অপশনসমূহ:
-      A) ${currentMCQ.optionA}
-      B) ${currentMCQ.optionB}
-      C) ${currentMCQ.optionC}
-      D) ${currentMCQ.optionD}
-      সঠিক উত্তর: ${currentMCQ.answer}
+        while (attempts < maxAttempts && !responseText) {
+            const currentKey = apiKeys[lastApiKeyIndex % apiKeys.length];
+            
+            try {
+                // Yield to main thread before each attempt
+                await new Promise(r => setTimeout(r, 100));
 
-      তোমার ব্যাখ্যাটি নিচের সুন্দর ও সুশৃঙ্খল ফরম্যাটে দাও:
-      
-      ### ✅ কেন সঠিক উত্তরটি ঠিক?
-      (এখানে সঠিক উত্তরের পেছনের মূল কারণ এবং ধারণাটি বিস্তারিতভাবে বুঝিয়ে বলো)
+                const ai = new GoogleGenAI({ apiKey: currentKey });
+                
+                // Stricter prompt
+                const prompt = `
+                প্রশ্ন: ${currentMCQ.question}
+                অপশন: A) ${currentMCQ.optionA}, B) ${currentMCQ.optionB}, C) ${currentMCQ.optionC}, D) ${currentMCQ.optionD}
+                সঠিক উত্তর: ${currentMCQ.answer}
 
-      ### ❌ বাকি অপশনগুলো কেন ভুল?
-      (এখানে অন্য তিনটি অপশন কেন সঠিক নয়, তা আলাদা আলাদা পয়েন্ট আকারে সংক্ষেপে ব্যাখ্যা করো)
-      * **অপশন [বাকি ১]:** ...
-      * **অপশন [বাকি ২]:** ...
-      * **অপশন [বাকি ৩]:** ...
+                সরাসরি বাংলায় উত্তর দাও। নিজেকে পরিচয় দেবে না।
 
-      ### 💡 প্রো-টিপ (Pro-Tip)
-      (এই বিষয়টির ওপর ভবিষ্যতে মনে রাখার মতো একটি ছোট কৌশল বা অতিরিক্ত তথ্য দাও)
+                ### ✅ সঠিক উত্তরের ব্যাখ্যা
+                (কেন এটি সঠিক তার মূল কারণ)
 
-      ভাষা: উত্তরটি সম্পূর্ণ পরিষ্কার এবং প্রাঞ্জল বাংলায় হবে।
-      ফরম্যাটিং: সুন্দর পয়েন্ট এবং বোল্ড টেক্সট ব্যবহার করবে।`;
+                ### ❌ ভুল অপশনগুলোর বিশ্লেষণ
+                (সংক্ষিপ্ত পয়েন্ট)
 
-      const response = await ai.models.generateContent({
-        model: model,
-        contents: prompt,
-      });
+                ### 💡 প্রো-টিপ
+                (মনে রাখার কৌশল)
+                `;
 
-      if (response.text) {
-        setAiExplanations(prev => ({ ...prev, [currentMCQ.id]: response.text || '' }));
-      } else {
-        throw new Error("Empty response from AI");
-      }
+                const response = await ai.models.generateContent({
+                    model: 'gemini-3-flash-preview',
+                    contents: { parts: [{ text: prompt }] },
+                    config: {
+                        systemInstruction: { parts: [{ text: "You are a concise Bengali educational assistant. Do NOT introduce yourself." }] }
+                    }
+                });
+
+                if (response.text) {
+                    responseText = response.text;
+                    lastApiKeyIndex++; // Success, move to next key for load balancing
+                } else {
+                    throw new Error("Empty response");
+                }
+            } catch (e: any) {
+                console.warn(`Attempt ${attempts + 1} failed:`, e);
+                lastApiKeyIndex++; // Move to next key immediately
+                attempts++;
+                // Additional delay on failure
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+
+        if (responseText) {
+            setAiExplanations(prev => ({ ...prev, [currentMCQ.id]: responseText || '' }));
+        } else {
+            throw new Error("AI ব্যাখ্যা তৈরি করা যাচ্ছে না। দয়া করে সেটিংস থেকে API Key চেক করুন।");
+        }
     } catch (e: any) {
-      console.error("AI Error:", e);
-      toast.error(e.message || "AI ব্যাখ্যা তৈরি করতে ব্যর্থ হয়েছে। পরে চেষ্টা করুন।");
+        toast.error(e.message || "Failed to generate explanation");
     } finally {
-      setIsAiLoading(false);
+        setIsAiLoading(false);
     }
   };
 

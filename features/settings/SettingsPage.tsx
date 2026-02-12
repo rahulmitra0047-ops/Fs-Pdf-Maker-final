@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PremiumModal from '../../shared/components/PremiumModal';
@@ -10,6 +9,7 @@ import { useToast } from '../../shared/context/ToastContext';
 import { backupService, BackupData } from '../../core/storage/backupService';
 import { auditLogService, logAction } from '../../core/storage/services';
 import { AuditLogEntry } from '../../types';
+import { GoogleGenAI } from "@google/genai";
 
 const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -23,6 +23,8 @@ const SettingsPage: React.FC = () => {
   // AI Keys state
   const [apiKeysInput, setApiKeysInput] = useState('');
   const [isEditingAi, setIsEditingAi] = useState(false);
+  const [isTestingKeys, setIsTestingKeys] = useState(false);
+  const [testProgress, setTestProgress] = useState('');
 
   // Storage Stats
   const [storageUsage, setStorageUsage] = useState<{usage: number, quota: number} | null>(null);
@@ -79,6 +81,64 @@ const SettingsPage: React.FC = () => {
     await updateSettings({ geminiApiKeys: keys });
     setIsEditingAi(false);
     toast.success(`${keys.length} API keys updated`);
+  };
+
+  const handleTestApiKeys = async () => {
+    const keys = apiKeysInput.split('\n').map(k => k.trim()).filter(Boolean);
+    if (keys.length === 0) {
+        toast.error("No keys to test");
+        return;
+    }
+
+    setIsTestingKeys(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    try {
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+            setTestProgress(`Checking ${i + 1}/${keys.length}...`);
+            
+            // Allow UI to paint
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            try {
+                if (!key || key.length < 10) throw new Error("Invalid Key Format");
+
+                const ai = new GoogleGenAI({ apiKey: key });
+                
+                // 5-second strict timeout race
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error("Timeout")), 5000)
+                );
+
+                const apiPromise = ai.models.generateContent({
+                    model: 'gemini-2.5-flash',
+                    contents: { parts: [{ text: 'Hello' }] },
+                });
+
+                await Promise.race([apiPromise, timeoutPromise]);
+                successCount++;
+            } catch (e: any) {
+                console.warn(`Key ${i + 1} failed:`, e);
+                failCount++;
+            }
+        }
+
+        if (failCount === 0) {
+            toast.success(`All ${successCount} keys are working!`);
+        } else if (successCount === 0) {
+            toast.error(`All ${failCount} keys failed.`);
+        } else {
+            toast.info(`${successCount} working, ${failCount} failed.`);
+        }
+    } catch (err) {
+        console.error("Test process crashed", err);
+        toast.error("Test interrupted.");
+    } finally {
+        setIsTestingKeys(false);
+        setTestProgress('');
+    }
   };
 
   const handleTestConnection = async () => {
@@ -285,7 +345,16 @@ const SettingsPage: React.FC = () => {
                         className="w-full bg-[#F9FAFB] border border-[#F3F4F6] rounded-[12px] p-[12px] text-[13px] text-[#111827] font-mono outline-none focus:border-[#6366F1] resize-none mb-3"
                         placeholder="Paste your Gemini keys here..."
                     />
-                    <PremiumButton fullWidth onClick={saveAiKeys} size="sm">Save Keys</PremiumButton>
+                    <div className="flex gap-2">
+                        <button 
+                            onClick={handleTestApiKeys} 
+                            disabled={!apiKeysInput.trim() || isTestingKeys}
+                            className="flex-1 bg-white border border-[#E5E7EB] text-[#374151] rounded-[10px] py-2 text-[13px] font-medium hover:bg-[#F9FAFB] disabled:opacity-50 transition-colors"
+                        >
+                            {isTestingKeys ? (testProgress || 'Testing...') : 'Test Keys'}
+                        </button>
+                        <PremiumButton onClick={saveAiKeys} size="sm" className="flex-1">Save Keys</PremiumButton>
+                    </div>
                 </div>
             ) : (
                 <div className="bg-[#F9FAFB] border border-[#F3F4F6] rounded-[12px] p-[16px] flex items-center justify-between">

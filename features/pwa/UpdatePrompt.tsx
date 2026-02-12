@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PremiumModal from '../../shared/components/PremiumModal';
-import PremiumButton from '../../shared/components/PremiumButton';
 import Icon from '../../shared/components/Icon';
 
 const UpdatePrompt: React.FC = () => {
@@ -14,36 +12,40 @@ const UpdatePrompt: React.FC = () => {
 
   const handleUpdate = () => {
     if (navigator.serviceWorker.controller) {
-        // Send message to SW to skip waiting (if implemented) or just reload
-        // Standard reload usually fetches fresh SW if configured correctly
         window.location.reload();
     }
   };
 
-  return (
-    <PremiumModal isOpen={showUpdate} onClose={() => setShowUpdate(false)} title="Update Available" size="sm">
-      <div className="flex flex-col items-center text-center space-y-4 pt-2">
-        <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 animate-pulse">
-           <Icon name="refresh-cw" size="lg" />
-        </div>
-        
-        <div>
-            <h3 className="text-lg font-bold text-gray-900">New Version Ready</h3>
-            <p className="text-sm text-gray-500 mt-1">
-                A new version of FS PDF Maker is available. Update now for the latest features.
-            </p>
-        </div>
+  if (!showUpdate) return null;
 
-        <div className="flex gap-3 w-full pt-2">
-            <PremiumButton variant="ghost" onClick={() => setShowUpdate(false)} className="flex-1">
-                Later
-            </PremiumButton>
-            <PremiumButton onClick={handleUpdate} className="flex-1 shadow-lg shadow-indigo-200">
-                Update Now
-            </PremiumButton>
+  return (
+    <div className="fixed bottom-4 right-4 z-[90] pointer-events-none">
+      <div className="bg-white rounded-xl shadow-2xl border border-indigo-100 p-4 animate-in slide-in-from-bottom-4 duration-500 flex items-center justify-between gap-4 pointer-events-auto max-w-sm">
+        <div className="flex items-center gap-3">
+          <div className="bg-indigo-100 p-2 rounded-full text-indigo-600">
+             <Icon name="refresh-cw" size="sm" className="animate-spin-slow" />
+          </div>
+          <div>
+              <h4 className="text-sm font-bold text-gray-900">Update Available</h4>
+              <p className="text-xs text-gray-500">New features ready.</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+            <button 
+              onClick={() => setShowUpdate(false)}
+              className="text-xs font-medium text-gray-500 hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors"
+            >
+              Dismiss
+            </button>
+            <button 
+              onClick={handleUpdate}
+              className="text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg shadow-md transition-colors"
+            >
+              Update
+            </button>
         </div>
       </div>
-    </PremiumModal>
+    </div>
   );
 };
 

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import PremiumModal from '../../../shared/components/PremiumModal';
@@ -8,6 +7,7 @@ import { MCQ } from '../../../types';
 import { useToast } from '../../../shared/context/ToastContext';
 import Icon from '../../../shared/components/Icon';
 import { generateFingerprint } from '../../../core/dedupe/dedupeService';
+import { useSettings } from '../../../shared/hooks/useSettings';
 
 interface Props {
   isOpen: boolean;
@@ -21,18 +21,32 @@ const AiGenerationModal: React.FC<Props> = ({ isOpen, onClose, onImport }) => {
   const [difficulty, setDifficulty] = useState('Medium');
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
+  const { settings } = useSettings();
 
   const handleGenerate = async () => {
     if (!topic.trim()) return;
 
     setIsLoading(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const modelId = 'gemini-3-flash-preview';
+      // 1. Get API Key (Settings > Environment)
+      const envKey = process.env.API_KEY;
+      const settingKeys = settings.geminiApiKeys || [];
+      const availableKeys = settingKeys.length > 0 ? settingKeys : (envKey ? [envKey] : []);
+
+      if (availableKeys.length === 0) {
+        throw new Error("No API Key found. Please add one in Settings.");
+      }
+
+      // Simple rotation: pick random key
+      const apiKey = availableKeys[Math.floor(Math.random() * availableKeys.length)];
+      
+      const ai = new GoogleGenAI({ apiKey });
+      const modelId = 'gemini-2.5-flash';
 
       const prompt = `Generate ${count} multiple choice questions (MCQs) about "${topic}" at ${difficulty} difficulty level. 
       Each question must have 4 options (A, B, C, D) and one correct answer. 
-      Provide a short explanation for the correct answer.`;
+      Provide a short explanation for the correct answer.
+      Output valid JSON with a root object containing an "mcqs" array.`;
 
       const response = await ai.models.generateContent({
         model: modelId,
@@ -40,43 +54,59 @@ const AiGenerationModal: React.FC<Props> = ({ isOpen, onClose, onImport }) => {
         config: {
           responseMimeType: "application/json",
           responseSchema: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                question: { type: Type.STRING },
-                optionA: { type: Type.STRING },
-                optionB: { type: Type.STRING },
-                optionC: { type: Type.STRING },
-                optionD: { type: Type.STRING },
-                answer: { type: Type.STRING, enum: ["A", "B", "C", "D"] },
-                explanation: { type: Type.STRING },
-              },
-              required: ["question", "optionA", "optionB", "optionC", "optionD", "answer"],
+            type: Type.OBJECT,
+            properties: {
+              mcqs: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    question: { type: Type.STRING },
+                    optionA: { type: Type.STRING },
+                    optionB: { type: Type.STRING },
+                    optionC: { type: Type.STRING },
+                    optionD: { type: Type.STRING },
+                    answer: { type: Type.STRING, enum: ["A", "B", "C", "D"] },
+                    explanation: { type: Type.STRING },
+                  },
+                  required: ["question", "optionA", "optionB", "optionC", "optionD", "answer"],
+                },
+              }
             },
+            required: ["mcqs"]
           },
         },
       });
 
-      const jsonText = response.text;
+      let jsonText = response.text;
       if (!jsonText) throw new Error("No response from AI");
 
-      let rawMCQs;
+      // Robust Cleanup
+      jsonText = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
+
+      let parsedData;
       try {
-        rawMCQs = JSON.parse(jsonText);
+        parsedData = JSON.parse(jsonText);
       } catch (e) {
-        throw new Error("Failed to parse AI response");
+        console.error("JSON Parse Error:", jsonText);
+        throw new Error("Failed to parse AI response.");
       }
       
+      const rawMCQs = Array.isArray(parsedData) ? parsedData : (parsedData.mcqs || []);
+
+      if (!Array.isArray(rawMCQs) || rawMCQs.length === 0) {
+          throw new Error("AI returned no questions.");
+      }
+
       const generatedMCQs: MCQ[] = rawMCQs.map((m: any) => {
         const mcqPart: Partial<MCQ> = {
           id: crypto.randomUUID(),
-          question: m.question,
-          optionA: m.optionA,
-          optionB: m.optionB,
-          optionC: m.optionC,
-          optionD: m.optionD,
-          answer: m.answer,
+          question: m.question || "Untitled Question",
+          optionA: m.optionA || "",
+          optionB: m.optionB || "",
+          optionC: m.optionC || "",
+          optionD: m.optionD || "",
+          answer: ['A','B','C','D'].includes(m.answer) ? m.answer : 'A',
           explanation: m.explanation || '',
           source: 'AI Generated',
         };
@@ -87,12 +117,12 @@ const AiGenerationModal: React.FC<Props> = ({ isOpen, onClose, onImport }) => {
       });
 
       onImport(generatedMCQs);
-      toast.success(`Generated ${generatedMCQs.length} MCQs`);
+      toast.success(`Generated ${generatedMCQs.length} MCQs successfully!`);
       onClose();
 
     } catch (error: any) {
       console.error("AI Generation failed:", error);
-      toast.error("Failed to generate MCQs. Please try again.");
+      toast.error(error.message || "Failed to generate MCQs.");
     } finally {
       setIsLoading(false);
     }
@@ -114,7 +144,7 @@ const AiGenerationModal: React.FC<Props> = ({ isOpen, onClose, onImport }) => {
           label="Topic / Subject"
           value={topic}
           onChange={setTopic}
-          placeholder="e.g. Photosynthesis, Newton's Laws, European History"
+          placeholder="e.g. Photosynthesis, Newton's Laws"
         />
 
         <div className="grid grid-cols-2 gap-4">
@@ -155,7 +185,7 @@ const AiGenerationModal: React.FC<Props> = ({ isOpen, onClose, onImport }) => {
             variant="gradient"
             icon={<Icon name="sparkles" size="sm" />}
           >
-            Generate MCQs
+            {isLoading ? 'Generating...' : 'Generate MCQs'}
           </PremiumButton>
         </div>
       </div>

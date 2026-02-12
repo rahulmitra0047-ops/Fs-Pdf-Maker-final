@@ -10,12 +10,25 @@ console.error = (...args) => {
       if (
           msg.includes('Could not reach Cloud Firestore backend') ||
           msg.includes('operate in offline mode') ||
-          msg.includes('Backend didn\'t respond within')
+          msg.includes('Backend didn\'t respond within') ||
+          msg.includes('Detected an update time that is in the future')
       ) {
         return;
       }
   }
   originalConsoleError(...args);
+};
+
+// Filter out Firebase warnings
+const originalConsoleWarn = console.warn;
+console.warn = (...args) => {
+  if (args.length > 0 && typeof args[0] === 'string') {
+      const msg = args[0];
+      if (msg.includes('Detected an update time that is in the future')) {
+        return;
+      }
+  }
+  originalConsoleWarn(...args);
 };
 
 // PWA Service Worker Registration with Update Detection
