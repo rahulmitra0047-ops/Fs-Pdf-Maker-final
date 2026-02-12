@@ -180,7 +180,7 @@ const TopicListPage: React.FC = () => {
         <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/90 backdrop-blur-md border-b border-gray-100 z-50 px-5 flex items-center justify-between transition-all">
             <div className="flex items-center gap-3">
                 <button 
-                    onClick={() => navigate('/live-mcq')} 
+                    onClick={() => navigate('/')} 
                     className="p-2 -ml-2 text-[#6B7280] hover:text-gray-900 rounded-full transition-colors active:scale-95"
                 >
                     <Icon name="arrow-left" size="md" />

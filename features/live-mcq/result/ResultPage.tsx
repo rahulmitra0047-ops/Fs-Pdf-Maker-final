@@ -51,7 +51,7 @@ const ResultPage: React.FC = () => {
   if (loading) {
       return (
           <div className="min-h-screen bg-[var(--bg)] pt-[56px] flex flex-col items-center justify-center">
-              <TopBar title="Loading Result" showBack backPath="/live-mcq" showHome={true} />
+              <TopBar title="Loading Result" showBack backPath="/live-mcq/topics" showHome={true} />
               <div className="animate-spin text-4xl mb-4">⏳</div>
               <p className="text-[var(--text-secondary)]">Loading your results...</p>
           </div>
@@ -61,12 +61,12 @@ const ResultPage: React.FC = () => {
   if (error || !attempt) {
       return (
           <div className="min-h-screen bg-[var(--bg)] pt-[56px] flex flex-col items-center justify-center p-4 text-center">
-              <TopBar title="Error" showBack backPath="/live-mcq" showHome={true} />
+              <TopBar title="Error" showBack backPath="/live-mcq/topics" showHome={true} />
               <div className="text-4xl mb-4">❌</div>
               <h2 className="text-lg font-bold text-gray-900 mb-2">{error || "Something went wrong"}</h2>
               <p className="text-gray-500 mb-6">Could not load the result data.</p>
               <div className="flex gap-3">
-                  <PremiumButton onClick={() => navigate('/live-mcq')}>Go Home</PremiumButton>
+                  <PremiumButton onClick={() => navigate('/live-mcq/topics')}>Go Home</PremiumButton>
                   <PremiumButton variant="secondary" onClick={loadResult}>Retry</PremiumButton>
               </div>
           </div>
@@ -96,7 +96,7 @@ const ResultPage: React.FC = () => {
         <TopBar 
             title="Result" 
             showBack 
-            backPath={set ? `/live-mcq/set/${set.id}` : '/live-mcq'}
+            backPath={set ? `/live-mcq/set/${set.id}` : '/live-mcq/topics'}
             showHome={true}
         />
 
@@ -151,7 +151,7 @@ const ResultPage: React.FC = () => {
                     {set && (
                         <PremiumButton fullWidth onClick={() => setShowReview(true)}>Review Answers</PremiumButton>
                     )}
-                    <PremiumButton fullWidth variant="secondary" onClick={() => set ? navigate(`/live-mcq/set/${set.id}`) : navigate('/live-mcq')}>
+                    <PremiumButton fullWidth variant="secondary" onClick={() => set ? navigate(`/live-mcq/set/${set.id}`) : navigate('/live-mcq/topics')}>
                         {set ? 'Back to Set' : 'Back Home'}
                     </PremiumButton>
                 </div>

@@ -69,12 +69,12 @@ const PracticeSession: React.FC = () => {
                 setSessionMCQs(s.mcqs);
             } else {
                 toast.error("Set not found");
-                navigate('/live-mcq');
+                navigate('/live-mcq/topics');
             }
             setLoading(false);
         } else {
             toast.error("No questions provided");
-            navigate('/live-mcq');
+            navigate('/live-mcq/topics');
         }
     };
     initSession();

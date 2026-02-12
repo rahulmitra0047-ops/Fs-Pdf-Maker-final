@@ -20,7 +20,8 @@ const SetDetailPage: React.FC = () => {
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [bestScore, setBestScore] = useState(0);
   const [lastScore, setLastScore] = useState(0);
-  const [backPath, setBackPath] = useState('/live-mcq');
+  // Default back path updated to topics list to avoid dead landing page
+  const [backPath, setBackPath] = useState('/live-mcq/topics');
   
   const [initialLoading, setInitialLoading] = useState(true);
   
@@ -51,7 +52,7 @@ const SetDetailPage: React.FC = () => {
             else loadExtras(data);
         } else if (source === 'network') {
             toast.error("Set not found");
-            navigate('/live-mcq');
+            navigate('/live-mcq/topics');
         }
     });
 

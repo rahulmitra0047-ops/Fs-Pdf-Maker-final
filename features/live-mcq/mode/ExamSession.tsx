@@ -42,7 +42,7 @@ const ExamSession: React.FC = () => {
                 setMCQs(s.mcqs);
             } else {
                 toast.error("Set not found");
-                navigate('/live-mcq');
+                navigate('/live-mcq/topics');
             }
             setLoading(false);
         });
@@ -302,8 +302,8 @@ const ExamSession: React.FC = () => {
         {/* Exit Confirmation */}
         <PremiumModal isOpen={showExitConfirm} onClose={() => setShowExitConfirm(false)} title="Exit Exam?" size="sm">
             <div className="space-y-4">
-                <p className="text-[var(--text-secondary)]">Are you sure? Progress will be lost.</p>
-                <div className="flex justify-end gap-3">
+                <p className="text-[var(--text-secondary)]">Are you sure? All progress will be lost.</p>
+                <div className="flex justify-end gap-3 pt-2">
                     <PremiumButton variant="ghost" onClick={() => setShowExitConfirm(false)}>Cancel</PremiumButton>
                     <PremiumButton variant="danger" onClick={handleExit}>Exit</PremiumButton>
                 </div>

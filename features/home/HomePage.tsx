@@ -141,6 +141,7 @@ const HomePage: React.FC = () => {
 
         {/* Main Action Cards - Pure White & Minimal */}
         <div className="flex flex-col gap-[14px] mt-2">
+          {/* Create PDF */}
           <div className="animate-slide-up delay-100">
             <PremiumCard 
               variant="flat"
@@ -149,7 +150,6 @@ const HomePage: React.FC = () => {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  {/* Monochrome Indigo Icon */}
                   <div className="text-[#6366F1]">
                     <Icon name="file-text" size="lg" />
                   </div>
@@ -158,7 +158,6 @@ const HomePage: React.FC = () => {
                     <p className="text-[13px] font-normal text-gray-400 mt-1">Build professional MCQ books</p>
                   </div>
                 </div>
-                {/* Minimal Arrow */}
                 <div className="text-gray-300">
                    <Icon name="chevron-right" size="md" />
                 </div>
@@ -166,10 +165,35 @@ const HomePage: React.FC = () => {
             </PremiumCard>
           </div>
 
+          {/* Live MCQ (Direct to Topics) */}
           <div className="animate-slide-up delay-200">
             <PremiumCard 
               variant="flat"
-              onClick={() => navigate('/live-mcq')}
+              onClick={() => navigate('/live-mcq/topics')}
+              className="!bg-white border !border-[#F3F4F6] !rounded-[20px] !shadow-[0_1px_2px_rgba(0,0,0,0.04)] !p-5 active:scale-[0.98] transition-transform duration-150 group"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="text-[#6366F1]">
+                    <Icon name="book-open" size="lg" />
+                  </div>
+                  <div>
+                    <h3 className="text-[17px] font-semibold text-gray-900 leading-tight">Live MCQ</h3>
+                    <p className="text-[13px] font-normal text-gray-400 mt-1">Browse & Practice MCQs</p>
+                  </div>
+                </div>
+                <div className="text-gray-300">
+                   <Icon name="chevron-right" size="md" />
+                </div>
+              </div>
+            </PremiumCard>
+          </div>
+
+          {/* Exam Center (New Direct Access) */}
+          <div className="animate-slide-up delay-300">
+            <PremiumCard 
+              variant="flat"
+              onClick={() => navigate('/live-mcq/exam-center')}
               className="!bg-white border !border-[#F3F4F6] !rounded-[20px] !shadow-[0_1px_2px_rgba(0,0,0,0.04)] !p-5 active:scale-[0.98] transition-transform duration-150 group"
             >
               <div className="flex items-center justify-between">
@@ -178,8 +202,8 @@ const HomePage: React.FC = () => {
                     <Icon name="target" size="lg" />
                   </div>
                   <div>
-                    <h3 className="text-[17px] font-semibold text-gray-900 leading-tight">Live MCQ</h3>
-                    <p className="text-[13px] font-normal text-gray-400 mt-1">Practice sets & exams</p>
+                    <h3 className="text-[17px] font-semibold text-gray-900 leading-tight">Exam Center</h3>
+                    <p className="text-[13px] font-normal text-gray-400 mt-1">Take Custom Exams</p>
                   </div>
                 </div>
                 <div className="text-gray-300">
@@ -189,7 +213,8 @@ const HomePage: React.FC = () => {
             </PremiumCard>
           </div>
 
-          <div className="animate-slide-up delay-300">
+          {/* Recent Files */}
+          <div className="animate-slide-up delay-400">
             <PremiumCard 
               variant="flat"
               onClick={() => navigate('/recent')}
@@ -216,7 +241,7 @@ const HomePage: React.FC = () => {
         </div>
 
         {/* Recent Section */}
-        <div className="animate-slide-up delay-300 mt-8">
+        <div className="animate-slide-up delay-500 mt-8">
           <div className="flex items-center justify-between mb-4">
              <h3 className="text-[13px] font-semibold text-gray-400 tracking-wide title-case">Quick Access</h3>
              {recentDocs.length > 0 && (

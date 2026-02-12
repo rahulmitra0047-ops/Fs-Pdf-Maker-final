@@ -12,7 +12,6 @@ const SettingsPage = lazy(() => import('../../features/settings/SettingsPage'));
 const PrintPage = lazy(() => import('../../features/print/PrintPage'));
 
 // Live MCQ Pages
-const LiveMcqPage = lazy(() => import('../../features/live-mcq/LiveMcqPage'));
 const TopicListPage = lazy(() => import('../../features/live-mcq/TopicListPage'));
 const TopicDetailPage = lazy(() => import('../../features/live-mcq/TopicDetailPage'));
 const SubtopicDetailPage = lazy(() => import('../../features/live-mcq/SubtopicDetailPage'));
@@ -40,8 +39,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/print/:docId" element={<PrintPage />} />
         
-        {/* Live MCQ Routes */}
-        <Route path="/live-mcq" element={<LiveMcqPage />} />
+        {/* Live MCQ Routes - Landing Removed */}
         <Route path="/live-mcq/topics" element={<TopicListPage />} />
         <Route path="/live-mcq/topic/:topicId" element={<TopicDetailPage />} />
         <Route path="/live-mcq/topic/:topicId/subtopic/:subtopicId" element={<SubtopicDetailPage />} />
