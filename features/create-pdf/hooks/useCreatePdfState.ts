@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, useLocation, useParams } from 'react-router-dom';
 import { Document, MCQ, DocumentSettings, FooterSettings, CoverPageSettings, TableOfContentsSettings, AnswerKeySettings, PageSetting, WatermarkSettings } from '../../../types';
@@ -75,7 +76,7 @@ export const useCreatePdfState = () => {
   });
   
   // UI State
-  const [activeTab, setActiveTab] = useState<'settings' | 'editor' | 'preview'>('editor');
+  const [activeTab, setActiveTab] = useState<'documents' | 'settings' | 'editor' | 'preview'>('editor');
   const [settingsSubTab, setSettingsSubTab] = useState('page'); 
   const [isDirty, setIsDirty] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');

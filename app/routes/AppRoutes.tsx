@@ -1,11 +1,12 @@
 
 import React, { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import RouteNotFound from '../../shared/components/RouteNotFound';
 import SuspenseFallback from '../../shared/components/SuspenseFallback';
+import MainLayout from '../../shared/components/MainLayout';
+import ComingSoonPage from '../../shared/components/ComingSoonPage';
 
 // Lazy Imports for Bundle Splitting (Production Optimization)
-const HomePage = lazy(() => import('../../features/home/HomePage'));
 const CreatePdfPage = lazy(() => import('../../features/create-pdf/CreatePdfPage'));
 const RecentDocsPage = lazy(() => import('../../features/recent/RecentDocsPage'));
 const SettingsPage = lazy(() => import('../../features/settings/SettingsPage'));
@@ -30,32 +31,43 @@ const AppRoutes: React.FC = () => {
   return (
     <Suspense fallback={<SuspenseFallback />}>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route element={<MainLayout />}>
+          {/* Redirect Root to First Tab (Live MCQ) */}
+          <Route path="/" element={<Navigate to="/live-mcq/topics" replace />} />
+          
+          {/* New Tab Routes */}
+          <Route path="/home" element={<ComingSoonPage />} />
+          <Route path="/learn" element={<ComingSoonPage />} />
+          <Route path="/practice" element={<ComingSoonPage />} />
+
+          <Route path="/create" element={<CreatePdfPage />} />
+          <Route path="/create/:docId" element={<CreatePdfPage />} />
+          <Route path="/recent" element={<RecentDocsPage />} />
+          
+          {/* Live MCQ - Browsing Routes */}
+          <Route path="/live-mcq/topics" element={<TopicListPage />} />
+          <Route path="/live-mcq/topic/:topicId" element={<TopicDetailPage />} />
+          <Route path="/live-mcq/topic/:topicId/subtopic/:subtopicId" element={<SubtopicDetailPage />} />
+          <Route path="/live-mcq/set/:setId" element={<SetDetailPage />} />
+          <Route path="/live-mcq/result/:attemptId" element={<ResultPage />} />
+          
+          {/* Exam Center - Dashboard & Results */}
+          <Route path="/live-mcq/exam-center" element={<ExamCenterPage />} />
+          <Route path="/live-mcq/exam-center/result/:attemptId" element={<AdvancedResultPage />} />
+        </Route>
         
-        {/* PDF Maker Routes */}
-        <Route path="/create" element={<CreatePdfPage />} />
-        <Route path="/create/:docId" element={<CreatePdfPage />} />
-        <Route path="/recent" element={<RecentDocsPage />} />
+        {/* Settings Route */}
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/print/:docId" element={<PrintPage />} />
         
-        {/* Live MCQ Routes - Landing Removed */}
-        <Route path="/live-mcq/topics" element={<TopicListPage />} />
-        <Route path="/live-mcq/topic/:topicId" element={<TopicDetailPage />} />
-        <Route path="/live-mcq/topic/:topicId/subtopic/:subtopicId" element={<SubtopicDetailPage />} />
-        <Route path="/live-mcq/set/:setId" element={<SetDetailPage />} />
-        
-        {/* Legacy Modes (Single Set) */}
+        {/* Live MCQ - Immersive/Active Modes (No Bottom Nav) */}
         <Route path="/live-mcq/practice" element={<PracticeSession />} />
         <Route path="/live-mcq/practice/:setId" element={<PracticeSession />} />
         <Route path="/live-mcq/exam/:setId" element={<ExamSession />} />
-        <Route path="/live-mcq/result/:attemptId" element={<ResultPage />} />
-
-        {/* New Advanced Exam System */}
-        <Route path="/live-mcq/exam-center" element={<ExamCenterPage />} />
+        
+        {/* Exam Creation Wizard & Active Exam (No Bottom Nav) */}
         <Route path="/live-mcq/exam-center/create" element={<CreateExamPage />} />
         <Route path="/live-mcq/exam-center/active" element={<ActiveExamPage />} />
-        <Route path="/live-mcq/exam-center/result/:attemptId" element={<AdvancedResultPage />} />
 
         <Route path="*" element={<RouteNotFound />} />
       </Routes>

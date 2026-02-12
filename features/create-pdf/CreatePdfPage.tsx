@@ -19,6 +19,7 @@ import MCQBookPage from './components/MCQBookPage';
 import { performShuffle, ShuffleType } from './utils/shuffleUtils';
 import ShuffleModal from './components/ShuffleModal';
 import { useCreatePdfState } from './hooks/useCreatePdfState';
+import PdfRecentView from './components/PdfRecentView';
 
 const LoadingOverlay = ({ status, onCancel }: { status: string, onCancel: () => void }) => (
     <div className="fixed inset-0 z-overlay flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm text-[#111827] animate-in fade-in duration-200">
@@ -198,6 +199,10 @@ const CreatePdfPage: React.FC = () => {
   };
 
   const handleBack = () => {
+      if (activeTab === 'documents') {
+          navigate('/');
+          return;
+      }
       if (isDirty) setShowBackConfirm(true);
       else navigate('/');
   };
@@ -269,7 +274,7 @@ const CreatePdfPage: React.FC = () => {
   if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]"><p className="text-sm text-[#9CA3AF]">Loading Document...</p></div>;
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] pb-20 pt-[112px]">
+    <div className="min-h-screen bg-[#FAFAFA] pb-32 pt-[112px]">
       {isExporting && (
           <LoadingOverlay 
               status={exportStatus} 
@@ -278,7 +283,7 @@ const CreatePdfPage: React.FC = () => {
       )}
 
       <TopBar 
-        title={document.title}
+        title={activeTab === 'documents' ? 'Recent Documents' : document.title}
         showBack 
         onBack={handleBack}
         backPath="/"
@@ -306,19 +311,21 @@ const CreatePdfPage: React.FC = () => {
         ) : null}
       />
       
-      <div 
-        className="fixed top-0 left-16 right-32 h-[56px] z-modal cursor-pointer" 
-        onClick={openTitleEdit}
-        title="Edit Title"
-      />
+      {activeTab !== 'documents' && (
+        <div 
+            className="fixed top-0 left-16 right-32 h-[56px] z-modal cursor-pointer" 
+            onClick={openTitleEdit}
+            title="Edit Title"
+        />
+      )}
 
       <div className="fixed top-[56px] left-0 right-0 z-header bg-white border-b border-[#F3F4F6] shadow-sm">
-          <div className="flex max-w-3xl mx-auto">
-              {['settings', 'editor', 'preview'].map((tab) => (
+          <div className="flex max-w-3xl mx-auto px-4 gap-1">
+              {['documents', 'settings', 'editor', 'preview'].map((tab) => (
                   <button 
                     key={tab}
                     onClick={() => setActiveTab(tab as any)} 
-                    className={`flex-1 py-3 text-[15px] transition-all relative capitalize 
+                    className={`flex-1 py-3 text-[13px] md:text-[15px] transition-all relative capitalize 
                         ${activeTab === tab 
                             ? 'text-[#111827] font-semibold border-b-2 border-[#6366F1]' 
                             : 'text-[#9CA3AF] font-normal border-b-0 hover:text-[#374151]'
@@ -330,7 +337,11 @@ const CreatePdfPage: React.FC = () => {
           </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 mt-2">
+      <div className="max-w-3xl mx-auto px-4 mt-4">
+          {activeTab === 'documents' && (
+              <PdfRecentView />
+          )}
+
           {activeTab === 'settings' && (
               <DocumentSettingsPanel 
                   settings={document.settings} 
@@ -361,7 +372,7 @@ const CreatePdfPage: React.FC = () => {
                       onReorder={handleReorderMCQs}
                   />
 
-                  <div className="fixed bottom-8 right-6 z-modal flex flex-col items-end gap-3">
+                  <div className="fixed bottom-24 right-6 z-modal flex flex-col items-end gap-3">
                       {isFabOpen && (
                           <div className="flex flex-col items-end gap-3 mb-2 animate-in slide-in-from-bottom-4 duration-200">
                               <div className="flex items-center gap-3 group">

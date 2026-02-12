@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { HashRouter, useNavigate } from 'react-router-dom';
 import RootErrorBoundary from './shared/components/RootErrorBoundary';
@@ -23,7 +24,7 @@ const AppLogicHandler = () => {
     if (sharedText || sharedUrl) {
         const content = [sharedTitle, sharedText, sharedUrl].filter(Boolean).join('\n\n');
         
-        // Clean URL params without removing sub-path (critical for Github Pages / Sub-folder hosting)
+        // Clean URL params without removing sub-path
         const cleanUrl = window.location.pathname; 
         window.history.replaceState({}, '', cleanUrl);
         
@@ -32,10 +33,10 @@ const AppLogicHandler = () => {
         return;
     }
 
-    // 2. Default Redirect
+    // 2. Default Redirect to First Tab (Live MCQ)
     if (isInitialLoad) {
       isInitialLoad = false;
-      navigate('/', { replace: true });
+      navigate('/live-mcq/topics', { replace: true });
     }
   }, [navigate]);
 
