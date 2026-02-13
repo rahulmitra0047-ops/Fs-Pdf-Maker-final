@@ -29,6 +29,7 @@ const AdvancedResultPage = lazy(() => import('../../features/live-mcq/exam/Advan
 
 // Learn Module Pages
 const LessonListPage = lazy(() => import('../../features/learn/LessonListPage'));
+const LessonDetailPage = lazy(() => import('../../features/learn/LessonDetailPage'));
 
 const AppRoutes: React.FC = () => {
   return (
@@ -41,6 +42,7 @@ const AppRoutes: React.FC = () => {
           {/* Tab Routes */}
           <Route path="/home" element={<ComingSoonPage />} />
           <Route path="/learn" element={<LessonListPage />} />
+          <Route path="/learn/lesson/:lessonId" element={<LessonDetailPage />} />
           <Route path="/practice" element={<LessonListPage />} />
 
           <Route path="/create" element={<CreatePdfPage />} />

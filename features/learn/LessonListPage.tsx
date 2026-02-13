@@ -208,7 +208,8 @@ const LessonListPage: React.FC = () => {
                         {currentLessons.map((lesson) => (
                             <div 
                                 key={lesson.id}
-                                className="bg-white border border-[#F3F4F6] rounded-[16px] p-3.5 shadow-sm active:scale-[0.99] transition-all flex flex-col gap-2 relative group"
+                                onClick={() => navigate(`/learn/lesson/${lesson.id}`)}
+                                className="bg-white border border-[#F3F4F6] rounded-[16px] p-3.5 shadow-sm active:scale-[0.99] transition-all flex flex-col gap-2 relative group cursor-pointer"
                             >
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-center gap-3.5">
