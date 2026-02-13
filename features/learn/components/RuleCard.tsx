@@ -1,102 +1,149 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { GrammarRule } from '../../../types';
 import Icon from '../../../shared/components/Icon';
 
 interface Props {
   rule: GrammarRule;
-  onTap: () => void;
+  serial: number;
   onEdit: () => void;
   onDelete: () => void;
-  onToggleFavorite: () => void;
 }
 
-const RuleCard: React.FC<Props> = ({ rule, onTap, onEdit, onDelete, onToggleFavorite }) => {
-  const getDifficultyColor = (diff: string) => {
-    if (diff === 'Advanced') return 'bg-red-500';
-    if (diff === 'Intermediate') return 'bg-yellow-500';
-    return 'bg-green-500';
-  };
+const RuleCard: React.FC<Props> = ({ rule, serial, onEdit, onDelete }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Helper to format the serial number with leading zero
+  const formattedSerial = serial.toString().padStart(2, '0');
+
+  const formulas = [
+    { label: 'Aff', val: rule.formulaAffirmative || rule.pattern, color: 'text-green-600', bg: 'bg-green-50' },
+    { label: 'Neg', val: rule.formulaNegative, color: 'text-red-600', bg: 'bg-red-50' },
+    { label: 'Int', val: rule.formulaInterrogative, color: 'text-blue-600', bg: 'bg-blue-50' },
+  ].filter(f => f.val);
 
   return (
     <div 
-      onClick={onTap}
-      className="bg-white rounded-[20px] p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[#F3F4F6] active:scale-[0.98] transition-transform cursor-pointer relative overflow-hidden"
+      className="bg-white rounded-[16px] border border-[#F3F4F6] shadow-[0_1px_3px_rgba(0,0,0,0.03)] overflow-hidden transition-all duration-300"
     >
-      {/* Row 1: Header */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-3 overflow-hidden">
-          <div className={`w-3 h-3 rounded-full flex-shrink-0 ${getDifficultyColor(rule.difficulty)}`} />
-          <h3 className="font-bold text-[#111827] text-[16px] truncate">{rule.title}</h3>
+      {/* 1. Header (Always Visible) */}
+      <div 
+        className={`flex items-center p-4 cursor-pointer hover:bg-gray-50 transition-colors ${isExpanded ? 'bg-gray-50/80 border-b border-gray-100' : ''}`}
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        {/* Serial Number */}
+        <div className="w-10 h-10 rounded-full bg-[#F3F4F6] flex items-center justify-center flex-shrink-0 mr-3.5 border border-[#E5E7EB]">
+          <span className="text-[#6B7280] font-bold text-sm font-mono">{formattedSerial}</span>
         </div>
-        <div className="flex items-center gap-1">
-          <button 
-            onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
-            className={`p-2 rounded-full transition-colors ${rule.isFavorite ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-400'}`}
-          >
-            <Icon name="star" size="sm" className={rule.isFavorite ? "fill-current" : ""} />
-          </button>
+
+        {/* Title & Preview */}
+        <div className="flex-1 min-w-0 pr-2">
+          <h3 className="font-bold text-[#111827] text-[15px] truncate leading-tight">{rule.title}</h3>
+          {!isExpanded && (rule.formulaAffirmative || rule.pattern) && (
+            <p className="text-[12px] text-[#6B7280] mt-1 font-mono truncate bg-gray-100/50 rounded px-1.5 py-0.5 inline-block max-w-full">
+              {rule.formulaAffirmative || rule.pattern}
+            </p>
+          )}
+        </div>
+
+        {/* Expand Icon */}
+        <div className={`text-[#9CA3AF] transition-transform duration-300 ${isExpanded ? 'rotate-180 text-[#6366F1]' : ''}`}>
+          <Icon name="chevron-left" size="sm" className="-rotate-90" />
+        </div>
+      </div>
+
+      {/* 2. Expanded Content */}
+      {isExpanded && (
+        <div className="p-4 pt-2 animate-in fade-in slide-in-from-top-1 space-y-5">
           
-          <div className="relative group">
+          {/* Action Row */}
+          <div className="flex justify-end gap-2 border-b border-gray-100 pb-3">
             <button 
-              onClick={(e) => e.stopPropagation()} 
-              className="p-2 text-gray-400 hover:text-gray-600 rounded-full"
+              onClick={(e) => { e.stopPropagation(); onEdit(); }}
+              className="text-xs font-semibold text-[#6366F1] bg-[#EEF2FF] px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors flex items-center gap-1"
             >
-              <Icon name="more-vertical" size="sm" />
+              <Icon name="edit-3" size="sm" /> Edit
             </button>
-            {/* Simple dropdown simulation for now, parent handles actual menu if needed, or inline absolute */}
-            <div className="absolute right-0 top-8 hidden group-hover:block group-focus-within:block z-10 bg-white border border-gray-100 shadow-xl rounded-xl min-w-[120px] overflow-hidden">
-              <button 
-                onClick={(e) => { e.stopPropagation(); onEdit(); }}
-                className="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-              >
-                <Icon name="edit-3" size="sm" /> Edit
-              </button>
-              <button 
-                onClick={(e) => { e.stopPropagation(); onDelete(); }}
-                className="w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 flex items-center gap-2"
-              >
-                <Icon name="trash-2" size="sm" /> Delete
-              </button>
-            </div>
+            <button 
+              onClick={(e) => { e.stopPropagation(); onDelete(); }}
+              className="text-xs font-semibold text-red-500 bg-red-50 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors flex items-center gap-1"
+            >
+              <Icon name="trash-2" size="sm" /> Delete
+            </button>
           </div>
-        </div>
-      </div>
 
-      {/* Row 2: Formula (if present) */}
-      {(rule.formulaAffirmative || rule.pattern) && (
-        <div className="mb-3 bg-purple-50 border border-purple-100 rounded-lg px-3 py-2">
-          <code className="text-[13px] font-mono text-purple-900 block truncate">
-            {rule.formulaAffirmative || rule.pattern}
-          </code>
+          {/* Formulas */}
+          {formulas.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">Formulas</h4>
+              <div className="flex flex-col gap-2">
+                {formulas.map((f, i) => (
+                  <div key={i} className={`flex items-start gap-2 p-2.5 rounded-[10px] border border-transparent ${f.bg}`}>
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/50 border border-white/20 uppercase ${f.color}`}>{f.label}</span>
+                    <code className={`text-[13px] font-mono font-medium ${f.color} flex-1 break-words`}>{f.val}</code>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Explanation */}
+          {rule.explanation && (
+            <div>
+              <h4 className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider mb-2">Explanation</h4>
+              <div className="text-[14px] text-[#374151] leading-relaxed whitespace-pre-wrap bg-[#F9FAFB] p-3 rounded-[12px] border border-[#F3F4F6]">
+                {rule.explanation}
+              </div>
+            </div>
+          )}
+
+          {/* Bengali Hint */}
+          {(rule.bengaliHint || rule.bnHint) && (
+            <div className="flex gap-3 items-center bg-amber-50 p-3 rounded-[12px] border border-amber-100">
+              <span className="text-xl">💡</span>
+              <div>
+                <div className="text-[11px] font-bold text-amber-800/60 uppercase">Hint</div>
+                <div className="text-[14px] font-medium text-amber-900 leading-tight mt-0.5">
+                  {rule.bengaliHint || rule.bnHint}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Examples */}
+          {(rule.examples?.length > 0 || rule.legacyExamples?.length > 0) && (
+            <div>
+              <h4 className="text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider mb-2">Examples</h4>
+              <div className="space-y-2.5">
+                {rule.examples?.map((ex, i) => (
+                  <div key={i} className="pl-3 border-l-2 border-[#E5E7EB] py-0.5 hover:border-[#6366F1] transition-colors group">
+                    <div className="text-[14px] font-medium text-[#111827] leading-snug">{ex.english}</div>
+                    {ex.bengali && <div className="text-[13px] text-[#6B7280] mt-0.5">{ex.bengali}</div>}
+                  </div>
+                ))}
+                {rule.legacyExamples?.map((ex, i) => (
+                  <div key={`leg-${i}`} className="pl-3 border-l-2 border-[#E5E7EB] py-0.5">
+                    <div className="text-[14px] text-[#374151]">{ex}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Tips */}
+          {rule.tips && rule.tips.length > 0 && (
+            <div className="pt-2">
+              {rule.tips.map((tip, i) => (
+                <div key={i} className="flex gap-2 text-[13px] text-indigo-800 bg-indigo-50 p-2.5 rounded-[10px] border border-indigo-100 mb-2">
+                  <span>✨</span>
+                  <span className="leading-snug">{tip}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
         </div>
       )}
-
-      {/* Row 3: Bengali Hint */}
-      {(rule.bengaliHint || rule.bnHint) && (
-        <div className="mb-4 flex items-center gap-2 text-[13px] text-gray-500">
-          <span className="text-amber-500">💡</span>
-          <span className="truncate max-w-[90%]">{rule.bengaliHint || rule.bnHint}</span>
-        </div>
-      )}
-
-      {/* Row 4: Footer */}
-      <div className="flex items-center justify-between pt-3 border-t border-[#F9FAFB]">
-        <div className="flex gap-2">
-          <span className="text-[10px] font-bold bg-[#F3F4F6] text-[#6B7280] px-2 py-1 rounded-md uppercase tracking-wider">
-            {rule.category || 'General'}
-          </span>
-          <span className={`text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider bg-opacity-10
-            ${rule.difficulty === 'Advanced' ? 'bg-red-500 text-red-700' : 
-              rule.difficulty === 'Intermediate' ? 'bg-yellow-500 text-yellow-700' : 
-              'bg-green-500 text-green-700'}`}>
-            {rule.difficulty}
-          </span>
-        </div>
-        <span className="text-[12px] font-medium text-[#9CA3AF]">
-          {(rule.examples?.length || 0) + (rule.legacyExamples?.length || 0)} examples
-        </span>
-      </div>
     </div>
   );
 };

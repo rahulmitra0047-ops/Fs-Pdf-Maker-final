@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import PremiumInput from '../../../shared/components/PremiumInput';
 import Icon from '../../../shared/components/Icon';
-import { GrammarRule, GrammarExample, CommonMistake } from '../../../types';
+import { GrammarRule, GrammarExample } from '../../../types';
 import { generateUUID } from '../../../core/storage/idGenerator';
 
 interface Props {
@@ -13,72 +13,63 @@ interface Props {
   lessonId: string;
 }
 
-const CATEGORIES = [
-  'General', 'Tense', 'Parts of Speech', 'Voice', 'Narration', 
-  'Transformation', 'Sentence', 'Article', 'Preposition', 
-  'Conjunction', 'Right Form of Verb'
-];
-
 const CollapsibleSection: React.FC<{
   title: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   defaultOpen?: boolean;
   children: React.ReactNode;
-}> = ({ title, icon, defaultOpen = false, children }) => {
+  headerClass?: string;
+}> = ({ title, icon, defaultOpen = false, children, headerClass = "bg-[#F9FAFB]" }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="border border-[#E5E7EB] rounded-[14px] overflow-hidden mb-3 bg-white">
+    <div className="border border-[#E5E7EB] rounded-[14px] overflow-hidden mb-3 bg-white shadow-sm">
       <div 
-        className="flex items-center justify-between p-3.5 cursor-pointer bg-[#F9FAFB] hover:bg-[#F3F4F6] transition-colors"
+        className={`flex items-center justify-between p-3.5 cursor-pointer hover:bg-[#F3F4F6] transition-colors ${headerClass}`}
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center gap-3">
-          <div className="text-[#6B7280]">{icon}</div>
+          {icon && <div className="text-[#6B7280]">{icon}</div>}
           <span className="font-semibold text-[#374151] text-sm">{title}</span>
         </div>
         <div className={`text-[#9CA3AF] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
           <Icon name="chevron-left" size="sm" className="-rotate-90" />
         </div>
       </div>
-      {isOpen && <div className="p-4 border-t border-[#E5E7EB]">{children}</div>}
+      {isOpen && <div className="p-4 border-t border-[#E5E7EB] animate-in fade-in slide-in-from-top-1">{children}</div>}
     </div>
   );
 };
 
 const AddRuleSheet: React.FC<Props> = ({ isOpen, onClose, onSave, existingRule, lessonId }) => {
+  // Fields
   const [title, setTitle] = useState('');
-  const [category, setCategory] = useState(CATEGORIES[0]);
-  const [difficulty, setDifficulty] = useState<'Beginner' | 'Intermediate' | 'Advanced'>('Beginner');
   const [explanation, setExplanation] = useState('');
   const [bengaliHint, setBengaliHint] = useState('');
   
+  // Formulas
   const [formulaAff, setFormulaAff] = useState('');
   const [formulaNeg, setFormulaNeg] = useState('');
   const [formulaInt, setFormulaInt] = useState('');
   
+  // Arrays
   const [examples, setExamples] = useState<GrammarExample[]>([]);
-  const [commonMistakes, setCommonMistakes] = useState<CommonMistake[]>([]);
-  const [signalWords, setSignalWords] = useState('');
   const [tips, setTips] = useState<string[]>([]);
-
-  // New tip/mistake/example input states
   const [newTip, setNewTip] = useState('');
 
+  // Init
   useEffect(() => {
     if (isOpen) {
       if (existingRule) {
         setTitle(existingRule.title);
-        setCategory(existingRule.category || 'General');
-        setDifficulty(existingRule.difficulty || 'Beginner');
         setExplanation(existingRule.explanation);
         setBengaliHint(existingRule.bengaliHint || existingRule.bnHint || '');
         setFormulaAff(existingRule.formulaAffirmative || existingRule.pattern || '');
         setFormulaNeg(existingRule.formulaNegative || '');
         setFormulaInt(existingRule.formulaInterrogative || '');
-        setExamples(existingRule.examples || []);
-        setCommonMistakes(existingRule.commonMistakes || []);
-        setSignalWords(existingRule.signalWords?.join(', ') || '');
+        setExamples(existingRule.examples && existingRule.examples.length > 0 
+            ? existingRule.examples 
+            : [{ english: '', bengali: '', type: 'affirmative' }]);
         setTips(existingRule.tips || []);
       } else {
         resetForm();
@@ -88,52 +79,42 @@ const AddRuleSheet: React.FC<Props> = ({ isOpen, onClose, onSave, existingRule, 
 
   const resetForm = () => {
     setTitle('');
-    setCategory('General');
-    setDifficulty('Beginner');
     setExplanation('');
     setBengaliHint('');
     setFormulaAff('');
     setFormulaNeg('');
     setFormulaInt('');
     setExamples([{ english: '', bengali: '', type: 'affirmative' }]);
-    setCommonMistakes([]);
-    setSignalWords('');
     setTips([]);
     setNewTip('');
   };
 
   const handleSave = () => {
-    if (!title.trim()) {
-      // Show error
-      return;
-    }
+    if (!title.trim()) return;
 
     const rule: GrammarRule = {
       id: existingRule?.id || generateUUID(),
       lessonId,
       title,
-      category,
-      difficulty,
       explanation,
       bengaliHint,
       formulaAffirmative: formulaAff,
       formulaNegative: formulaNeg,
       formulaInterrogative: formulaInt,
-      examples: examples.filter(ex => ex.english.trim()),
-      commonMistakes: commonMistakes.filter(cm => cm.wrong.trim()),
-      signalWords: signalWords.split(',').map(s => s.trim()).filter(Boolean),
+      examples: examples.filter(ex => ex.english.trim() || ex.bengali.trim()),
       tips: tips.filter(t => t.trim()),
       isFavorite: existingRule?.isFavorite || false,
       createdAt: existingRule?.createdAt || Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
+      // Preserve existing fields if they exist, or default for compatibility
+      category: existingRule?.category || 'General',
+      difficulty: existingRule?.difficulty || 'Beginner',
+      commonMistakes: existingRule?.commonMistakes || [],
+      signalWords: existingRule?.signalWords || []
     };
 
     onSave(rule);
     onClose();
-  };
-
-  const addExample = () => {
-    setExamples([...examples, { english: '', bengali: '', type: 'affirmative' }]);
   };
 
   const updateExample = (index: number, field: keyof GrammarExample, value: string) => {
@@ -142,24 +123,14 @@ const AddRuleSheet: React.FC<Props> = ({ isOpen, onClose, onSave, existingRule, 
     setExamples(newEx);
   };
 
+  const addExample = () => {
+    setExamples([...examples, { english: '', bengali: '', type: 'affirmative' }]);
+  };
+
   const removeExample = (index: number) => {
     if (examples.length > 1) {
       setExamples(examples.filter((_, i) => i !== index));
     }
-  };
-
-  const addMistake = () => {
-    setCommonMistakes([...commonMistakes, { wrong: '', correct: '', reason: '' }]);
-  };
-
-  const updateMistake = (index: number, field: keyof CommonMistake, value: string) => {
-    const newM = [...commonMistakes];
-    newM[index] = { ...newM[index], [field]: value };
-    setCommonMistakes(newM);
-  };
-
-  const removeMistake = (index: number) => {
-    setCommonMistakes(commonMistakes.filter((_, i) => i !== index));
   };
 
   const addTip = () => {
@@ -177,236 +148,174 @@ const AddRuleSheet: React.FC<Props> = ({ isOpen, onClose, onSave, existingRule, 
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 z-[90] transition-opacity" onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 bg-[#FAFAFA] z-[100] rounded-t-[24px] shadow-2xl h-[93vh] flex flex-col animate-slide-up">
+      <div className="fixed inset-0 bg-black/50 z-[90] transition-opacity backdrop-blur-[1px]" onClick={onClose} />
+      
+      {/* Draggable Sheet Simulation: Fixed Height 93% */}
+      <div className="fixed bottom-0 left-0 right-0 bg-[#FAFAFA] z-[100] rounded-t-[24px] shadow-2xl h-[93vh] flex flex-col animate-slide-up transform transition-transform">
+        
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E7EB] bg-white rounded-t-[24px]">
-          <h2 className="text-[18px] font-bold text-[#111827]">{existingRule ? 'Edit Rule' : 'Add New Rule'}</h2>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 text-[#6B7280]">
-            <Icon name="x" size="sm" />
-          </button>
+          <h2 className="text-[18px] font-bold text-[#111827]">{existingRule ? 'Update Rule' : 'Add New Rule'}</h2>
+          <div className="flex gap-2">
+            <button onClick={handleSave} className="bg-[#6366F1] text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md shadow-indigo-200 active:scale-95 transition-transform">
+              Save
+            </button>
+            <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 text-[#6B7280] transition-colors">
+              <Icon name="x" size="sm" />
+            </button>
+          </div>
         </div>
 
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-5 pb-24">
+        {/* Scrollable Form Content */}
+        <div className="flex-1 overflow-y-auto p-5 pb-32 space-y-5">
           
-          {/* Top Section */}
-          <div className="space-y-4 mb-6">
-            <PremiumInput 
-              label="Rule Title" 
-              placeholder="e.g. Present Indefinite Tense" 
-              value={title} 
-              onChange={setTitle} 
-            />
-            
-            <div className="flex gap-3">
-              <div className="flex-[3]">
-                <label className="block text-sm font-semibold text-[#374151] mb-1.5 ml-1">Category</label>
-                <select 
-                  value={category} 
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-white border border-[#E5E7EB] rounded-[12px] px-3 py-3 text-sm focus:border-[#6C63FF] outline-none"
-                >
-                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-              <div className="flex-[2]">
-                <label className="block text-sm font-semibold text-[#374151] mb-1.5 ml-1">Difficulty</label>
-                <select 
-                  value={difficulty} 
-                  onChange={(e) => setDifficulty(e.target.value as any)}
-                  className="w-full bg-white border border-[#E5E7EB] rounded-[12px] px-3 py-3 text-sm focus:border-[#6C63FF] outline-none"
-                >
-                  <option value="Beginner">🟢 Beginner</option>
-                  <option value="Intermediate">🟡 Intermediate</option>
-                  <option value="Advanced">🔴 Advanced</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-[#374151] mb-1.5 ml-1">Explanation (Bengali)</label>
-              <textarea 
-                value={explanation} 
-                onChange={(e) => setExplanation(e.target.value)}
-                placeholder="নিয়মটি সহজ বাংলায় ব্যাখ্যা করুন..."
-                rows={3}
-                className="w-full bg-white border border-[#E5E7EB] rounded-[12px] px-3 py-3 text-sm focus:border-[#6C63FF] outline-none resize-none"
-              />
-            </div>
-
-            <PremiumInput 
-              label="চেনার উপায় 💡" 
-              placeholder="e.g. প্রতিদিন, সবসময় থাকলে এই Tense" 
-              value={bengaliHint} 
-              onChange={setBengaliHint} 
+          {/* 1. Title */}
+          <div>
+            <label className="block text-sm font-bold text-[#374151] mb-1.5 ml-1">Title <span className="text-red-500">*</span></label>
+            <input 
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Present Indefinite Tense"
+              className="w-full bg-white border border-[#E5E7EB] rounded-[14px] px-4 py-3 text-base font-medium outline-none focus:border-[#6366F1] focus:ring-4 focus:ring-[#6366F1]/10 transition-all placeholder:text-gray-400 placeholder:font-normal"
             />
           </div>
 
-          {/* Formulas */}
-          <CollapsibleSection title="Formulas" icon={<Icon name="layout-grid" size="sm" />} defaultOpen>
+          {/* 2. Explanation */}
+          <div>
+            <label className="block text-sm font-bold text-[#374151] mb-1.5 ml-1">Explanation</label>
+            <textarea 
+              value={explanation}
+              onChange={(e) => setExplanation(e.target.value)}
+              placeholder="Explain the grammar rule here..."
+              rows={3}
+              className="w-full bg-white border border-[#E5E7EB] rounded-[14px] px-4 py-3 text-sm outline-none focus:border-[#6366F1] resize-none placeholder:text-gray-400"
+            />
+          </div>
+
+          {/* 3. Hint */}
+          <div>
+            <label className="block text-sm font-bold text-[#374151] mb-1.5 ml-1">Bengali Hint 💡</label>
+            <input 
+              value={bengaliHint}
+              onChange={(e) => setBengaliHint(e.target.value)}
+              placeholder="e.g. বাংলা বাক্যের শেষে..."
+              className="w-full bg-white border border-[#E5E7EB] rounded-[14px] px-4 py-3 text-sm outline-none focus:border-[#6366F1] placeholder:text-gray-400"
+            />
+          </div>
+
+          {/* 4. Formulas */}
+          <CollapsibleSection title="Formulas / Structure" icon={<Icon name="layout-grid" size="sm" />}>
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">✅</span>
+              <div>
+                <label className="text-xs font-bold text-green-600 mb-1 block uppercase">Affirmative</label>
                 <input 
-                  value={formulaAff} 
+                  value={formulaAff}
                   onChange={(e) => setFormulaAff(e.target.value)}
-                  placeholder="S + V1(s/es) + O" 
-                  className="flex-1 font-mono text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:border-[#6C63FF] outline-none"
+                  placeholder="Sub + V1 + Obj"
+                  className="w-full bg-[#F0FDF4] border border-green-100 rounded-[10px] px-3 py-2.5 text-sm font-mono text-green-800 outline-none focus:border-green-300"
                 />
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl">❌</span>
+              <div>
+                <label className="text-xs font-bold text-red-500 mb-1 block uppercase">Negative</label>
                 <input 
-                  value={formulaNeg} 
+                  value={formulaNeg}
                   onChange={(e) => setFormulaNeg(e.target.value)}
-                  placeholder="S + do/does + not + V1 + O" 
-                  className="flex-1 font-mono text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:border-[#6C63FF] outline-none"
+                  placeholder="Sub + do/does not + V1 + Obj"
+                  className="w-full bg-[#FEF2F2] border border-red-100 rounded-[10px] px-3 py-2.5 text-sm font-mono text-red-800 outline-none focus:border-red-300"
                 />
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl">❓</span>
+              <div>
+                <label className="text-xs font-bold text-blue-500 mb-1 block uppercase">Interrogative</label>
                 <input 
-                  value={formulaInt} 
+                  value={formulaInt}
                   onChange={(e) => setFormulaInt(e.target.value)}
-                  placeholder="Do/Does + S + V1 + O + ?" 
-                  className="flex-1 font-mono text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:border-[#6C63FF] outline-none"
+                  placeholder="Do/Does + Sub + V1 + Obj?"
+                  className="w-full bg-[#EFF6FF] border border-blue-100 rounded-[10px] px-3 py-2.5 text-sm font-mono text-blue-800 outline-none focus:border-blue-300"
                 />
               </div>
             </div>
           </CollapsibleSection>
 
-          {/* Examples */}
-          <CollapsibleSection title="Examples" icon={<Icon name="list" size="sm" />} defaultOpen>
+          {/* 5. Examples */}
+          <CollapsibleSection title="Examples" icon={<Icon name="list" size="sm" />} defaultOpen={true}>
             <div className="space-y-4">
-              {examples.map((ex, idx) => (
-                <div key={idx} className="border border-[#E5E7EB] rounded-xl p-3 bg-gray-50">
-                  <div className="flex justify-between mb-2">
-                    <span className="text-xs font-bold text-gray-500 uppercase">Example {idx + 1}</span>
-                    <div className="flex gap-2">
-                      <select 
-                        value={ex.type} 
-                        onChange={(e) => updateExample(idx, 'type', e.target.value as any)}
-                        className={`text-xs font-bold px-2 py-0.5 rounded border border-transparent 
-                          ${ex.type === 'affirmative' ? 'text-green-600 bg-green-50' : 
-                            ex.type === 'negative' ? 'text-red-600 bg-red-50' : 
-                            'text-blue-600 bg-blue-50'}`}
-                      >
-                        <option value="affirmative">AFF</option>
-                        <option value="negative">NEG</option>
-                        <option value="interrogative">INT</option>
-                      </select>
-                      {examples.length > 1 && (
-                        <button onClick={() => removeExample(idx)} className="text-gray-400 hover:text-red-500">
-                          <Icon name="x" size="sm" />
-                        </button>
-                      )}
-                    </div>
+              {examples.map((ex, index) => (
+                <div key={index} className="bg-gray-50 border border-gray-200 rounded-[14px] p-3 relative group animate-in fade-in">
+                  {/* Remove Button */}
+                  {examples.length > 1 && (
+                    <button 
+                      onClick={() => removeExample(index)}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-100 text-red-500 rounded-full flex items-center justify-center border border-red-200 shadow-sm hover:bg-red-200 active:scale-90 transition-all z-10"
+                    >
+                      <Icon name="x" size="sm" />
+                    </button>
+                  )}
+                  
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs font-bold text-gray-400 bg-white px-2 py-0.5 rounded border border-gray-200">Example {index + 1}</span>
+                    <select 
+                      value={ex.type}
+                      onChange={(e) => updateExample(index, 'type', e.target.value as any)}
+                      className="text-xs bg-white border border-gray-200 rounded px-2 py-1 outline-none text-gray-600 focus:border-indigo-300"
+                    >
+                      <option value="affirmative">Affirmative</option>
+                      <option value="negative">Negative</option>
+                      <option value="interrogative">Interrogative</option>
+                    </select>
                   </div>
-                  <input 
-                    value={ex.english} 
-                    onChange={(e) => updateExample(idx, 'english', e.target.value)}
-                    placeholder="🇬🇧 English Sentence" 
-                    className="w-full mb-2 text-sm bg-white border border-gray-200 rounded-lg px-3 py-2 focus:border-[#6C63FF] outline-none"
-                  />
-                  <input 
-                    value={ex.bengali} 
-                    onChange={(e) => updateExample(idx, 'bengali', e.target.value)}
-                    placeholder="🇧🇩 Bengali Translation" 
-                    className="w-full text-sm bg-white border border-gray-200 rounded-lg px-3 py-2 focus:border-[#6C63FF] outline-none"
-                  />
+
+                  <div className="space-y-2">
+                    {/* BENGALI INPUT FIRST as requested */}
+                    <input 
+                      value={ex.bengali}
+                      onChange={(e) => updateExample(index, 'bengali', e.target.value)}
+                      placeholder="বাংলা বাক্য..."
+                      className="w-full bg-white border border-gray-200 rounded-[10px] px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                    />
+                    {/* ENGLISH INPUT SECOND */}
+                    <input 
+                      value={ex.english}
+                      onChange={(e) => updateExample(index, 'english', e.target.value)}
+                      placeholder="English sentence..."
+                      className="w-full bg-white border border-gray-200 rounded-[10px] px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 font-medium text-gray-800"
+                    />
+                  </div>
                 </div>
               ))}
+              
               <button 
                 onClick={addExample}
-                className="w-full py-2 border border-dashed border-[#6C63FF] text-[#6C63FF] rounded-xl text-sm font-semibold hover:bg-[#EEF2FF] transition-colors"
+                className="w-full py-3 border-2 border-dashed border-[#E5E7EB] rounded-[14px] text-sm font-bold text-[#6B7280] hover:border-[#6366F1] hover:text-[#6366F1] hover:bg-[#EEF2FF] transition-all flex items-center justify-center gap-2"
               >
-                + Add Example
+                <Icon name="plus" size="sm" /> Add Another Example
               </button>
             </div>
           </CollapsibleSection>
 
-          {/* Signal Words */}
-          <CollapsibleSection title="Signal Words" icon={<Icon name="tag" size="sm" />}>
-            <input 
-              value={signalWords} 
-              onChange={(e) => setSignalWords(e.target.value)}
-              placeholder="always, usually, every day (comma separated)" 
-              className="w-full text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 focus:border-[#6C63FF] outline-none"
-            />
-          </CollapsibleSection>
-
-          {/* Common Mistakes */}
-          <CollapsibleSection title="Common Mistakes" icon={<Icon name="alert-triangle" size="sm" />}>
-            <div className="space-y-4">
-              {commonMistakes.map((mistake, idx) => (
-                <div key={idx} className="border border-[#E5E7EB] rounded-xl p-3 bg-white shadow-sm relative">
-                  <button onClick={() => removeMistake(idx)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500">
-                    <Icon name="x" size="sm" />
-                  </button>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 bg-red-50 p-2 rounded-lg border border-red-100">
-                      <span>❌</span>
-                      <input 
-                        value={mistake.wrong} 
-                        onChange={(e) => updateMistake(idx, 'wrong', e.target.value)}
-                        placeholder="Wrong Sentence" 
-                        className="flex-1 bg-transparent text-sm outline-none placeholder-red-300 text-red-900"
-                      />
-                    </div>
-                    <div className="flex items-center gap-2 bg-green-50 p-2 rounded-lg border border-green-100">
-                      <span>✅</span>
-                      <input 
-                        value={mistake.correct} 
-                        onChange={(e) => updateMistake(idx, 'correct', e.target.value)}
-                        placeholder="Correct Sentence" 
-                        className="flex-1 bg-transparent text-sm outline-none placeholder-green-300 text-green-900"
-                      />
-                    </div>
-                    <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-100">
-                      <span>💬</span>
-                      <input 
-                        value={mistake.reason} 
-                        onChange={(e) => updateMistake(idx, 'reason', e.target.value)}
-                        placeholder="Reason (Why is it wrong?)" 
-                        className="flex-1 bg-transparent text-sm outline-none text-gray-600"
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-              <button 
-                onClick={addMistake}
-                className="w-full py-2 border border-dashed border-[#6C63FF] text-[#6C63FF] rounded-xl text-sm font-semibold hover:bg-[#EEF2FF] transition-colors"
-              >
-                + Add Mistake
-              </button>
-            </div>
-          </CollapsibleSection>
-
-          {/* Tips */}
-          <CollapsibleSection title="Tips" icon={<Icon name="sparkles" size="sm" />}>
+          {/* 6. Tips */}
+          <CollapsibleSection title="Tips / Tricks" icon={<Icon name="sparkles" size="sm" />}>
             <div className="space-y-3">
-              {tips.map((tip, idx) => (
-                <div key={idx} className="flex items-center gap-2 bg-yellow-50 border border-yellow-100 p-3 rounded-xl">
+              {tips.map((tip, index) => (
+                <div key={index} className="flex gap-2 items-start bg-yellow-50 p-3 rounded-[10px] border border-yellow-100">
                   <span className="text-lg">💡</span>
-                  <span className="flex-1 text-sm text-yellow-900">{tip}</span>
-                  <button onClick={() => removeTip(idx)} className="text-yellow-600/50 hover:text-yellow-700">
+                  <p className="flex-1 text-sm text-yellow-800 leading-relaxed">{tip}</p>
+                  <button onClick={() => removeTip(index)} className="text-yellow-600 hover:text-yellow-800 px-1">
                     <Icon name="x" size="sm" />
                   </button>
                 </div>
               ))}
-              <div className="flex gap-2">
+              
+              <div className="flex gap-2 mt-2">
                 <input 
                   value={newTip}
                   onChange={(e) => setNewTip(e.target.value)}
-                  placeholder="Add a memory tip..."
-                  className="flex-1 text-sm bg-white border border-gray-200 rounded-lg px-3 py-2 focus:border-[#6C63FF] outline-none"
+                  placeholder="Add a new tip..."
+                  className="flex-1 bg-white border border-[#E5E7EB] rounded-[10px] px-3 py-2 text-sm outline-none focus:border-[#6366F1]"
                   onKeyDown={(e) => e.key === 'Enter' && addTip()}
                 />
                 <button 
                   onClick={addTip}
-                  className="px-4 py-2 bg-[#6C63FF] text-white rounded-lg font-bold text-sm"
+                  className="bg-[#6366F1] text-white px-4 rounded-[10px] font-bold text-sm hover:bg-indigo-700 active:scale-95 transition-transform"
                 >
                   Add
                 </button>
@@ -414,16 +323,6 @@ const AddRuleSheet: React.FC<Props> = ({ isOpen, onClose, onSave, existingRule, 
             </div>
           </CollapsibleSection>
 
-        </div>
-
-        {/* Fixed Bottom Action */}
-        <div className="absolute bottom-0 left-0 right-0 p-5 bg-white border-t border-[#E5E7EB] pb-safe">
-          <button 
-            onClick={handleSave}
-            className="w-full py-4 bg-[#6C63FF] text-white rounded-[16px] font-bold text-[16px] shadow-lg shadow-indigo-200 active:scale-[0.98] transition-transform"
-          >
-            {existingRule ? 'Update Rule' : 'Save Rule'}
-          </button>
         </div>
       </div>
     </>

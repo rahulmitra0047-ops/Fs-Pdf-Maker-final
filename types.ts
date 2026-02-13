@@ -320,20 +320,30 @@ export interface GrammarRule {
   id: string;
   lessonId: string;
   title: string;
-  category: string;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  
+  // Main Content
   explanation: string;
+  bengaliHint?: string;
+  
+  // Formulas
   formulaAffirmative?: string;
   formulaNegative?: string;
   formulaInterrogative?: string;
-  bengaliHint?: string;
+  
+  // Arrays
   examples: GrammarExample[];
-  commonMistakes?: CommonMistake[];
-  signalWords?: string[];
   tips?: string[];
+  
+  // Meta
   isFavorite: boolean;
   createdAt: number;
   updatedAt: number;
+  
+  // Optional / Legacy fields
+  category?: string;
+  difficulty?: 'Beginner' | 'Intermediate' | 'Advanced';
+  commonMistakes?: CommonMistake[];
+  signalWords?: string[];
   
   // Legacy fields compatibility
   ruleNo?: number;

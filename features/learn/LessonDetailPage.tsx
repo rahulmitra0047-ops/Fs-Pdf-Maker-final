@@ -1,22 +1,20 @@
 
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Icon from '../../shared/components/Icon';
 import PremiumModal from '../../shared/components/PremiumModal';
 import { useToast } from '../../shared/context/ToastContext';
-import { GrammarRule, VocabItem } from '../../types'; // Import from central types
+import { GrammarRule, VocabItem } from '../../types'; 
 import AddRuleSheet from './components/AddRuleSheet';
+import BulkRuleImportSheet from './components/BulkRuleImportSheet';
 import RuleCard from './components/RuleCard';
-import RuleDetailView from './components/RuleDetailView';
 
-// Local Lesson Interface (kept as is for mock storage structure)
 interface Lesson {
   id: string;
   number: number;
   title: string;
   subtitle?: string;
-  grammar?: string; // Stored as JSON string
+  grammar?: string; 
   vocabulary?: string;
   status: 'new' | 'in-progress' | 'completed';
 }
@@ -34,9 +32,17 @@ const LessonDetailPage: React.FC = () => {
   // Grammar State
   const [rules, setRules] = useState<GrammarRule[]>([]);
   const [showAddSheet, setShowAddSheet] = useState(false);
+  const [showBulkSheet, setShowBulkSheet] = useState(false);
+  const [showAddMenu, setShowAddMenu] = useState(false);
   const [editingRule, setEditingRule] = useState<GrammarRule | null>(null);
-  const [viewingRule, setViewingRule] = useState<GrammarRule | null>(null);
   const [deleteRuleId, setDeleteRuleId] = useState<string | null>(null);
+
+  // Close menu on outside click
+  useEffect(() => {
+    const handleClickOutside = () => setShowAddMenu(false);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     // Load lesson from local storage
@@ -52,11 +58,9 @@ const LessonDetailPage: React.FC = () => {
                 try {
                     const parsed = JSON.parse(found.grammar);
                     if (Array.isArray(parsed)) {
-                        // Ensure compatibility by mapping if necessary
-                        // But mostly trusting the structure if saved by this app
                         setRules(parsed);
                     } else {
-                        // Migration: Plain text to Rule Object
+                        // Migration fallback
                         setRules([{
                             id: crypto.randomUUID(),
                             lessonId: found.id,
@@ -71,7 +75,6 @@ const LessonDetailPage: React.FC = () => {
                         }]);
                     }
                 } catch (e) {
-                    // Fallback for plain text
                     if (found.grammar.trim()) {
                         setRules([{
                             id: crypto.randomUUID(),
@@ -133,10 +136,12 @@ const LessonDetailPage: React.FC = () => {
       }
       saveRulesToStorage(updatedRules);
       setEditingRule(null);
-      // If we were viewing this rule, update the view too
-      if (viewingRule && viewingRule.id === rule.id) {
-          setViewingRule(rule);
-      }
+  };
+
+  const handleBulkImport = (newRules: GrammarRule[]) => {
+      const updatedRules = [...rules, ...newRules];
+      saveRulesToStorage(updatedRules);
+      toast.success(`${newRules.length} rules imported`);
   };
 
   const handleDeleteRule = () => {
@@ -144,18 +149,10 @@ const LessonDetailPage: React.FC = () => {
           const updatedRules = rules.filter(r => r.id !== deleteRuleId);
           saveRulesToStorage(updatedRules);
           setDeleteRuleId(null);
-          // If viewing deleted rule, close view
-          if (viewingRule?.id === deleteRuleId) setViewingRule(null);
           toast.success("Rule deleted");
       }
   };
 
-  const toggleFavorite = (id: string) => {
-      const updatedRules = rules.map(r => r.id === id ? { ...r, isFavorite: !r.isFavorite } : r);
-      saveRulesToStorage(updatedRules);
-  };
-
-  // Parse Vocabulary (Existing Logic)
   const vocabList: VocabItem[] = useMemo(() => {
       if (!lesson?.vocabulary) return [];
       return lesson.vocabulary.split('\n')
@@ -232,14 +229,44 @@ const LessonDetailPage: React.FC = () => {
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-[13px] font-semibold text-[#9CA3AF] uppercase tracking-wide">
-                        Grammar Rules ({rules.length})
+                        Rules ({rules.length})
                     </h3>
-                    <button 
-                        onClick={() => { setEditingRule(null); setShowAddSheet(true); }}
-                        className="text-[13px] font-bold text-[#6366F1] hover:text-[#4F46E5] flex items-center gap-1.5 bg-[#EEF2FF] px-3 py-1.5 rounded-[10px] transition-colors"
-                    >
-                        <Icon name="plus" size="sm" /> Add Rule
-                    </button>
+                    
+                    <div className="relative">
+                        <button 
+                            onClick={(e) => { 
+                                e.stopPropagation(); 
+                                setShowAddMenu(!showAddMenu); 
+                            }}
+                            className="text-[13px] font-bold text-[#6366F1] hover:text-[#4F46E5] flex items-center gap-1.5 bg-[#EEF2FF] px-3 py-1.5 rounded-[10px] transition-colors shadow-sm active:scale-95"
+                        >
+                            <Icon name="plus" size="sm" /> Add Rule
+                        </button>
+
+                        {showAddMenu && (
+                            <div className="absolute right-0 top-10 w-40 bg-white border border-gray-100 shadow-xl rounded-xl overflow-hidden z-20 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+                                <button 
+                                    onClick={() => { 
+                                        setEditingRule(null); 
+                                        setShowAddSheet(true); 
+                                        setShowAddMenu(false); 
+                                    }}
+                                    className="w-full text-left px-4 py-3 text-[13px] font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-50"
+                                >
+                                    <Icon name="edit-3" size="sm" /> Single Rule
+                                </button>
+                                <button 
+                                    onClick={() => {
+                                        setShowBulkSheet(true);
+                                        setShowAddMenu(false);
+                                    }}
+                                    className="w-full text-left px-4 py-3 text-[13px] font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                >
+                                    <Icon name="clipboard-list" size="sm" /> Bulk Import
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {rules.length === 0 ? (
@@ -247,19 +274,18 @@ const LessonDetailPage: React.FC = () => {
                         <div className="text-gray-300 mb-2 opacity-50 flex justify-center">
                             <Icon name="book-open" size="xl" />
                         </div>
-                        <p className="text-[#374151] font-semibold mb-1">No grammar rules yet</p>
-                        <p className="text-[#9CA3AF] text-sm">Tap + Add Rule to create your first rule.</p>
+                        <p className="text-[#374151] font-semibold mb-1">No rules added</p>
+                        <p className="text-[#9CA3AF] text-sm">Add grammar rules to study later.</p>
                     </div>
                 ) : (
                     <div className="flex flex-col gap-3">
-                        {rules.map((rule) => (
+                        {rules.map((rule, idx) => (
                             <RuleCard 
                                 key={rule.id}
                                 rule={rule}
-                                onTap={() => setViewingRule(rule)}
+                                serial={idx + 1}
                                 onEdit={() => { setEditingRule(rule); setShowAddSheet(true); }}
                                 onDelete={() => setDeleteRuleId(rule.id)}
-                                onToggleFavorite={() => toggleFavorite(rule.id)}
                             />
                         ))}
                     </div>
@@ -297,7 +323,7 @@ const LessonDetailPage: React.FC = () => {
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-4">
                 <div className="bg-white p-5 rounded-[20px] border border-[#F3F4F6] shadow-sm flex flex-col items-center text-center py-10">
                     <div className="text-gray-300 mb-3"><Icon name="sparkles" size="lg" /></div>
-                    <p className="text-[#9CA3AF] text-sm">Examples from rules will appear here in future updates.</p>
+                    <p className="text-[#9CA3AF] text-sm">Review examples from all rules here.</p>
                 </div>
             </div>
         )}
@@ -314,12 +340,13 @@ const LessonDetailPage: React.FC = () => {
           />
       )}
 
-      {/* Detail View */}
-      {viewingRule && (
-          <RuleDetailView 
-            rule={viewingRule}
-            onClose={() => setViewingRule(null)}
-            onEdit={() => { setViewingRule(null); setEditingRule(viewingRule); setShowAddSheet(true); }}
+      {/* Bulk Import Sheet */}
+      {showBulkSheet && (
+          <BulkRuleImportSheet
+            isOpen={showBulkSheet}
+            onClose={() => setShowBulkSheet(false)}
+            onImport={handleBulkImport}
+            lessonId={lesson.id}
           />
       )}
 
