@@ -1,4 +1,5 @@
 
+
 // Core Entity Types
 
 export interface MCQ {
@@ -294,4 +295,49 @@ export interface AuditLogEntry {
   entityId?: string;
   details?: string;
   timestamp: number;
+}
+
+// Grammar Rule Types
+export interface GrammarExample {
+  english: string;
+  bengali: string;
+  type: 'affirmative' | 'negative' | 'interrogative';
+}
+
+export interface CommonMistake {
+  wrong: string;
+  correct: string;
+  reason: string;
+}
+
+export interface VocabItem {
+  word: string;
+  meaning: string;
+  example?: string;
+}
+
+export interface GrammarRule {
+  id: string;
+  lessonId: string;
+  title: string;
+  category: string;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  explanation: string;
+  formulaAffirmative?: string;
+  formulaNegative?: string;
+  formulaInterrogative?: string;
+  bengaliHint?: string;
+  examples: GrammarExample[];
+  commonMistakes?: CommonMistake[];
+  signalWords?: string[];
+  tips?: string[];
+  isFavorite: boolean;
+  createdAt: number;
+  updatedAt: number;
+  
+  // Legacy fields compatibility
+  ruleNo?: number;
+  pattern?: string;
+  bnHint?: string;
+  legacyExamples?: string[];
 }
