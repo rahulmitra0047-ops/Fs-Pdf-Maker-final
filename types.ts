@@ -1,5 +1,6 @@
 
 
+
 // Core Entity Types
 
 export interface MCQ {
@@ -266,6 +267,7 @@ export interface AppSettings {
   vibrationEnabled: boolean;
   railwayBaseUrl?: string;
   geminiApiKeys?: string[]; // Added for AI rotation
+  preferredModel?: string; // NEW: Global model selection
   lastBackupTimestamp?: number;
 }
 

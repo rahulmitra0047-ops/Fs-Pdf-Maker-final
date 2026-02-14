@@ -1,8 +1,7 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-// Browser safeguard for @google/genai SDK to prevent crash
-// The SDK attempts to access process.env or process.version in some environments
+// Backup safeguard (though index.tsx handles it globally now)
 if (typeof window !== 'undefined') {
   if (typeof (window as any).process === 'undefined') {
     (window as any).process = { env: {} };
@@ -21,6 +20,7 @@ class AiManager {
   private static instance: AiManager;
   private apiKeys: string[] = [];
   private currentIndex = 0;
+  private preferredModel: string = 'gemini-3-flash-preview';
 
   private constructor() {}
 
@@ -40,6 +40,15 @@ class AiManager {
   }
 
   /**
+   * Set preferred model globally.
+   */
+  setModel(model: string) {
+    if (model && model.trim()) {
+        this.preferredModel = model;
+    }
+  }
+
+  /**
    * Get the next key.
    */
   private getKey(): string | null {
@@ -56,33 +65,31 @@ class AiManager {
   async testKey(key: string): Promise<boolean> {
     if (!key || !key.trim()) return false;
     
-    // Hard abort for tests
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s hard limit for tests
-
     try {
-        const ai = new GoogleGenAI({ apiKey: key });
-        // Use flash-preview for simple check
-        const response = await ai.models.generateContent({
-            model: 'gemini-3-flash-preview',
-            contents: [{ parts: [{ text: 'OK' }] }],
-            config: { maxOutputTokens: 5 }
-        });
+        // Race condition to force timeout even if SDK hangs
+        const result = await Promise.race([
+            (async () => {
+                const ai = new GoogleGenAI({ apiKey: key });
+                const response = await ai.models.generateContent({
+                    model: 'gemini-3-flash-preview',
+                    contents: [{ parts: [{ text: 'OK' }] }],
+                    config: { maxOutputTokens: 5 }
+                });
+                return !!(response && response.text);
+            })(),
+            new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 6000)) // 6s Strict Timeout
+        ]);
         
-        clearTimeout(timeoutId);
-        return !!(response && response.text);
+        return result;
     } catch (e: any) {
-        clearTimeout(timeoutId);
-        const msg = e.message || "";
-        console.warn("Key verification failed:", msg);
-        
-        // If external modal is triggered or key is missing, return false to unblock UI
+        console.warn("Key verification failed:", e.message);
         return false;
     }
   }
 
   /**
    * Safe Generate Content - NEVER THROWS.
+   * Uses preferredModel unless specifically overridden.
    * Returns { text, error }
    */
   async generateContent(model: string, prompt: string, config?: any): Promise<AiResponse> {
@@ -95,35 +102,32 @@ class AiManager {
         };
     }
 
+    // Use Global Preference if set
+    const finalModel = this.preferredModel || model || 'gemini-3-flash-preview';
+
     try {
-        const ai = new GoogleGenAI({ apiKey: key });
-        
-        // Setup AbortController for timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s Timeout for full tasks
+        // Race against a timeout promise
+        const result = await Promise.race([
+            (async () => {
+                const ai = new GoogleGenAI({ apiKey: key });
+                const response = await ai.models.generateContent({
+                    model: finalModel,
+                    contents: [{ parts: [{ text: prompt }] }],
+                    config: config || {}
+                });
+                
+                if (response && response.text) {
+                    return { text: response.text, error: null };
+                } else {
+                    return { text: null, error: "AI থেকে কোনো উত্তর পাওয়া যায়নি" };
+                }
+            })(),
+            new Promise<AiResponse>((resolve) => {
+                setTimeout(() => resolve({ text: null, error: "Time limit exceeded. আবার চেষ্টা করুন।" }), 20000);
+            })
+        ]);
 
-        try {
-            const response = await ai.models.generateContent({
-                model: model || 'gemini-3-flash-preview',
-                contents: [{ parts: [{ text: prompt }] }],
-                config: config || {}
-            });
-            
-            clearTimeout(timeoutId);
-
-            if (response && response.text) {
-                return { text: response.text, error: null };
-            } else {
-                return { text: null, error: "AI থেকে কোনো উত্তর পাওয়া যায়নি" };
-            }
-
-        } catch (innerError: any) {
-            clearTimeout(timeoutId);
-            if (innerError.name === 'AbortError' || innerError.message?.includes('aborted')) {
-                return { text: null, error: "Time limit exceeded. আবার চেষ্টা করুন।" };
-            }
-            throw innerError;
-        }
+        return result;
 
     } catch (e: any) {
         console.error("AI Error Safe Catch:", e);
@@ -132,6 +136,7 @@ class AiManager {
         if (msg.includes("API key")) msg = "Invalid API Key.";
         if (msg.includes("fetch")) msg = "ইন্টারনেট কানেকশন চেক করুন।";
         if (msg.includes("Requested entity was not found")) msg = "Model access denied or restricted.";
+        if (msg.includes("429")) msg = "Too many requests. Please wait.";
         
         return { text: null, error: msg };
     }

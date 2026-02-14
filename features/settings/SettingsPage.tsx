@@ -315,6 +315,26 @@ const SettingsPage: React.FC = () => {
 
         <h3 className="text-[13px] font-semibold text-[#9CA3AF] tracking-[0.5px] mt-[28px] mb-[14px]">Gemini AI Configuration</h3>
         <div className="bg-white border border-[#F3F4F6] rounded-[18px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-[20px]">
+            
+            {/* Model Selection */}
+            <div className="mb-5 pb-5 border-b border-[#F3F4F6]">
+                <label className="block text-[15px] font-medium text-[#111827] mb-2">Preferred AI Model</label>
+                <div className="relative">
+                    <select
+                        value={settings.preferredModel || 'gemini-3-flash-preview'}
+                        onChange={(e) => updateSettings({ preferredModel: e.target.value })}
+                        className="w-full bg-[#F9FAFB] border border-[#F3F4F6] text-[#374151] text-[14px] rounded-[12px] p-[12px] appearance-none focus:outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 font-medium"
+                    >
+                        <option value="gemini-3-flash-preview">Gemini 3.0 Flash (Recommended)</option>
+                        <option value="gemini-2.5-flash">Gemini 2.5 Flash (Fast)</option>
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#6B7280]">
+                        <Icon name="chevron-left" size="sm" className="-rotate-90" />
+                    </div>
+                </div>
+                <p className="text-[11px] text-gray-400 mt-2">This model will be used across all AI features in the app.</p>
+            </div>
+
             <div className="flex justify-between items-center mb-3">
                 <span className="text-[15px] font-medium text-[#111827]">Gemini API Keys</span>
                 <button 
