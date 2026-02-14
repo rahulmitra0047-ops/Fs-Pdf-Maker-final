@@ -316,6 +316,30 @@ export interface VocabItem {
   example?: string;
 }
 
+// Enhanced Vocabulary Types
+export interface VocabExample {
+  bengali: string;
+  english: string;
+}
+
+export interface VocabWord {
+  id: string;
+  lessonId: string;
+  word: string;
+  meaning: string;
+  type: 'Verb' | 'Noun' | 'Adjective' | 'Adverb' | 'Other';
+  v1?: string;
+  v1s?: string;
+  v2?: string;
+  v3?: string;
+  vIng?: string;
+  examples: VocabExample[];
+  synonyms?: string;
+  pronunciation?: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface GrammarRule {
   id: string;
   lessonId: string;
@@ -350,4 +374,24 @@ export interface GrammarRule {
   pattern?: string;
   bnHint?: string;
   legacyExamples?: string[];
+}
+
+// Practice Types
+export interface TranslationItem {
+  id: string;
+  lessonId: string;
+  bengaliText: string;
+  isCompleted: boolean;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface PracticeTopic {
+  id: string;
+  lessonId: string;
+  title: string;
+  instruction?: string;
+  isCompleted: boolean;
+  createdAt: number;
+  updatedAt: number;
 }

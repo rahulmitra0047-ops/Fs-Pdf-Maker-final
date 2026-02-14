@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PremiumModal from '../../shared/components/PremiumModal';
@@ -9,7 +10,7 @@ import { useToast } from '../../shared/context/ToastContext';
 import { backupService, BackupData } from '../../core/storage/backupService';
 import { auditLogService, logAction } from '../../core/storage/services';
 import { AuditLogEntry } from '../../types';
-import { GoogleGenAI } from "@google/genai";
+import { aiManager } from '../../core/ai/aiManager';
 
 const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -43,13 +44,14 @@ const SettingsPage: React.FC = () => {
       sessionStorage.removeItem('import_success_msg');
       if (settings.geminiApiKeys) {
         setApiKeysInput(settings.geminiApiKeys.join('\n'));
+        aiManager.setKeys(settings.geminiApiKeys);
       }
   }, [settings.geminiApiKeys]);
 
   const loadAuditLogs = async () => {
       try {
           const logs = await auditLogService.getAll();
-          setAuditLogs(logs.sort((a, b) => b.timestamp - a.timestamp).slice(0, 100)); // Last 100
+          setAuditLogs(logs.sort((a, b) => b.timestamp - a.timestamp).slice(0, 100));
           setShowAuditLog(true);
       } catch(e) {
           toast.error("Failed to load logs");
@@ -79,62 +81,59 @@ const SettingsPage: React.FC = () => {
   const saveAiKeys = async () => {
     const keys = apiKeysInput.split('\n').map(k => k.trim()).filter(Boolean);
     await updateSettings({ geminiApiKeys: keys });
+    aiManager.setKeys(keys);
     setIsEditingAi(false);
     toast.success(`${keys.length} API keys updated`);
   };
 
   const handleTestApiKeys = async () => {
     const keys = apiKeysInput.split('\n').map(k => k.trim()).filter(Boolean);
+    
     if (keys.length === 0) {
-        toast.error("No keys to test");
+        toast.error("❌ API Key দিন আগে");
         return;
     }
 
     setIsTestingKeys(true);
-    let successCount = 0;
-    let failCount = 0;
+    setTestProgress('Testing...');
 
     try {
+        let successCount = 0;
+        let failCount = 0;
+
         for (let i = 0; i < keys.length; i++) {
             const key = keys[i];
             setTestProgress(`Checking ${i + 1}/${keys.length}...`);
             
-            // Allow UI to paint
-            await new Promise(resolve => setTimeout(resolve, 50));
+            // Allow UI to breathe
+            await new Promise(resolve => setTimeout(resolve, 100));
 
-            try {
-                if (!key || key.length < 10) throw new Error("Invalid Key Format");
-
-                const ai = new GoogleGenAI({ apiKey: key });
-                
-                // 5-second strict timeout race
-                const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error("Timeout")), 5000)
-                );
-
-                const apiPromise = ai.models.generateContent({
-                    model: 'gemini-2.5-flash',
-                    contents: { parts: [{ text: 'Hello' }] },
-                });
-
-                await Promise.race([apiPromise, timeoutPromise]);
-                successCount++;
-            } catch (e: any) {
-                console.warn(`Key ${i + 1} failed:`, e);
-                failCount++;
-            }
+            // testKey now has its own internal timeout
+            const isWorking = await aiManager.testKey(key);
+            if (isWorking) successCount++;
+            else failCount++;
         }
 
         if (failCount === 0) {
-            toast.success(`All ${successCount} keys are working!`);
+            toast.success(`✅ All ${successCount} keys are working!`);
         } else if (successCount === 0) {
-            toast.error(`All ${failCount} keys failed.`);
+            toast.error(`❌ All ${failCount} keys failed or timed out.`);
         } else {
-            toast.info(`${successCount} working, ${failCount} failed.`);
+            toast.info(`⚠️ ${successCount} working, ${failCount} failed.`);
         }
-    } catch (err) {
-        console.error("Test process crashed", err);
-        toast.error("Test interrupted.");
+
+    } catch (err: any) {
+        console.error("Test Error:", err);
+        const msg = err.message || "";
+        if (msg.includes("Requested entity was not found")) {
+            toast.error("❌ Entity not found. Please re-select key.");
+            // Reset environment selection if possible
+            if ((window as any).aistudio?.openSelectKey) {
+                (window as any).aistudio.openSelectKey();
+            }
+        } else {
+            toast.error(`❌ Test stopped: ${msg}`);
+        }
     } finally {
         setIsTestingKeys(false);
         setTestProgress('');
@@ -272,8 +271,6 @@ const SettingsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] pb-20 pt-[60px]">
-      
-      {/* 1. Custom Header */}
       <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/90 backdrop-blur-md border-b border-gray-100 z-50 px-5 flex items-center justify-between transition-all">
           <div className="flex items-center gap-3">
               <button 
@@ -295,10 +292,7 @@ const SettingsPage: React.FC = () => {
       </header>
 
       <main className="max-w-3xl mx-auto px-5 mt-4">
-        
-        {/* 2. Preferences Toggle Card */}
         <div className="bg-white border border-[#F3F4F6] rounded-[18px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
-            {/* Sound */}
             <div className="flex items-center justify-between p-[18px] border-b border-[#F3F4F6]">
                 <span className="text-[16px] font-medium text-[#111827]">Sound Effects</span>
                 <button 
@@ -308,7 +302,6 @@ const SettingsPage: React.FC = () => {
                     <div className={`absolute top-[3px] w-[22px] h-[22px] bg-white rounded-full shadow-sm transition-all ${settings.soundEnabled ? 'left-[25px]' : 'left-[3px]'}`} />
                 </button>
             </div>
-            {/* Vibration */}
             <div className="flex items-center justify-between p-[18px]">
                 <span className="text-[16px] font-medium text-[#111827]">Vibration</span>
                 <button 
@@ -320,7 +313,6 @@ const SettingsPage: React.FC = () => {
             </div>
         </div>
 
-        {/* 3. AI Configuration */}
         <h3 className="text-[13px] font-semibold text-[#9CA3AF] tracking-[0.5px] mt-[28px] mb-[14px]">Gemini AI Configuration</h3>
         <div className="bg-white border border-[#F3F4F6] rounded-[18px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-[20px]">
             <div className="flex justify-between items-center mb-3">
@@ -371,7 +363,6 @@ const SettingsPage: React.FC = () => {
             )}
         </div>
 
-        {/* 4. Data Management */}
         <h3 className="text-[13px] font-semibold text-[#9CA3AF] tracking-[0.5px] mt-[28px] mb-[14px]">Data Management</h3>
         <div className="bg-white border border-[#F3F4F6] rounded-[18px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-[20px]">
             <div className="flex justify-between items-center mb-3">
@@ -380,7 +371,6 @@ const SettingsPage: React.FC = () => {
                     {storageUsage ? `${formatBytes(storageUsage.usage)} / ${formatBytes(storageUsage.quota)}` : '...'}
                 </span>
             </div>
-            {/* Progress Bar */}
             <div className="h-[6px] bg-[#F3F4F6] rounded-[8px] overflow-hidden mb-6">
                 <div 
                     className="h-full bg-[#6366F1] rounded-[8px] transition-all duration-500" 
@@ -388,7 +378,6 @@ const SettingsPage: React.FC = () => {
                 />
             </div>
             
-            {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-[12px]">
                 <button 
                     onClick={handleExport}
@@ -404,7 +393,6 @@ const SettingsPage: React.FC = () => {
                 </label>
             </div>
 
-            {/* Footer */}
             <div className="flex justify-between items-center mt-[14px]">
                 <span className="text-[12px] text-[#D1D5DB]">
                     Last backup: {settings.lastBackupTimestamp ? new Date(settings.lastBackupTimestamp).toLocaleDateString() : 'Never'}
@@ -415,7 +403,6 @@ const SettingsPage: React.FC = () => {
             </div>
         </div>
 
-        {/* 5. Advanced */}
         <h3 className="text-[13px] font-semibold text-[#9CA3AF] tracking-[0.5px] mt-[28px] mb-[14px]">Advanced</h3>
         <div className="bg-white border border-[#F3F4F6] rounded-[18px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-[20px]">
             <div className="flex justify-between items-center mb-3">
@@ -457,7 +444,6 @@ const SettingsPage: React.FC = () => {
             </button>
         </div>
 
-        {/* 6. Danger Zone */}
         <h3 className="text-[13px] font-semibold text-[#EF4444] tracking-[0.5px] mt-[28px] mb-[14px]">Danger Zone</h3>
         <div className="bg-[#FEF2F2] border border-[#FEE2E2] rounded-[18px] p-[18px]">
             <button 
@@ -468,16 +454,9 @@ const SettingsPage: React.FC = () => {
                <Icon name="trash-2" size="md" className="text-[#EF4444]" />
             </button>
         </div>
-
       </main>
 
-      {/* Audit Log Modal */}
-      <PremiumModal
-        isOpen={showAuditLog}
-        onClose={() => setShowAuditLog(false)}
-        title="Activity Log"
-        size="lg"
-      >
+      <PremiumModal isOpen={showAuditLog} onClose={() => setShowAuditLog(false)} title="Activity Log" size="lg">
           <div className="max-h-[60vh] overflow-y-auto space-y-2">
               {auditLogs.length === 0 ? (
                   <p className="text-center text-slate-400 py-8 text-sm">No recent activity recorded.</p>
@@ -501,13 +480,7 @@ const SettingsPage: React.FC = () => {
           </div>
       </PremiumModal>
 
-      {/* Import Confirmation Modal */}
-      <PremiumModal
-        isOpen={showImportConfirm}
-        onClose={() => { if(!isImporting) { setShowImportConfirm(false); setPendingImport(null); } }}
-        title={isImporting ? "Importing..." : "Import Backup"}
-        size="sm"
-      >
+      <PremiumModal isOpen={showImportConfirm} onClose={() => { if(!isImporting) { setShowImportConfirm(false); setPendingImport(null); } }} title={isImporting ? "Importing..." : "Import Backup"} size="sm">
           <div className="space-y-4">
               {!isImporting && (
                   <p className="text-slate-600 text-sm">
@@ -515,29 +488,21 @@ const SettingsPage: React.FC = () => {
                       How would you like to import it?
                   </p>
               )}
-              
               {isImporting && (
                   <div className="flex flex-col items-center justify-center py-8 space-y-4">
                       <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
                       <p className="text-sm text-slate-500 font-medium">Processing backup file...</p>
                   </div>
               )}
-
               {!isImporting && (
                   <div className="space-y-2">
-                      <button 
-                        onClick={() => confirmImport('merge')}
-                        className="w-full p-4 border border-slate-200 rounded-xl hover:bg-slate-50 flex flex-col items-start transition-all active:scale-[0.98]"
-                      >
+                      <button onClick={() => confirmImport('merge')} className="w-full p-4 border border-slate-200 rounded-xl hover:bg-slate-50 flex flex-col items-start transition-all active:scale-[0.98]">
                           <span className="font-bold text-slate-800 flex items-center gap-2">
                               <Icon name="layout-grid" size="sm" className="text-indigo-600" /> Merge Data
                           </span>
                           <span className="text-xs text-slate-500 mt-1">Keep existing data and add new items (Safe)</span>
                       </button>
-                      <button 
-                        onClick={() => confirmImport('replace')}
-                        className="w-full p-4 border border-red-200 bg-red-50/50 rounded-xl hover:bg-red-50 flex flex-col items-start transition-all active:scale-[0.98]"
-                      >
+                      <button onClick={() => confirmImport('replace')} className="w-full p-4 border border-red-200 bg-red-50/50 rounded-xl hover:bg-red-50 flex flex-col items-start transition-all active:scale-[0.98]">
                           <span className="font-bold text-red-700 flex items-center gap-2">
                               <Icon name="refresh-cw" size="sm" /> Replace All
                           </span>
@@ -548,13 +513,7 @@ const SettingsPage: React.FC = () => {
           </div>
       </PremiumModal>
 
-      {/* Clear Data Confirmation Modal */}
-      <PremiumModal
-        isOpen={showClearConfirm}
-        onClose={() => setShowClearConfirm(false)}
-        title="Clear All Data?"
-        size="sm"
-      >
+      <PremiumModal isOpen={showClearConfirm} onClose={() => setShowClearConfirm(false)} title="Clear All Data?" size="sm">
         <div className="space-y-5">
           <div className="flex flex-col items-center text-center p-4 bg-red-50 rounded-xl border border-red-100">
              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-red-500 mb-3 shadow-sm">
@@ -566,12 +525,8 @@ const SettingsPage: React.FC = () => {
             Are you sure you want to delete all data? This includes documents, topics, and settings.
           </p>
           <div className="flex gap-3 justify-end pt-2">
-            <PremiumButton variant="ghost" onClick={() => setShowClearConfirm(false)}>
-              Cancel
-            </PremiumButton>
-            <PremiumButton variant="danger" onClick={handleClearData}>
-              Yes, Delete Everything
-            </PremiumButton>
+            <PremiumButton variant="ghost" onClick={() => setShowClearConfirm(false)}>Cancel</PremiumButton>
+            <PremiumButton variant="danger" onClick={handleClearData}>Yes, Delete Everything</PremiumButton>
           </div>
         </div>
       </PremiumModal>

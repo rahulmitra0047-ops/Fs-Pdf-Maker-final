@@ -1,13 +1,16 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Icon from '../../shared/components/Icon';
 import PremiumModal from '../../shared/components/PremiumModal';
 import { useToast } from '../../shared/context/ToastContext';
-import { GrammarRule, VocabItem } from '../../types'; 
+import { GrammarRule, VocabItem, VocabWord, TranslationItem, PracticeTopic } from '../../types'; 
 import AddRuleSheet from './components/AddRuleSheet';
 import BulkRuleImportSheet from './components/BulkRuleImportSheet';
 import RuleCard from './components/RuleCard';
+import VocabCard from './components/VocabCard';
+import AddVocabSheet from './components/AddVocabSheet';
+import BulkVocabImportSheet from './components/BulkVocabImportSheet';
+import PracticeSession from './components/PracticeSession';
 
 interface Lesson {
   id: string;
@@ -16,6 +19,9 @@ interface Lesson {
   subtitle?: string;
   grammar?: string; 
   vocabulary?: string;
+  vocabList?: VocabWord[];
+  translations?: TranslationItem[];
+  practiceTopics?: PracticeTopic[];
   status: 'new' | 'in-progress' | 'completed';
 }
 
@@ -27,7 +33,7 @@ const LessonDetailPage: React.FC = () => {
   const toast = useToast();
   
   const [lesson, setLesson] = useState<Lesson | null>(null);
-  const [activeTab, setActiveTab] = useState<'grammar' | 'vocabulary' | 'example'>('grammar');
+  const [activeTab, setActiveTab] = useState<'grammar' | 'vocabulary' | 'practice'>('grammar');
   
   // Grammar State
   const [rules, setRules] = useState<GrammarRule[]>([]);
@@ -37,9 +43,24 @@ const LessonDetailPage: React.FC = () => {
   const [editingRule, setEditingRule] = useState<GrammarRule | null>(null);
   const [deleteRuleId, setDeleteRuleId] = useState<string | null>(null);
 
-  // Close menu on outside click
+  // Vocabulary State
+  const [vocabWords, setVocabWords] = useState<VocabWord[]>([]);
+  const [showAddVocabSheet, setShowAddVocabSheet] = useState(false);
+  const [showBulkVocabSheet, setShowBulkVocabSheet] = useState(false);
+  const [showVocabMenu, setShowVocabMenu] = useState(false);
+  const [editingWord, setEditingWord] = useState<VocabWord | null>(null);
+  const [deleteWordId, setDeleteWordId] = useState<string | null>(null);
+
+  // Practice State
+  const [translations, setTranslations] = useState<TranslationItem[]>([]);
+  const [practiceTopics, setPracticeTopics] = useState<PracticeTopic[]>([]);
+
+  // Close menus on outside click
   useEffect(() => {
-    const handleClickOutside = () => setShowAddMenu(false);
+    const handleClickOutside = () => {
+        setShowAddMenu(false);
+        setShowVocabMenu(false);
+    };
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
@@ -53,14 +74,15 @@ const LessonDetailPage: React.FC = () => {
         const found = lessons.find(l => l.id === lessonId);
         if (found) {
             setLesson(found);
-            // Parse Grammar Rules
+            
+            // 1. Parse Grammar Rules
             if (found.grammar) {
                 try {
                     const parsed = JSON.parse(found.grammar);
                     if (Array.isArray(parsed)) {
                         setRules(parsed);
                     } else {
-                        // Migration fallback
+                        // Migration fallback for legacy simple string
                         setRules([{
                             id: crypto.randomUUID(),
                             lessonId: found.id,
@@ -95,6 +117,38 @@ const LessonDetailPage: React.FC = () => {
             } else {
                 setRules([]);
             }
+
+            // 2. Load Vocabulary
+            if (found.vocabList && Array.isArray(found.vocabList)) {
+                setVocabWords(found.vocabList);
+            } else if (found.vocabulary) {
+                const legacyLines = found.vocabulary.split('\n').filter(l => l.trim());
+                const migratedWords: VocabWord[] = legacyLines.map(line => {
+                    let parts = line.split(' - ');
+                    if (parts.length < 2) parts = line.split('=');
+                    
+                    const word = parts[0]?.trim() || line;
+                    const meaning = parts[1]?.trim() || '';
+                    
+                    return {
+                        id: crypto.randomUUID(),
+                        lessonId: found.id,
+                        word: word,
+                        meaning: meaning,
+                        type: 'Other',
+                        examples: [],
+                        createdAt: Date.now(),
+                        updatedAt: Date.now()
+                    };
+                });
+                setVocabWords(migratedWords);
+            } else {
+                setVocabWords([]);
+            }
+
+            // 3. Load Practice Data
+            setTranslations(found.translations || []);
+            setPracticeTopics(found.practiceTopics || []);
         }
       }
     } catch (e) {
@@ -102,26 +156,29 @@ const LessonDetailPage: React.FC = () => {
     }
   }, [lessonId]);
 
+  // Save Helpers
+  const updateLessonInStorage = (updatedLesson: Lesson) => {
+      setLesson(updatedLesson);
+      try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved) {
+              const allLessons: Lesson[] = JSON.parse(saved);
+              const idx = allLessons.findIndex(l => l.id === updatedLesson.id);
+              if (idx !== -1) {
+                  allLessons[idx] = updatedLesson;
+                  localStorage.setItem(STORAGE_KEY, JSON.stringify(allLessons));
+              }
+          }
+      } catch (e) {
+          console.error("Storage update failed", e);
+      }
+  };
+
+  // Grammar Handlers
   const saveRulesToStorage = (newRules: GrammarRule[]) => {
       setRules(newRules);
       if (lesson) {
-          const updatedLesson = { ...lesson, grammar: JSON.stringify(newRules) };
-          setLesson(updatedLesson);
-          
-          try {
-              const saved = localStorage.getItem(STORAGE_KEY);
-              if (saved) {
-                  const allLessons: Lesson[] = JSON.parse(saved);
-                  const idx = allLessons.findIndex(l => l.id === lesson.id);
-                  if (idx !== -1) {
-                      allLessons[idx] = updatedLesson;
-                      localStorage.setItem(STORAGE_KEY, JSON.stringify(allLessons));
-                  }
-              }
-          } catch (e) {
-              console.error("Failed to save rules", e);
-              toast.error("Failed to save changes");
-          }
+          updateLessonInStorage({ ...lesson, grammar: JSON.stringify(newRules) });
       }
   };
 
@@ -138,7 +195,7 @@ const LessonDetailPage: React.FC = () => {
       setEditingRule(null);
   };
 
-  const handleBulkImport = (newRules: GrammarRule[]) => {
+  const handleBulkImportRule = (newRules: GrammarRule[]) => {
       const updatedRules = [...rules, ...newRules];
       saveRulesToStorage(updatedRules);
       toast.success(`${newRules.length} rules imported`);
@@ -153,25 +210,60 @@ const LessonDetailPage: React.FC = () => {
       }
   };
 
-  const vocabList: VocabItem[] = useMemo(() => {
-      if (!lesson?.vocabulary) return [];
-      return lesson.vocabulary.split('\n')
-          .map(line => line.trim())
-          .filter(line => line.length > 0)
-          .map(line => {
-              let parts = line.split(' - ');
-              if (parts.length < 2) parts = line.split('=');
-              if (parts.length >= 2) return { word: parts[0].trim(), meaning: parts.slice(1).join(' ').trim() };
-              return { word: line, meaning: '' };
+  // Vocabulary Handlers
+  const saveVocabToStorage = (newWords: VocabWord[]) => {
+      setVocabWords(newWords);
+      if (lesson) {
+          const legacyString = newWords.map(w => `${w.word} - ${w.meaning}`).join('\n');
+          updateLessonInStorage({ 
+              ...lesson, 
+              vocabList: newWords,
+              vocabulary: legacyString 
           });
-  }, [lesson?.vocabulary]);
-
-  const speak = (text: string) => {
-      if ('speechSynthesis' in window) {
-          const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = 'en-US';
-          window.speechSynthesis.speak(utterance);
       }
+  };
+
+  const handleSaveWord = (word: VocabWord) => {
+      let updatedWords;
+      if (vocabWords.some(w => w.id === word.id)) {
+          updatedWords = vocabWords.map(w => w.id === word.id ? word : w);
+          toast.success("Word updated");
+      } else {
+          updatedWords = [...vocabWords, word];
+          toast.success("Word added");
+      }
+      saveVocabToStorage(updatedWords);
+      setEditingWord(null);
+  };
+
+  const handleBulkImportVocab = (newWords: VocabWord[]) => {
+      const updatedWords = [...vocabWords, ...newWords];
+      saveVocabToStorage(updatedWords);
+      toast.success(`${newWords.length} words imported`);
+  };
+
+  const handleDeleteWord = () => {
+      if (deleteWordId) {
+          const updatedWords = vocabWords.filter(w => w.id !== deleteWordId);
+          saveVocabToStorage(updatedWords);
+          setDeleteWordId(null);
+          toast.success("Word deleted");
+      }
+  };
+
+  // Practice Handlers
+  const saveTranslationsToStorage = (newItems: TranslationItem[]) => {
+    setTranslations(newItems);
+    if (lesson) {
+      updateLessonInStorage({ ...lesson, translations: newItems });
+    }
+  };
+
+  const saveTopicsToStorage = (newItems: PracticeTopic[]) => {
+    setPracticeTopics(newItems);
+    if (lesson) {
+      updateLessonInStorage({ ...lesson, practiceTopics: newItems });
+    }
   };
 
   if (!lesson) {
@@ -204,7 +296,7 @@ const LessonDetailPage: React.FC = () => {
       {/* Tabs */}
       <div className="sticky top-[60px] z-40 bg-white border-b border-gray-200 shadow-sm">
         <div className="flex">
-            {['grammar', 'vocabulary', 'example'].map((tab) => (
+            {['grammar', 'vocabulary', 'practice'].map((tab) => (
                 <button
                     key={tab}
                     onClick={() => setActiveTab(tab as any)}
@@ -296,40 +388,88 @@ const LessonDetailPage: React.FC = () => {
         {/* VOCABULARY TAB */}
         {activeTab === 'vocabulary' && (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                {vocabList.length === 0 ? (
-                    <div className="bg-white p-8 rounded-[20px] border border-[#F3F4F6] shadow-sm text-center text-gray-400">
-                        No vocabulary added yet.
-                    </div>
-                ) : (
-                    <div className="flex flex-col gap-3">
-                        {vocabList.map((item, idx) => (
-                            <div key={idx} className="bg-white p-4 rounded-[16px] border border-gray-100 shadow-sm flex items-center justify-between group active:scale-[0.99] transition-all">
-                                <div>
-                                    <div className="text-[16px] font-bold text-[#111827]">{item.word}</div>
-                                    {item.meaning && <div className="text-[14px] text-gray-500 mt-0.5">{item.meaning}</div>}
-                                </div>
-                                <button onClick={() => speak(item.word)} className="p-3 rounded-full text-gray-400 hover:text-[#6366F1] hover:bg-indigo-50 active:bg-indigo-100 active:scale-95 transition-all">
-                                    <Icon name="volume-2" size="sm" />
+                
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-[13px] font-semibold text-[#9CA3AF] uppercase tracking-wide">
+                        WORDS ({vocabWords.length})
+                    </h3>
+                    
+                    <div className="relative">
+                        <button 
+                            onClick={(e) => { 
+                                e.stopPropagation(); 
+                                setShowVocabMenu(!showVocabMenu); 
+                            }}
+                            className="text-[13px] font-bold text-[#6366F1] hover:text-[#4F46E5] flex items-center gap-1.5 bg-[#EEF2FF] px-3 py-1.5 rounded-[10px] transition-colors shadow-sm active:scale-95"
+                        >
+                            <Icon name="plus" size="sm" /> Add Word
+                        </button>
+
+                        {showVocabMenu && (
+                            <div className="absolute right-0 top-10 w-40 bg-white border border-gray-100 shadow-xl rounded-xl overflow-hidden z-20 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+                                <button 
+                                    onClick={() => { 
+                                        setEditingWord(null); 
+                                        setShowAddVocabSheet(true); 
+                                        setShowVocabMenu(false); 
+                                    }}
+                                    className="w-full text-left px-4 py-3 text-[13px] font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-50"
+                                >
+                                    <Icon name="edit-3" size="sm" /> Single Word
+                                </button>
+                                <button 
+                                    onClick={() => {
+                                        setShowBulkVocabSheet(true);
+                                        setShowVocabMenu(false);
+                                    }}
+                                    className="w-full text-left px-4 py-3 text-[13px] font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                >
+                                    <Icon name="clipboard-list" size="sm" /> Bulk Import
                                 </button>
                             </div>
+                        )}
+                    </div>
+                </div>
+
+                {vocabWords.length === 0 ? (
+                    <div className="bg-white p-8 rounded-[20px] border-2 border-dashed border-[#F3F4F6] text-center">
+                        <div className="text-gray-300 mb-2 opacity-50 flex justify-center">
+                            <Icon name="book" size="xl" />
+                        </div>
+                        <p className="text-[#374151] font-semibold mb-1">No words yet</p>
+                        <p className="text-[#9CA3AF] text-sm">Tap + Add Word to add your first word</p>
+                    </div>
+                ) : (
+                    <div className="flex flex-col gap-2">
+                        {vocabWords.map((word, idx) => (
+                            <VocabCard 
+                                key={word.id}
+                                word={word}
+                                serial={idx + 1}
+                                onEdit={() => { setEditingWord(word); setShowAddVocabSheet(true); }}
+                                onDelete={() => setDeleteWordId(word.id)}
+                            />
                         ))}
                     </div>
                 )}
             </div>
         )}
 
-        {/* EXAMPLE TAB */}
-        {activeTab === 'example' && (
-            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-4">
-                <div className="bg-white p-5 rounded-[20px] border border-[#F3F4F6] shadow-sm flex flex-col items-center text-center py-10">
-                    <div className="text-gray-300 mb-3"><Icon name="sparkles" size="lg" /></div>
-                    <p className="text-[#9CA3AF] text-sm">Review examples from all rules here.</p>
-                </div>
+        {/* PRACTICE TAB */}
+        {activeTab === 'practice' && (
+            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <PracticeSession 
+                  translations={translations}
+                  topics={practiceTopics}
+                  lessonId={lessonId!}
+                  onUpdateTranslations={saveTranslationsToStorage}
+                  onUpdateTopics={saveTopicsToStorage}
+                />
             </div>
         )}
       </div>
 
-      {/* Add/Edit Sheet */}
+      {/* --- Grammar Modals --- */}
       {showAddSheet && (
           <AddRuleSheet 
             isOpen={showAddSheet}
@@ -339,18 +479,14 @@ const LessonDetailPage: React.FC = () => {
             lessonId={lesson.id}
           />
       )}
-
-      {/* Bulk Import Sheet */}
       {showBulkSheet && (
           <BulkRuleImportSheet
             isOpen={showBulkSheet}
             onClose={() => setShowBulkSheet(false)}
-            onImport={handleBulkImport}
+            onImport={handleBulkImportRule}
             lessonId={lesson.id}
           />
       )}
-
-      {/* Delete Confirmation */}
       <PremiumModal isOpen={!!deleteRuleId} onClose={() => setDeleteRuleId(null)} title="Delete Rule?" size="sm">
           <div className="space-y-4">
               <div className="flex flex-col items-center gap-3">
@@ -360,6 +496,37 @@ const LessonDetailPage: React.FC = () => {
               <div className="flex gap-3 pt-2">
                   <button onClick={() => setDeleteRuleId(null)} className="flex-1 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200">Cancel</button>
                   <button onClick={handleDeleteRule} className="flex-1 py-2.5 text-sm font-bold text-white bg-red-500 rounded-xl hover:bg-red-600 shadow-md shadow-red-200">Delete</button>
+              </div>
+          </div>
+      </PremiumModal>
+
+      {/* --- Vocabulary Modals --- */}
+      {showAddVocabSheet && (
+          <AddVocabSheet
+            isOpen={showAddVocabSheet}
+            onClose={() => setShowAddVocabSheet(false)}
+            onSave={handleSaveWord}
+            existingWord={editingWord}
+            lessonId={lesson.id}
+          />
+      )}
+      {showBulkVocabSheet && (
+          <BulkVocabImportSheet
+            isOpen={showBulkVocabSheet}
+            onClose={() => setShowBulkVocabSheet(false)}
+            onImport={handleBulkImportVocab}
+            lessonId={lesson.id}
+          />
+      )}
+      <PremiumModal isOpen={!!deleteWordId} onClose={() => setDeleteWordId(null)} title="Delete Word?" size="sm">
+          <div className="space-y-4">
+              <div className="flex flex-col items-center gap-3">
+                  <div className="p-3 bg-red-50 text-red-500 rounded-full"><Icon name="trash-2" size="md" /></div>
+                  <p className="text-sm text-gray-600 text-center">Are you sure you want to delete this word?</p>
+              </div>
+              <div className="flex gap-3 pt-2">
+                  <button onClick={() => setDeleteWordId(null)} className="flex-1 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200">Cancel</button>
+                  <button onClick={handleDeleteWord} className="flex-1 py-2.5 text-sm font-bold text-white bg-red-500 rounded-xl hover:bg-red-600 shadow-md shadow-red-200">Delete</button>
               </div>
           </div>
       </PremiumModal>

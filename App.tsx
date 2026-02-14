@@ -4,15 +4,23 @@ import { HashRouter, useNavigate } from 'react-router-dom';
 import RootErrorBoundary from './shared/components/RootErrorBoundary';
 import { ToastProvider } from './shared/context/ToastContext';
 import AppRoutes from './app/routes/AppRoutes';
-import PWAInstallPrompt from './features/pwa/PWAInstallPrompt';
 import OfflineIndicator from './shared/components/OfflineIndicator';
-import UpdatePrompt from './features/pwa/UpdatePrompt';
+import { useSettings } from './shared/hooks/useSettings';
+import { aiManager } from './core/ai/aiManager';
 
 // Module-level flag to track if we've handled the initial redirect.
 let isInitialLoad = true;
 
 const AppLogicHandler = () => {
   const navigate = useNavigate();
+  const { settings } = useSettings();
+
+  // Sync AI Keys
+  useEffect(() => {
+    if (settings.geminiApiKeys) {
+        aiManager.setKeys(settings.geminiApiKeys);
+    }
+  }, [settings.geminiApiKeys]);
   
   useEffect(() => {
     // 1. Handle Share Target (URL Params -> App State)
@@ -51,8 +59,6 @@ const App: React.FC = () => {
         <HashRouter>
           <AppLogicHandler />
           <AppRoutes />
-          <PWAInstallPrompt />
-          <UpdatePrompt />
         </HashRouter>
       </ToastProvider>
     </RootErrorBoundary>

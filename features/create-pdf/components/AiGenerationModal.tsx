@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { GoogleGenAI, Type } from "@google/genai";
 import PremiumModal from '../../../shared/components/PremiumModal';
 import PremiumButton from '../../../shared/components/PremiumButton';
 import PremiumInput from '../../../shared/components/PremiumInput';
@@ -8,7 +7,7 @@ import { MCQ } from '../../../types';
 import { useToast } from '../../../shared/context/ToastContext';
 import Icon from '../../../shared/components/Icon';
 import { generateFingerprint } from '../../../core/dedupe/dedupeService';
-import { useSettings } from '../../../shared/hooks/useSettings';
+import { aiManager } from '../../../core/ai/aiManager';
 
 interface Props {
   isOpen: boolean;
@@ -22,26 +21,12 @@ const AiGenerationModal: React.FC<Props> = ({ isOpen, onClose, onImport }) => {
   const [difficulty, setDifficulty] = useState('Medium');
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
-  const { settings } = useSettings();
 
   const handleGenerate = async () => {
     if (!topic.trim()) return;
 
     setIsLoading(true);
     try {
-      // 1. Get API Key (Settings > Environment)
-      const envKey = process.env.API_KEY;
-      const settingKeys = settings.geminiApiKeys || [];
-      const availableKeys = settingKeys.length > 0 ? settingKeys : (envKey ? [envKey] : []);
-
-      if (availableKeys.length === 0) {
-        throw new Error("No API Key found. Please add one in Settings.");
-      }
-
-      // Simple rotation: pick random key
-      const apiKey = availableKeys[Math.floor(Math.random() * availableKeys.length)];
-      
-      const ai = new GoogleGenAI({ apiKey });
       const modelId = 'gemini-2.5-flash';
 
       const prompt = `Generate ${count} multiple choice questions (MCQs) about "${topic}" at ${difficulty} difficulty level. 
@@ -49,58 +34,31 @@ const AiGenerationModal: React.FC<Props> = ({ isOpen, onClose, onImport }) => {
       Provide a short explanation for the correct answer.
       Output valid JSON with a root object containing an "mcqs" array.`;
 
-      const response = await ai.models.generateContent({
-        model: modelId,
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              mcqs: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    question: { type: Type.STRING },
-                    optionA: { type: Type.STRING },
-                    optionB: { type: Type.STRING },
-                    optionC: { type: Type.STRING },
-                    optionD: { type: Type.STRING },
-                    answer: { type: Type.STRING, enum: ["A", "B", "C", "D"] },
-                    explanation: { type: Type.STRING },
-                  },
-                  required: ["question", "optionA", "optionB", "optionC", "optionD", "answer"],
-                },
-              }
-            },
-            required: ["mcqs"]
-          },
-        },
-      });
+      const response = await aiManager.generateContent(
+          modelId, 
+          prompt, 
+          { responseMimeType: 'application/json' }
+      );
 
-      const jsonText = response.text;
-      if (!jsonText) throw new Error("No response from AI");
+      if (response.error) {
+          toast.error(response.error);
+          return;
+      }
 
+      const jsonText = response.text || "{}";
       let parsedData;
+      
       try {
         parsedData = JSON.parse(jsonText);
       } catch (e) {
-        // Fallback: If strict parsing fails, try cleaning markdown blocks
         try {
             const cleanText = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
             parsedData = JSON.parse(cleanText);
         } catch (innerError) {
-            console.error("JSON Parse Error:", jsonText);
-            throw new Error("Failed to parse AI response. The model output was invalid.");
+            throw new Error("Failed to parse AI response.");
         }
       }
       
-      // Strict Validation of Structure
-      if (!parsedData || typeof parsedData !== 'object') {
-          throw new Error("AI returned invalid data format.");
-      }
-
       const rawMCQs = Array.isArray(parsedData) ? parsedData : parsedData.mcqs;
 
       if (!Array.isArray(rawMCQs) || rawMCQs.length === 0) {

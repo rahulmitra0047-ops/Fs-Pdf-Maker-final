@@ -9,18 +9,13 @@ import { generateUUID } from '../../../core/storage/idGenerator';
 import { useToast } from '../../../shared/context/ToastContext';
 import CheckmarkIcon from '../../../shared/components/CheckmarkIcon';
 import Icon from '../../../shared/components/Icon';
-import { GoogleGenAI } from "@google/genai";
-import { useSettings } from '../../../shared/hooks/useSettings';
-
-// API Rotation Counter (Static to persist across re-renders in the session)
-let lastApiKeyIndex = 0;
+import { aiManager } from '../../../core/ai/aiManager';
 
 const PracticeSession: React.FC = () => {
   const { setId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const toast = useToast();
-  const { settings } = useSettings();
 
   const [set, setSet] = useState<MCQSet | null>(null);
   const [loading, setLoading] = useState(true);
@@ -100,75 +95,37 @@ const PracticeSession: React.FC = () => {
     setIsAiLoading(true);
     
     try {
-        // API Rotation Logic
-        const apiKeys = (settings.geminiApiKeys?.length ? settings.geminiApiKeys : (process.env.API_KEY || "").split(',')).map(k => k.trim()).filter(Boolean);
-        
-        if (apiKeys.length === 0) {
-            throw new Error("No API Key configured. Please go to Settings.");
-        }
+        // Stricter prompt
+        const prompt = `
+        প্রশ্ন: ${currentMCQ.question}
+        অপশন: A) ${currentMCQ.optionA}, B) ${currentMCQ.optionB}, C) ${currentMCQ.optionC}, D) ${currentMCQ.optionD}
+        সঠিক উত্তর: ${currentMCQ.answer}
 
-        let responseText = null;
-        let attempts = 0;
-        // Limit max attempts to avoid infinite loops, even if we have 50 keys
-        const maxAttempts = Math.min(apiKeys.length, 5); 
+        সরাসরি বাংলায় উত্তর দাও। নিজেকে পরিচয় দেবে না।
 
-        while (attempts < maxAttempts && !responseText) {
-            const currentKey = apiKeys[lastApiKeyIndex % apiKeys.length];
-            
-            try {
-                // Yield to main thread before each attempt
-                await new Promise(r => setTimeout(r, 100));
+        ### ✅ সঠিক উত্তরের ব্যাখ্যা
+        (কেন এটি সঠিক তার মূল কারণ)
 
-                const ai = new GoogleGenAI({ apiKey: currentKey });
-                
-                // Stricter prompt
-                const prompt = `
-                প্রশ্ন: ${currentMCQ.question}
-                অপশন: A) ${currentMCQ.optionA}, B) ${currentMCQ.optionB}, C) ${currentMCQ.optionC}, D) ${currentMCQ.optionD}
-                সঠিক উত্তর: ${currentMCQ.answer}
+        ### ❌ ভুল অপশনগুলোর বিশ্লেষণ
+        (সংক্ষিপ্ত পয়েন্ট)
 
-                সরাসরি বাংলায় উত্তর দাও। নিজেকে পরিচয় দেবে না।
+        ### 💡 প্রো-টিপ
+        (মনে রাখার কৌশল)
+        `;
 
-                ### ✅ সঠিক উত্তরের ব্যাখ্যা
-                (কেন এটি সঠিক তার মূল কারণ)
+        const response = await aiManager.generateContent(
+            'gemini-3-flash-preview', 
+            prompt, 
+            { systemInstruction: "You are a concise Bengali educational assistant. Do NOT introduce yourself." }
+        );
 
-                ### ❌ ভুল অপশনগুলোর বিশ্লেষণ
-                (সংক্ষিপ্ত পয়েন্ট)
-
-                ### 💡 প্রো-টিপ
-                (মনে রাখার কৌশল)
-                `;
-
-                const response = await ai.models.generateContent({
-                    model: 'gemini-3-flash-preview',
-                    contents: { parts: [{ text: prompt }] },
-                    config: {
-                        systemInstruction: { parts: [{ text: "You are a concise Bengali educational assistant. Do NOT introduce yourself." }] }
-                    }
-                });
-
-                if (response.text) {
-                    responseText = response.text;
-                    lastApiKeyIndex++; // Success, move to next key for load balancing
-                } else {
-                    throw new Error("Empty response");
-                }
-            } catch (e: any) {
-                console.warn(`Attempt ${attempts + 1} failed:`, e);
-                lastApiKeyIndex++; // Move to next key immediately
-                attempts++;
-                // Additional delay on failure
-                await new Promise(resolve => setTimeout(resolve, 500));
-            }
-        }
-
-        if (responseText) {
-            setAiExplanations(prev => ({ ...prev, [currentMCQ.id]: responseText || '' }));
-        } else {
-            throw new Error("AI ব্যাখ্যা তৈরি করা যাচ্ছে না। দয়া করে সেটিংস থেকে API Key চেক করুন।");
+        if (response.error) {
+            toast.error(response.error);
+        } else if (response.text) {
+            setAiExplanations(prev => ({ ...prev, [currentMCQ.id]: response.text || '' }));
         }
     } catch (e: any) {
-        toast.error(e.message || "Failed to generate explanation");
+        toast.error("Explanation failed");
     } finally {
         setIsAiLoading(false);
     }
@@ -447,7 +404,7 @@ const PracticeSession: React.FC = () => {
         <style>{`
             .ai-content h3 { font-size: 1.1rem; font-weight: 800; color: #1E1B4B; margin-top: 1.5rem; margin-bottom: 0.75rem; border-left: 4px solid #6366F1; padding-left: 0.75rem; }
             .ai-content b, .ai-content strong { color: #4338CA; font-weight: 700; }
-            .ai-content ul { list-style-type: none; padding-left: 0; margin-top: 0.5rem; }
+            .ai-content ul { list-style: type: none; padding-left: 0; margin-top: 0.5rem; }
             .ai-content li { margin-bottom: 10px; position: relative; padding-left: 22px; line-height: 1.5; }
             .ai-content li::before { content: '•'; position: absolute; left: 0; color: #818CF8; font-weight: bold; font-size: 1.2rem; top: -2px; }
             .ai-content p { margin-bottom: 1rem; }
