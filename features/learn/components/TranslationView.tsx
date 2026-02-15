@@ -41,32 +41,37 @@ const TranslationView: React.FC<Props> = ({
 
     setIsLoading(true);
     try {
-      const prompt = `তুমি একজন English teacher। একজন বাংলাভাষী ছাত্র বাংলা থেকে ইংরেজি translate করেছে। তার translation review করো।
+      const prompt = `
+Act as an expert English teacher reviewing a student's translation from Bengali to English.
 
-বাংলা original: "${item.bengaliText}"
-ছাত্রের translation: "${userInput}"
+**Original Bengali:** "${item.bengaliText}"
+**Student's Translation:** "${userInput}"
 
-এই JSON format এ response দাও:
+Analyze grammar, vocabulary choice, sentence structure, and tone.
+Provide the output strictly in the following JSON format (do not use markdown code blocks):
+
 {
-  "score": 8,
-  "good": ["point 1", "point 2"],
+  "score": number, // 0 to 10
+  "good": ["string"], // List of 2-3 positive points in Bengali
   "errors": [
     {
-      "wrong": "wrong sentence",
-      "correct": "correct sentence",
-      "reason": "কেন ভুল বাংলায়"
+      "wrong": "string", // The incorrect part
+      "correct": "string", // The corrected version of that part
+      "reason": "string" // Explanation in Bengali
     }
   ],
-  "tips": ["tip 1 বাংলায়"],
-  "correctedVersion": "full corrected text"
+  "tips": ["string"], // 1-2 improvement tips in Bengali
+  "correctedVersion": "string" // The best standard English version of the full text
 }
-
-score 0-10 এ দাও। good, errors, tips বাংলায় লেখো। correctedVersion ইংরেজিতে। শুধু JSON দাও।`;
+`;
 
       const response = await aiManager.generateContent(
-          'gemini-2.5-flash', 
+          'gemini-3-flash-preview', // Use 3.0 for better logic
           prompt, 
-          { responseMimeType: 'application/json' }
+          { 
+            responseMimeType: 'application/json',
+            timeout: 70000 // 70s timeout for writing tasks
+          }
       );
       
       if (response.error) {
@@ -74,15 +79,22 @@ score 0-10 এ দাও। good, errors, tips বাংলায় লেখ�
           return;
       }
 
-      if (response.text) {
-          const json = JSON.parse(response.text);
-          setReview(json);
-          onComplete(item.id);
+      const jsonText = response.text || "{}";
+      let json;
+      try {
+          json = JSON.parse(jsonText);
+      } catch (e) {
+          // Fallback cleanup if model adds markdown
+          const clean = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
+          json = JSON.parse(clean);
       }
+
+      setReview(json);
+      onComplete(item.id);
       
     } catch (e: any) {
       console.error("Translation check error:", e);
-      toast.error("Review failed.");
+      toast.error("Review failed. Try again.");
     } finally {
       setIsLoading(false);
     }

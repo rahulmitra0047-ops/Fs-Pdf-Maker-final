@@ -1,7 +1,7 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-// Backup safeguard (though index.tsx handles it globally now)
+// Browser safeguard for @google/genai SDK to prevent crash
 if (typeof window !== 'undefined') {
   if (typeof (window as any).process === 'undefined') {
     (window as any).process = { env: {} };
@@ -104,6 +104,9 @@ class AiManager {
 
     // Use Global Preference if set
     const finalModel = this.preferredModel || model || 'gemini-3-flash-preview';
+    
+    // Increased default timeout to 60s for complex tasks, allow override
+    const timeoutDuration = config?.timeout || 60000;
 
     try {
         // Race against a timeout promise
@@ -123,7 +126,7 @@ class AiManager {
                 }
             })(),
             new Promise<AiResponse>((resolve) => {
-                setTimeout(() => resolve({ text: null, error: "Time limit exceeded. আবার চেষ্টা করুন।" }), 20000);
+                setTimeout(() => resolve({ text: null, error: "Time limit exceeded. Server is busy." }), timeoutDuration);
             })
         ]);
 

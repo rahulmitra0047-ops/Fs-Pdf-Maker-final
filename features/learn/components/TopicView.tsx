@@ -47,33 +47,39 @@ const TopicView: React.FC<Props> = ({
 
     setIsLoading(true);
     try {
-      const prompt = `তুমি একজন IELTS writing examiner। একজন বাংলাভাষী ছাত্র একটা topic এ ইংরেজিতে লিখেছে। তার writing review করো।
+      const prompt = `
+Act as a strict IELTS Writing Examiner. Evaluate the following writing submission submitted by a Bengali speaker.
 
-Topic: "${item.title}"
-Instruction: "${item.instruction || ''}"
-Student's writing: "${userInput}"
+**Topic:** "${item.title}"
+**Instruction:** "${item.instruction || 'Write a comprehensive response'}"
+**Student's Writing:** "${userInput}"
 
-এই JSON format এ response দাও:
+Evaluate based on: Task Response, Coherence & Cohesion, Lexical Resource, and Grammatical Range & Accuracy.
+
+Provide the output strictly in the following JSON format (no markdown formatting):
+
 {
-  "score": 7,
-  "good": ["point 1 বাংলায়", "point 2"],
+  "score": number, // 0-10
+  "good": ["string"], // List of 2-3 strong points in Bengali
   "errors": [
     {
-      "wrong": "wrong part",
-      "correct": "correct version",
-      "reason": "কেন ভুল বাংলায়"
+      "wrong": "string", // Highlighted error part
+      "correct": "string", // Correction
+      "reason": "string" // Detailed explanation in Bengali
     }
   ],
-  "tips": ["tip 1 বাংলায়"],
-  "correctedVersion": "full corrected text"
+  "tips": ["string"], // Strategic tips in Bengali
+  "correctedVersion": "string" // A refined, high-band version of the text in English
 }
-
-score 0-10 এ দাও। good, errors, tips বাংলায়। correctedVersion ইংরেজিতে। grammar, vocabulary, coherence, task response সব বিবেচনা করো। শুধু JSON দাও।`;
+`;
 
       const response = await aiManager.generateContent(
-          'gemini-2.5-flash', 
+          'gemini-3-flash-preview', 
           prompt, 
-          { responseMimeType: 'application/json' }
+          { 
+            responseMimeType: 'application/json',
+            timeout: 90000 // 90s timeout for heavier writing tasks
+          }
       );
       
       if (response.error) {
@@ -81,15 +87,21 @@ score 0-10 এ দাও। good, errors, tips বাংলায়। correcte
           return;
       }
 
-      if (response.text) {
-          const json = JSON.parse(response.text);
-          setReview(json);
-          onComplete(item.id);
+      const jsonText = response.text || "{}";
+      let json;
+      try {
+          json = JSON.parse(jsonText);
+      } catch (e) {
+          const clean = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
+          json = JSON.parse(clean);
       }
+
+      setReview(json);
+      onComplete(item.id);
       
     } catch (e: any) {
       console.error("Topic check error:", e);
-      toast.error("Review failed.");
+      toast.error("Review failed. Try again.");
     } finally {
       setIsLoading(false);
     }
