@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Icon from '../../../shared/components/Icon';
-import { TranslationItem } from '../../../types';
+import { TranslationItem, TranslationHint } from '../../../types';
 import { generateUUID } from '../../../core/storage/idGenerator';
 import { useToast } from '../../../shared/context/ToastContext';
 
@@ -32,16 +32,44 @@ const BulkTranslationImportSheet: React.FC<Props> = ({ isOpen, onClose, onImport
   const handleImport = () => {
     if (!text.trim()) return;
 
-    const parts = text.split('---').map(p => p.trim()).filter(p => p);
-    
-    const items: TranslationItem[] = parts.map(part => ({
-      id: generateUUID(),
-      lessonId,
-      bengaliText: part,
-      isCompleted: false,
-      createdAt: Date.now(),
-      updatedAt: Date.now()
-    }));
+    const blocks = text.split('---');
+    const items: TranslationItem[] = [];
+
+    blocks.forEach(block => {
+      const lines = block.split('\n').map(l => l.trim()).filter(l => l);
+      if (lines.length === 0) return;
+
+      const hints: TranslationHint[] = [];
+      const textLines: string[] = [];
+
+      lines.forEach(line => {
+        if (line.startsWith('?')) {
+          const parts = line.substring(1).split('=');
+          if (parts.length >= 2) {
+            hints.push({
+              bengaliWord: parts[0].trim(),
+              englishHint: parts.slice(1).join('=').trim()
+            });
+          }
+        } else {
+          textLines.push(line);
+        }
+      });
+
+      const bengaliText = textLines.join(' ');
+
+      if (bengaliText) {
+        items.push({
+          id: generateUUID(),
+          lessonId,
+          bengaliText: bengaliText,
+          hints: hints,
+          isCompleted: false,
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        });
+      }
+    });
 
     if (items.length > 0) {
       onImport(items);
@@ -86,8 +114,11 @@ const BulkTranslationImportSheet: React.FC<Props> = ({ isOpen, onClose, onImport
             {showGuide && (
               <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-3 text-[12px] text-gray-500 font-mono space-y-1 animate-in fade-in slide-in-from-top-1">
                 <p>আমি প্রতিদিন স্কুলে যাই...</p>
+                <p className="text-gray-400">? প্রতিদিন = every day</p>
+                <p className="text-gray-400">? যাই = go</p>
                 <p className="font-bold text-[#6366F1]">---</p>
                 <p>সে একজন ভালো ছেলে...</p>
+                <p className="text-gray-400">? ভালো = good</p>
                 <p className="font-bold text-[#6366F1]">---</p>
               </div>
             )}
@@ -107,9 +138,13 @@ const BulkTranslationImportSheet: React.FC<Props> = ({ isOpen, onClose, onImport
               value={text}
               onChange={(e) => setText(e.target.value)}
               className="w-full bg-gray-50 border border-[#E5E7EB] rounded-[12px] p-4 text-[13px] leading-relaxed focus:outline-none focus:border-[#6366F1] focus:bg-white transition-colors min-h-[200px]"
-              placeholder={`আমি প্রতিদিন সকালে উঠি...
+              placeholder={`আমি প্রতিদিন স্কুলে যাই...
+? প্রতিদিন = every day
+? যাই = go
 ---
-সে একজন ভালো ছেলে...
+সে ভাত খায়...
+? ভাত = rice
+? খায় = eats
 ---`}
             />
           </div>
@@ -128,7 +163,7 @@ const BulkTranslationImportSheet: React.FC<Props> = ({ isOpen, onClose, onImport
             disabled={!text.trim()}
             className="w-full h-[48px] bg-[#6366F1] text-white font-bold rounded-[14px] disabled:bg-gray-300 disabled:cursor-not-allowed active:scale-[0.98] transition-all shadow-lg shadow-indigo-200"
           >
-            Import All ({text.split('---').filter(t => t.trim()).length})
+            Import All
           </button>
         </div>
       </div>

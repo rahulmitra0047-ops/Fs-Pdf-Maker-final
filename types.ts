@@ -1,6 +1,9 @@
 
 
 
+
+
+
 // Core Entity Types
 
 export interface MCQ {
@@ -379,10 +382,16 @@ export interface GrammarRule {
 }
 
 // Practice Types
+export interface TranslationHint {
+  bengaliWord: string;
+  englishHint: string;
+}
+
 export interface TranslationItem {
   id: string;
   lessonId: string;
   bengaliText: string;
+  hints?: TranslationHint[]; // Added for translation assistance
   isCompleted: boolean;
   createdAt: number;
   updatedAt: number;
@@ -393,6 +402,9 @@ export interface PracticeTopic {
   lessonId: string;
   title: string;
   instruction?: string;
+  type?: 'job' | 'ielts'; // default 'job'
+  ieltsTaskType?: 'task2' | 'task1_academic' | 'task1_general';
+  minWords?: number;
   isCompleted: boolean;
   createdAt: number;
   updatedAt: number;

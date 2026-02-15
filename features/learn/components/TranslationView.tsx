@@ -1,7 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
 import { TranslationItem } from '../../../types';
-import PremiumButton from '../../../shared/components/PremiumButton';
 import ReviewBox, { AIReviewData } from './ReviewBox';
 import { useToast } from '../../../shared/context/ToastContext';
 import Icon from '../../../shared/components/Icon';
@@ -14,24 +12,72 @@ interface Props {
   onNext: () => void;
   onPrev: () => void;
   onComplete: (id: string) => void;
+  onEdit: (item: TranslationItem) => void;
+  onDelete: (id: string) => void;
 }
 
 const TranslationView: React.FC<Props> = ({ 
-  item, currentIndex, totalItems, onNext, onPrev, onComplete 
+  item, currentIndex, totalItems, onNext, onPrev, onComplete, onEdit, onDelete
 }) => {
   const [userInput, setUserInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [review, setReview] = useState<AIReviewData | null>(null);
+  const [showHints, setShowHints] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
     setUserInput('');
     setReview(null);
     setIsLoading(false);
+    setShowHints(false);
+    setShowMenu(false);
   }, [item.id]);
 
+  // Click outside menu handler
+  useEffect(() => {
+    const handleClickOutside = () => setShowMenu(false);
+    if(showMenu) document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showMenu]);
+
+  // Helper to fetch lesson data
+  const getLessonData = (lessonId: string) => {
+    try {
+        const saved = localStorage.getItem('mock_lessons_local');
+        if (!saved) return { rules: [], vocab: [] };
+        const lessons = JSON.parse(saved);
+        const found = lessons.find((l: any) => l.id === lessonId);
+        if (!found) return { rules: [], vocab: [] };
+
+        let rules: any[] = [];
+        if (found.grammar) {
+            try {
+                const parsed = JSON.parse(found.grammar);
+                rules = Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                if (found.grammar.trim()) rules = [{ title: 'Grammar Rule', explanation: found.grammar }];
+            }
+        }
+
+        let vocab: any[] = [];
+        if (found.vocabList && Array.isArray(found.vocabList)) {
+            vocab = found.vocabList;
+        } else if (found.vocabulary) {
+            vocab = found.vocabulary.split('\n').filter((l:string) => l.trim()).map((l:string) => {
+                const parts = l.split(/[-=]/);
+                return { word: parts[0]?.trim(), meaning: parts[1]?.trim() || '' };
+            });
+        }
+
+        return { rules, vocab };
+    } catch (e) {
+        console.error(e);
+        return { rules: [], vocab: [] };
+    }
+  };
+
   const handleCheck = async (e?: React.MouseEvent) => {
-    // Prevent any form submission or default behavior
     if (e) e.preventDefault();
 
     if (!userInput.trim()) {
@@ -41,36 +87,66 @@ const TranslationView: React.FC<Props> = ({
 
     setIsLoading(true);
     try {
+      // 1. Fetch Lesson Data
+      const { rules, vocab } = getLessonData(item.lessonId);
+
+      // 2. Build Prompt Sections
+      let grammarSection = "";
+      if (rules.length > 0) {
+          grammarSection = `\n[grammar rules]\nLearned Grammar Rules:\n${rules.map((r: any, i: number) => `${i+1}. ${r.title} — ${r.formulaAffirmative || r.pattern || ''}`).join('\n')}\n`;
+      }
+
+      let vocabSection = "";
+      if (vocab.length > 0) {
+          vocabSection = `\n[vocabulary]\nLearned Vocabulary:\n${vocab.map((v: any) => `${v.word} (${v.meaning})`).join(', ')}\n`;
+      }
+
       const prompt = `
-Act as an expert English teacher reviewing a student's translation from Bengali to English.
+তুমি একজন English teacher। একজন বাংলাভাষী ছাত্র নির্দিষ্ট grammar rules ও vocabulary শিখে বাংলা থেকে ইংরেজি translate করেছে।
 
-**Original Bengali:** "${item.bengaliText}"
-**Student's Translation:** "${userInput}"
+${grammarSection}
+${vocabSection}
 
-Analyze grammar, vocabulary choice, sentence structure, and tone.
-Provide the output strictly in the following JSON format (do not use markdown code blocks):
+বাংলা original: "${item.bengaliText}"
+ছাত্রের translation: "${userInput}"
 
+review করো এই JSON format এ:
 {
-  "score": number, // 0 to 10
-  "good": ["string"], // List of 2-3 positive points in Bengali
-  "errors": [
+  "score": 0, // 0-10
+  "grammarReview": [
     {
-      "wrong": "string", // The incorrect part
-      "correct": "string", // The corrected version of that part
-      "reason": "string" // Explanation in Bengali
+      "ruleTitle": "rule name",
+      "status": "correct" | "incorrect" | "not_used",
+      "found": "text segment",
+      "correction": "corrected segment (if incorrect)",
+      "feedback": "বাংলায় feedback"
     }
   ],
-  "tips": ["string"], // 1-2 improvement tips in Bengali
-  "correctedVersion": "string" // The best standard English version of the full text
+  "vocabReview": {
+    "used": ["word1", "word2"],
+    "similar": [
+      { "learned": "word", "usedInstead": "synonym", "ok": true }
+    ],
+    "notUsed": ["word3"],
+    "feedback": "বাংলায় feedback"
+  },
+  "tips": ["tip1 in Bengali"],
+  "correctedVersion": "Full corrected English text"
 }
+
+score 0-10 এ দাও।
+grammarReview: শেখা rules থেকে কোনটা correct ব্যবহার করেছে, কোনটা incorrect, কোনটা ব্যবহারই করেনি — সব check করো।
+vocabReview: শেখা words থেকে কোনটা ব্যবহার করেছে (used), কোনটা করেনি (notUsed)। synonym ব্যবহার করলে similar এ দেখাও।
+tips ও feedback সব বাংলায় লেখো। correctedVersion ইংরেজিতে।
+শুধু JSON দাও, অন্য কিছু না।
 `;
 
       const response = await aiManager.generateContent(
-          'gemini-3-flash-preview', // Use 3.0 for better logic
+          'gemini-3-flash-preview', 
           prompt, 
           { 
             responseMimeType: 'application/json',
-            timeout: 70000 // 70s timeout for writing tasks
+            timeout: 70000 
           }
       );
       
@@ -80,13 +156,19 @@ Provide the output strictly in the following JSON format (do not use markdown co
       }
 
       const jsonText = response.text || "{}";
-      let json;
+      let json: AIReviewData;
       try {
-          json = JSON.parse(jsonText);
-      } catch (e) {
-          // Fallback cleanup if model adds markdown
           const clean = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
           json = JSON.parse(clean);
+      } catch (e) {
+          console.warn("JSON parse failed, fallback");
+          json = {
+              score: 0,
+              tips: [],
+              correctedVersion: jsonText, // Fallback entire text
+              grammarReview: [],
+              vocabReview: { used: [], notUsed: [], similar: [] }
+          };
       }
 
       setReview(json);
@@ -114,12 +196,65 @@ Provide the output strictly in the following JSON format (do not use markdown co
         </span>
       </div>
 
-      {/* Bengali Text */}
+      {/* Bengali Text Card */}
       <div className="mb-4">
-        <label className="block text-[13px] font-bold text-[#374151] mb-1.5 ml-1">বাংলা:</label>
+        <div className="flex justify-between items-center mb-1.5 ml-1">
+            <label className="text-[13px] font-bold text-[#374151]">বাংলা:</label>
+            <div className="relative">
+                <button 
+                    onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
+                    className="p-1 rounded-full text-gray-400 hover:bg-gray-100 transition-colors"
+                >
+                    <Icon name="more-vertical" size="sm" />
+                </button>
+                {showMenu && (
+                    <div className="absolute right-0 top-6 z-10 bg-white border border-gray-100 shadow-lg rounded-lg overflow-hidden min-w-[120px] animate-in fade-in zoom-in-95 duration-100">
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); onEdit(item); setShowMenu(false); }}
+                            className="w-full text-left px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                        >
+                            <Icon name="edit-3" size="sm" /> Edit
+                        </button>
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); onDelete(item.id); setShowMenu(false); }}
+                            className="w-full text-left px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2"
+                        >
+                            <Icon name="trash-2" size="sm" /> Delete
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
         <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-[12px] p-3 text-[14px] text-[#111827] leading-relaxed">
           {item.bengaliText}
         </div>
+        
+        {/* Hint Toggle Button */}
+        {item.hints && item.hints.length > 0 && (
+            <div className="mt-2">
+                <button 
+                    onClick={() => setShowHints(!showHints)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#6366F1] text-[#6366F1] bg-white text-[11px] font-bold active:scale-95 transition-all hover:bg-indigo-50"
+                >
+                    <span>💡 Hints</span>
+                </button>
+                
+                {/* Hint Display Box */}
+                {showHints && (
+                    <div className="mt-2 bg-[#FFFBEB] border border-[#FEF3C7] rounded-[10px] p-2.5 animate-in slide-in-from-top-1">
+                        <div className="flex flex-wrap gap-x-4 gap-y-1">
+                            {item.hints.map((hint, idx) => (
+                                <div key={idx} className="text-[12px] text-gray-700">
+                                    <span className="font-bold">{hint.bengaliWord}</span>
+                                    <span className="text-gray-400 mx-1">→</span>
+                                    <span className="text-gray-600">{hint.englishHint}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        )}
       </div>
 
       {/* User Input */}
@@ -146,7 +281,7 @@ Provide the output strictly in the following JSON format (do not use markdown co
         <button 
           onClick={handleCheck}
           disabled={isLoading || !userInput}
-          type="button" // Explicitly type as button to prevent submit
+          type="button" 
           className="h-[38px] flex-1 bg-[#6366F1] text-white rounded-[10px] text-[13px] font-bold shadow-md shadow-indigo-200 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {isLoading ? (

@@ -37,14 +37,52 @@ const BulkTopicImportSheet: React.FC<Props> = ({ isOpen, onClose, onImport, less
 
     blocks.forEach(block => {
       const lines = block.split('\n').map(l => l.trim()).filter(l => l);
+      if (lines.length === 0) return;
+
       let title = '';
       let instruction = '';
+      let type: 'job' | 'ielts' = 'job';
+      let ieltsTaskType: 'task2' | 'task1_academic' | 'task1_general' | undefined = undefined;
+      let minWords = 0;
 
-      lines.forEach(line => {
-        if (line.startsWith('#')) {
-          title = line.substring(1).trim();
-        } else if (line.startsWith('@')) {
-          instruction = line.substring(1).trim();
+      // First line determines type and title
+      const firstLine = lines[0];
+      
+      if (firstLine.startsWith('#')) {
+          if (firstLine.startsWith('#JOB')) {
+              type = 'job';
+              title = firstLine.substring(4).trim();
+          } else if (firstLine.startsWith('#IELTS2')) {
+              type = 'ielts';
+              ieltsTaskType = 'task2';
+              minWords = 250;
+              title = firstLine.substring(7).trim();
+          } else if (firstLine.startsWith('#IELTS1A')) {
+              type = 'ielts';
+              ieltsTaskType = 'task1_academic';
+              minWords = 150;
+              title = firstLine.substring(8).trim();
+          } else if (firstLine.startsWith('#IELTS1G')) {
+              type = 'ielts';
+              ieltsTaskType = 'task1_general';
+              minWords = 150;
+              title = firstLine.substring(8).trim();
+          } else {
+              // Backward compatibility for generic # Title
+              type = 'job';
+              title = firstLine.substring(1).trim();
+          }
+      } else {
+          // No tag, assume simple title job exam
+          type = 'job';
+          title = firstLine;
+      }
+
+      // Rest of the lines for instruction
+      lines.slice(1).forEach(line => {
+        if (line.startsWith('@')) {
+          const inst = line.substring(1).trim();
+          instruction = instruction ? instruction + ' ' + inst : inst;
         }
       });
 
@@ -54,6 +92,9 @@ const BulkTopicImportSheet: React.FC<Props> = ({ isOpen, onClose, onImport, less
           lessonId,
           title,
           instruction,
+          type,
+          ieltsTaskType,
+          minWords,
           isCompleted: false,
           createdAt: Date.now(),
           updatedAt: Date.now()
@@ -66,7 +107,7 @@ const BulkTopicImportSheet: React.FC<Props> = ({ isOpen, onClose, onImport, less
       setText('');
       onClose();
     } else {
-      toast.error("No valid topics found (Check # prefix)");
+      toast.error("No valid topics found");
     }
   };
 
@@ -102,8 +143,11 @@ const BulkTopicImportSheet: React.FC<Props> = ({ isOpen, onClose, onImport, less
             </button>
             
             {showGuide && (
-              <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-3 text-[12px] text-gray-500 font-mono space-y-1 animate-in fade-in slide-in-from-top-1">
-                <p><span className="font-bold text-[#6366F1]">#</span> Topic Title</p>
+              <div className="bg-white border border-[#E5E7EB] rounded-[12px] p-3 text-[11px] text-gray-500 font-mono space-y-1 animate-in fade-in slide-in-from-top-1">
+                <p><span className="font-bold text-[#6366F1]">#JOB</span> Job Exam Topic</p>
+                <p><span className="font-bold text-[#6366F1]">#IELTS2</span> IELTS Task 2 (250 words)</p>
+                <p><span className="font-bold text-[#6366F1]">#IELTS1A</span> Task 1 Academic (150 words)</p>
+                <p><span className="font-bold text-[#6366F1]">#IELTS1G</span> Task 1 General (150 words)</p>
                 <p><span className="font-bold text-[#6366F1]">@</span> Instruction (optional)</p>
                 <p className="font-bold text-[#6366F1]">---</p>
               </div>
@@ -123,19 +167,19 @@ const BulkTopicImportSheet: React.FC<Props> = ({ isOpen, onClose, onImport, less
             <textarea 
               value={text}
               onChange={(e) => setText(e.target.value)}
-              className="w-full bg-gray-50 border border-[#E5E7EB] rounded-[12px] p-4 text-[13px] leading-relaxed focus:outline-none focus:border-[#6366F1] focus:bg-white transition-colors min-h-[200px]"
-              placeholder={`# Describe your daily routine
-@ Write at least 100 words.
+              className="w-full bg-gray-50 border border-[#E5E7EB] rounded-[12px] p-4 text-[13px] leading-relaxed focus:outline-none focus:border-[#6366F1] focus:bg-white transition-colors min-h-[200px] font-mono"
+              placeholder={`#JOB My Daily Life
+@ Write a paragraph about your daily life.
 ---
-# Write about your best friend
-@ Describe their appearance.
+#IELTS2 Agree or Disagree
+@ Some people believe that...
 ---`}
             />
           </div>
 
           {text.trim() && (
             <div className="text-[13px] font-bold text-[#059669]">
-              ✅ {text.split('---').filter(t => t.includes('#')).length} টি topic পাওয়া গেছে
+              ✅ {text.split('---').filter(t => t.trim()).length} টি topic পাওয়া গেছে
             </div>
           )}
         </div>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PracticeTopic } from '../../../types';
 import ReviewBox, { AIReviewData } from './ReviewBox';
@@ -13,15 +12,18 @@ interface Props {
   onNext: () => void;
   onPrev: () => void;
   onComplete: (id: string) => void;
+  onEdit?: (item: PracticeTopic) => void;
+  onDelete?: (id: string) => void;
 }
 
 const TopicView: React.FC<Props> = ({ 
-  item, currentIndex, totalItems, onNext, onPrev, onComplete 
+  item, currentIndex, totalItems, onNext, onPrev, onComplete, onEdit, onDelete
 }) => {
   const [userInput, setUserInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [review, setReview] = useState<AIReviewData | null>(null);
   const [wordCount, setWordCount] = useState(0);
+  const [showMenu, setShowMenu] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -29,6 +31,7 @@ const TopicView: React.FC<Props> = ({
     setReview(null);
     setIsLoading(false);
     setWordCount(0);
+    setShowMenu(false);
   }, [item.id]);
 
   useEffect(() => {
@@ -36,8 +39,50 @@ const TopicView: React.FC<Props> = ({
     setWordCount(count);
   }, [userInput]);
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => setShowMenu(false);
+    if(showMenu) document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showMenu]);
+
+  // Helper to fetch lesson data
+  const getLessonData = (lessonId: string) => {
+    try {
+        const saved = localStorage.getItem('mock_lessons_local');
+        if (!saved) return { rules: [], vocab: [] };
+        const lessons = JSON.parse(saved);
+        const found = lessons.find((l: any) => l.id === lessonId);
+        if (!found) return { rules: [], vocab: [] };
+
+        let rules: any[] = [];
+        if (found.grammar) {
+            try {
+                const parsed = JSON.parse(found.grammar);
+                rules = Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                if (found.grammar.trim()) rules = [{ title: 'Grammar Rule', explanation: found.grammar }];
+            }
+        }
+
+        let vocab: any[] = [];
+        if (found.vocabList && Array.isArray(found.vocabList)) {
+            vocab = found.vocabList;
+        } else if (found.vocabulary) {
+            vocab = found.vocabulary.split('\n').filter((l:string) => l.trim()).map((l:string) => {
+                const parts = l.split(/[-=]/);
+                return { word: parts[0]?.trim(), meaning: parts[1]?.trim() || '' };
+            });
+        }
+
+        return { rules, vocab };
+    } catch (e) {
+        console.error(e);
+        return { rules: [], vocab: [] };
+    }
+  };
+
   const handleCheck = async (e?: React.MouseEvent) => {
-    // Prevent defaults
     if (e) e.preventDefault();
 
     if (!userInput.trim()) {
@@ -47,38 +92,101 @@ const TopicView: React.FC<Props> = ({
 
     setIsLoading(true);
     try {
-      const prompt = `
-Act as a strict IELTS Writing Examiner. Evaluate the following writing submission submitted by a Bengali speaker.
+      const { rules, vocab } = getLessonData(item.lessonId);
 
-**Topic:** "${item.title}"
-**Instruction:** "${item.instruction || 'Write a comprehensive response'}"
-**Student's Writing:** "${userInput}"
+      let grammarSection = "";
+      if (rules.length > 0) {
+          grammarSection = `\n[grammar rules]\nLearned Rules:\n${rules.map((r: any, i: number) => `${i+1}. ${r.title} — ${r.formulaAffirmative || r.pattern || ''}`).join('\n')}\n`;
+      }
 
-Evaluate based on: Task Response, Coherence & Cohesion, Lexical Resource, and Grammatical Range & Accuracy.
+      let vocabSection = "";
+      if (vocab.length > 0) {
+          vocabSection = `\n[vocabulary]\nLearned Vocabulary:\n${vocab.map((v: any) => `${v.word} (${v.meaning})`).join(', ')}\n`;
+      }
 
-Provide the output strictly in the following JSON format (no markdown formatting):
+      let prompt = "";
+      
+      if (item.type === 'ielts') {
+          // IELTS PROMPT
+          prompt = `
+তুমি একজন IELTS examiner। একজন বাংলাভাষী ছাত্র নির্দিষ্ট grammar rules ও vocabulary শিখে IELTS writing করেছে।
 
+${grammarSection}
+${vocabSection}
+
+Task Type: ${item.ieltsTaskType === 'task2' ? 'Task 2' : 'Task 1'}
+Topic: "${item.title}"
+Instruction: "${item.instruction || ''}"
+Student's writing: "${userInput}"
+
+review করো এই JSON format এ:
 {
-  "score": number, // 0-10
-  "good": ["string"], // List of 2-3 strong points in Bengali
-  "errors": [
-    {
-      "wrong": "string", // Highlighted error part
-      "correct": "string", // Correction
-      "reason": "string" // Detailed explanation in Bengali
-    }
+  "bandScore": 6.5, // 0-9, 0.5 increment
+  "criteria": {
+    "taskResponse": { "band": 7.0, "feedback": "Topic covered well" },
+    "coherence": { "band": 6.5, "feedback": "Linking needs improvement" },
+    "vocabulary": { "band": 6.0, "feedback": "Feedback..." },
+    "grammar": { "band": 6.5, "feedback": "Feedback..." }
+  },
+  "grammarReview": [
+    { "ruleTitle": "rule", "status": "correct"|"incorrect"|"not_used", "found": "text", "correction": "fix", "feedback": "bengali" }
   ],
-  "tips": ["string"], // Strategic tips in Bengali
-  "correctedVersion": "string" // A refined, high-band version of the text in English
+  "vocabReview": {
+    "used": ["word1"],
+    "similar": [{ "learned": "word", "usedInstead": "synonym", "ok": true }],
+    "notUsed": ["word2"],
+    "feedback": "bengali"
+  },
+  "tips": ["tip1 in Bengali"],
+  "correctedVersion": "Full corrected English text"
 }
+
+IELTS band score 0-9. 4 criteria আলাদাভাবে score করো.
+grammar rules ও vocabulary check করো।
+সব feedback বাংলায়। correctedVersion ইংরেজিতে।
+শুধু JSON দাও।
 `;
+      } else {
+          // JOB / GENERAL PROMPT
+          prompt = `
+তুমি একজন English teacher। একজন বাংলাভাষী ছাত্র নির্দিষ্ট grammar rules ও vocabulary শিখে একটা topic এ ইংরেজিতে লিখেছে।
+
+${grammarSection}
+${vocabSection}
+
+Topic: "${item.title}"
+Instruction: "${item.instruction || ''}"
+Student's writing: "${userInput}"
+
+review করো এই JSON format এ:
+{
+  "score": 7, // 0-10
+  "grammarReview": [
+    { "ruleTitle": "rule", "status": "correct"|"incorrect"|"not_used", "found": "text", "correction": "fix", "feedback": "bengali" }
+  ],
+  "vocabReview": {
+    "used": ["word1"],
+    "similar": [{ "learned": "word", "usedInstead": "synonym", "ok": true }],
+    "notUsed": ["word2"],
+    "feedback": "bengali"
+  },
+  "tips": ["tip1 in Bengali"],
+  "correctedVersion": "Full corrected English text"
+}
+
+score 0-10.
+grammar rules ও vocabulary check করো।
+সব feedback বাংলায়। correctedVersion ইংরেজিতে।
+শুধু JSON দাও।
+`;
+      }
 
       const response = await aiManager.generateContent(
           'gemini-3-flash-preview', 
           prompt, 
           { 
             responseMimeType: 'application/json',
-            timeout: 90000 // 90s timeout for heavier writing tasks
+            timeout: 90000 
           }
       );
       
@@ -88,12 +196,17 @@ Provide the output strictly in the following JSON format (no markdown formatting
       }
 
       const jsonText = response.text || "{}";
-      let json;
+      let json: AIReviewData;
       try {
-          json = JSON.parse(jsonText);
-      } catch (e) {
           const clean = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
           json = JSON.parse(clean);
+      } catch (e) {
+          console.warn("JSON parse failed, fallback");
+          json = {
+              score: 0,
+              tips: [],
+              correctedVersion: jsonText
+          };
       }
 
       setReview(json);
@@ -112,6 +225,18 @@ Provide the output strictly in the following JSON format (no markdown formatting
     setReview(null);
   };
 
+  const getWordCountColor = () => {
+      if (!item.minWords || item.minWords === 0) return 'text-[#9CA3AF]';
+      if (wordCount >= item.minWords) return 'text-[#059669] font-bold'; // Green
+      if (wordCount >= item.minWords * 0.6) return 'text-[#D97706]'; // Amber
+      return 'text-[#DC2626]'; // Red
+  };
+
+  const getWordCountText = () => {
+      if (!item.minWords || item.minWords === 0) return `Words: ${wordCount}`;
+      return `Words: ${wordCount}/${item.minWords}`;
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-right-4 duration-300">
       {/* Counter */}
@@ -123,13 +248,54 @@ Provide the output strictly in the following JSON format (no markdown formatting
 
       {/* Topic Display */}
       <div className="mb-4">
-        <label className="block text-[13px] font-bold text-[#374151] mb-1.5 ml-1">📝 Topic:</label>
+        <div className="flex justify-between items-start mb-1.5 ml-1">
+            <label className="text-[13px] font-bold text-[#374151]">📝 Topic:</label>
+            <div className="relative">
+                {(onEdit && onDelete) && (
+                    <button 
+                        onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
+                        className="p-1 rounded-full text-gray-400 hover:bg-gray-100 transition-colors"
+                    >
+                        <Icon name="more-vertical" size="sm" />
+                    </button>
+                )}
+                {showMenu && onEdit && onDelete && (
+                    <div className="absolute right-0 top-6 z-10 bg-white border border-gray-100 shadow-lg rounded-lg overflow-hidden min-w-[120px] animate-in fade-in zoom-in-95 duration-100">
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); onEdit(item); setShowMenu(false); }}
+                            className="w-full text-left px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                        >
+                            <Icon name="edit-3" size="sm" /> Edit
+                        </button>
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); onDelete(item.id); setShowMenu(false); }}
+                            className="w-full text-left px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2"
+                        >
+                            <Icon name="trash-2" size="sm" /> Delete
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+        
         <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-[12px] p-4">
-          <h3 className="text-[16px] font-bold text-[#111827] mb-1">{item.title}</h3>
+          <div className="flex items-start gap-2 mb-1">
+              {item.type === 'ielts' && <span className="text-lg">🌍</span>}
+              {item.type === 'job' && <span className="text-lg">📋</span>}
+              <h3 className="text-[16px] font-bold text-[#111827] leading-snug">{item.title}</h3>
+          </div>
+          
           {item.instruction && (
-            <p className="text-[12px] text-[#6B7280] italic flex items-start gap-1">
-              <span>💡</span> {item.instruction}
+            <p className="text-[13px] text-[#6B7280] italic mt-1 leading-relaxed">
+              {item.instruction}
             </p>
+          )}
+          
+          {item.type === 'ielts' && item.minWords && item.minWords > 0 && (
+              <div className="flex items-center gap-1.5 mt-2">
+                  <Icon name="file-text" size="sm" className="text-gray-400 w-3 h-3" />
+                  <span className="text-[11px] text-gray-400 font-medium">{item.minWords}+ words</span>
+              </div>
           )}
         </div>
       </div>
@@ -142,8 +308,8 @@ Provide the output strictly in the following JSON format (no markdown formatting
           placeholder="এই topic নিয়ে ইংরেজিতে লেখো..."
           className="w-full min-h-[200px] bg-white border border-[#E5E7EB] rounded-[12px] p-3 text-[14px] outline-none focus:border-[#6366F1] focus:ring-4 focus:ring-[#6366F1]/10 transition-all resize-none placeholder:text-gray-400"
         />
-        <div className="text-right text-[11px] text-[#9CA3AF] mt-1 font-medium">
-          Words: {wordCount}
+        <div className={`text-right text-[11px] mt-1 transition-colors ${getWordCountColor()}`}>
+          {getWordCountText()}
         </div>
       </div>
 
@@ -160,7 +326,7 @@ Provide the output strictly in the following JSON format (no markdown formatting
         <button 
           onClick={handleCheck}
           disabled={isLoading || !userInput}
-          type="button" // Explicitly type as button
+          type="button" 
           className="h-[38px] flex-1 bg-[#6366F1] text-white rounded-[10px] text-[13px] font-bold shadow-md shadow-indigo-200 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {isLoading ? (
