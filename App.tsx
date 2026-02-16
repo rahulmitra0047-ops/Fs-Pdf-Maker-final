@@ -1,4 +1,6 @@
 
+
+
 import React, { useEffect } from 'react';
 import { HashRouter, useNavigate } from 'react-router-dom';
 import RootErrorBoundary from './shared/components/RootErrorBoundary';
@@ -7,6 +9,7 @@ import AppRoutes from './app/routes/AppRoutes';
 import OfflineIndicator from './shared/components/OfflineIndicator';
 import { useSettings } from './shared/hooks/useSettings';
 import { aiManager } from './core/ai/aiManager';
+import { migrateLearnData } from './core/migration/learnMigration';
 
 // Module-level flag to track if we've handled the initial redirect.
 let isInitialLoad = true;
@@ -23,6 +26,9 @@ const AppLogicHandler = () => {
   }, [settings.geminiApiKeys]);
   
   useEffect(() => {
+    // 0. Trigger Migration
+    migrateLearnData();
+
     // 1. Handle Share Target (URL Params -> App State)
     const params = new URLSearchParams(window.location.search);
     const sharedText = params.get('text');

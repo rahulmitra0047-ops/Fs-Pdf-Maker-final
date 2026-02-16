@@ -1,6 +1,6 @@
 
 import Dexie, { Table } from 'dexie';
-import { Document, Topic, Subtopic, MCQSet, Attempt, AppSettings, ExamTemplate, MCQStats, AuditLogEntry } from '../../types';
+import { Document, Topic, Subtopic, MCQSet, Attempt, AppSettings, ExamTemplate, MCQStats, AuditLogEntry, Lesson, GrammarRule, VocabWord, TranslationItem, PracticeTopic } from '../../types';
 
 export class FSPDFMakerDB extends Dexie {
   documents!: Table<Document, string>;
@@ -12,6 +12,13 @@ export class FSPDFMakerDB extends Dexie {
   examTemplates!: Table<ExamTemplate, string>;
   mcqStats!: Table<MCQStats, string>;
   auditLogs!: Table<AuditLogEntry, string>;
+  
+  // Learn Module Tables
+  lessons!: Table<Lesson, string>;
+  grammarRules!: Table<GrammarRule, string>;
+  vocabulary!: Table<VocabWord, string>;
+  translations!: Table<TranslationItem, string>;
+  practiceTopics!: Table<PracticeTopic, string>;
 
   constructor() {
     super('FSPDFMakerDB');
@@ -29,7 +36,7 @@ export class FSPDFMakerDB extends Dexie {
       mcqStats: '&id, mcqId, setId, accuracy'
     });
 
-    // Version 2: Add auditLogs table and update existing stores if needed
+    // Version 2
     (this as any).version(2).stores({
       documents: '&id, title, updatedAt, isArchived',
       topics: '&id, name, order',
@@ -42,10 +49,18 @@ export class FSPDFMakerDB extends Dexie {
       auditLogs: '++id, action, entity, timestamp'
     });
 
-    // Version 3: Fix auditLogs schema to support string IDs (UUIDs)
-    // Changing from ++id (auto-inc) to id (string/explicit)
+    // Version 3
     (this as any).version(3).stores({
       auditLogs: 'id, action, entity, timestamp'
+    });
+
+    // Version 4: Learn Module (Offline First)
+    (this as any).version(4).stores({
+      lessons: 'id, order, status',
+      grammarRules: 'id, lessonId, order',
+      vocabulary: 'id, lessonId, order',
+      translations: 'id, lessonId, order',
+      practiceTopics: 'id, lessonId, order'
     });
   }
 }

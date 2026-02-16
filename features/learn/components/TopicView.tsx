@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
-import { PracticeTopic } from '../../../types';
+import { PracticeTopic, GrammarRule, VocabWord } from '../../../types';
 import ReviewBox, { AIReviewData } from './ReviewBox';
 import { useToast } from '../../../shared/context/ToastContext';
 import Icon from '../../../shared/components/Icon';
 import { aiManager } from '../../../core/ai/aiManager';
+import { grammarService, vocabService } from '../../../core/storage/services';
 
 interface Props {
   item: PracticeTopic;
@@ -24,6 +26,11 @@ const TopicView: React.FC<Props> = ({
   const [review, setReview] = useState<AIReviewData | null>(null);
   const [wordCount, setWordCount] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
+  
+  // Lesson Context State
+  const [contextRules, setContextRules] = useState<GrammarRule[]>([]);
+  const [contextVocab, setContextVocab] = useState<VocabWord[]>([]);
+  
   const toast = useToast();
 
   useEffect(() => {
@@ -39,48 +46,32 @@ const TopicView: React.FC<Props> = ({
     setWordCount(count);
   }, [userInput]);
 
+  // Fetch Lesson Context
+  useEffect(() => {
+    const fetchContext = async () => {
+      try {
+        const [rules, vocab] = await Promise.all([
+          grammarService.getRules(item.lessonId),
+          vocabService.getWords(item.lessonId)
+        ]);
+        setContextRules(rules);
+        setContextVocab(vocab);
+      } catch (e) {
+        console.error("Failed to fetch lesson context", e);
+      }
+    };
+    
+    if (item.lessonId) {
+      fetchContext();
+    }
+  }, [item.lessonId]);
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = () => setShowMenu(false);
     if(showMenu) document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, [showMenu]);
-
-  // Helper to fetch lesson data
-  const getLessonData = (lessonId: string) => {
-    try {
-        const saved = localStorage.getItem('mock_lessons_local');
-        if (!saved) return { rules: [], vocab: [] };
-        const lessons = JSON.parse(saved);
-        const found = lessons.find((l: any) => l.id === lessonId);
-        if (!found) return { rules: [], vocab: [] };
-
-        let rules: any[] = [];
-        if (found.grammar) {
-            try {
-                const parsed = JSON.parse(found.grammar);
-                rules = Array.isArray(parsed) ? parsed : [];
-            } catch (e) {
-                if (found.grammar.trim()) rules = [{ title: 'Grammar Rule', explanation: found.grammar }];
-            }
-        }
-
-        let vocab: any[] = [];
-        if (found.vocabList && Array.isArray(found.vocabList)) {
-            vocab = found.vocabList;
-        } else if (found.vocabulary) {
-            vocab = found.vocabulary.split('\n').filter((l:string) => l.trim()).map((l:string) => {
-                const parts = l.split(/[-=]/);
-                return { word: parts[0]?.trim(), meaning: parts[1]?.trim() || '' };
-            });
-        }
-
-        return { rules, vocab };
-    } catch (e) {
-        console.error(e);
-        return { rules: [], vocab: [] };
-    }
-  };
 
   const handleCheck = async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
@@ -92,16 +83,15 @@ const TopicView: React.FC<Props> = ({
 
     setIsLoading(true);
     try {
-      const { rules, vocab } = getLessonData(item.lessonId);
-
+      // 1. Build Prompt Sections from Context State
       let grammarSection = "";
-      if (rules.length > 0) {
-          grammarSection = `\n[grammar rules]\nLearned Rules:\n${rules.map((r: any, i: number) => `${i+1}. ${r.title} — ${r.formulaAffirmative || r.pattern || ''}`).join('\n')}\n`;
+      if (contextRules.length > 0) {
+          grammarSection = `\n[grammar rules]\nLearned Rules:\n${contextRules.map((r, i) => `${i+1}. ${r.title} — ${r.formulaAffirmative || r.pattern || ''}`).join('\n')}\n`;
       }
 
       let vocabSection = "";
-      if (vocab.length > 0) {
-          vocabSection = `\n[vocabulary]\nLearned Vocabulary:\n${vocab.map((v: any) => `${v.word} (${v.meaning})`).join(', ')}\n`;
+      if (contextVocab.length > 0) {
+          vocabSection = `\n[vocabulary]\nLearned Vocabulary:\n${contextVocab.map((v) => `${v.word} (${v.meaning})`).join(', ')}\n`;
       }
 
       let prompt = "";

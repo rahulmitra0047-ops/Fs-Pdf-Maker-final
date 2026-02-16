@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { TranslationItem, PracticeTopic } from '../../../types';
 import TranslationView from './TranslationView';
@@ -15,12 +16,22 @@ interface Props {
   translations: TranslationItem[];
   topics: PracticeTopic[];
   lessonId: string;
-  onUpdateTranslations: (items: TranslationItem[]) => void;
-  onUpdateTopics: (items: PracticeTopic[]) => void;
+  // Granular handlers
+  onAddTranslation: (item: TranslationItem) => void;
+  onUpdateTranslation: (item: TranslationItem) => void;
+  onDeleteTranslation: (id: string) => void;
+  onBulkTranslation: (items: TranslationItem[]) => void;
+  
+  onAddTopic: (item: PracticeTopic) => void;
+  onUpdateTopic: (item: PracticeTopic) => void;
+  onDeleteTopic: (id: string) => void;
+  onBulkTopic: (items: PracticeTopic[]) => void;
 }
 
 const PracticeSession: React.FC<Props> = ({ 
-  translations, topics, lessonId, onUpdateTranslations, onUpdateTopics 
+  translations, topics, lessonId, 
+  onAddTranslation, onUpdateTranslation, onDeleteTranslation, onBulkTranslation,
+  onAddTopic, onUpdateTopic, onDeleteTopic, onBulkTopic
 }) => {
   const toast = useToast();
   const [subTab, setSubTab] = useState<'translation' | 'topic'>('translation');
@@ -64,65 +75,50 @@ const PracticeSession: React.FC<Props> = ({
 
   // Handlers for Translations
   const handleSaveTranslation = (item: TranslationItem) => {
-    let updated;
     if (translations.some(t => t.id === item.id)) {
-        updated = translations.map(t => t.id === item.id ? item : t);
-        toast.success("Translation updated");
+        onUpdateTranslation(item);
     } else {
-        updated = [...translations, item];
-        toast.success("Translation added");
+        onAddTranslation(item);
     }
-    onUpdateTranslations(updated);
     setEditingTranslation(null);
   };
 
-  const handleBulkImportTranslation = (items: TranslationItem[]) => {
-    onUpdateTranslations([...translations, ...items]);
-    toast.success(`${items.length} translations imported`);
-  };
-
   const handleTranslationComplete = (id: string) => {
-    const updated = translations.map(t => t.id === id ? { ...t, isCompleted: true } : t);
-    onUpdateTranslations(updated);
+    const item = translations.find(t => t.id === id);
+    if (item) {
+        onUpdateTranslation({ ...item, isCompleted: true });
+    }
   };
 
   // Handlers for Topics
   const handleSaveTopic = (item: PracticeTopic) => {
-    let updated;
     if (topics.some(t => t.id === item.id)) {
-        updated = topics.map(t => t.id === item.id ? item : t);
-        toast.success("Topic updated");
+        onUpdateTopic(item);
     } else {
-        updated = [...topics, item];
-        toast.success("Topic added");
+        onAddTopic(item);
     }
-    onUpdateTopics(updated);
     setEditingTopic(null);
   };
 
-  const handleBulkImportTopic = (items: PracticeTopic[]) => {
-    onUpdateTopics([...topics, ...items]);
-    toast.success(`${items.length} topics imported`);
-  };
-
   const handleTopicComplete = (id: string) => {
-    const updated = topics.map(t => t.id === id ? { ...t, isCompleted: true } : t);
-    onUpdateTopics(updated);
+    const item = topics.find(t => t.id === id);
+    if (item) {
+        onUpdateTopic({ ...item, isCompleted: true });
+    }
   };
 
   // Generic Delete
   const handleDelete = () => {
       if (deleteType === 'translation') {
-          const updated = translations.filter(t => t.id !== deleteId);
-          onUpdateTranslations(updated);
-          if (currentIndex >= updated.length && updated.length > 0) setCurrentIndex(updated.length - 1);
-          else if (updated.length === 0) setCurrentIndex(0);
-          toast.success("Translation deleted");
+          if (deleteId) onDeleteTranslation(deleteId);
+          // Index adjustment is handled by React effect if list shrinks
+          if (currentIndex >= translations.length - 1 && translations.length > 1) setCurrentIndex(prev => prev - 1);
+          else if (translations.length <= 1) setCurrentIndex(0);
       } else if (deleteType === 'topic') {
-          const updated = topics.filter(t => t.id !== deleteId);
-          onUpdateTopics(updated);
-          // filteredTopics effect will handle index reset if needed
-          toast.success("Topic deleted");
+          if (deleteId) onDeleteTopic(deleteId);
+          // Index adjustment
+          if (currentIndex >= filteredTopics.length - 1 && filteredTopics.length > 1) setCurrentIndex(prev => prev - 1);
+          else if (filteredTopics.length <= 1) setCurrentIndex(0);
       }
       setDeleteId(null);
       setDeleteType(null);
@@ -292,7 +288,7 @@ const PracticeSession: React.FC<Props> = ({
         lessonId={lessonId}
         existingItem={editingTranslation}
       />
-      <BulkTranslationImportSheet isOpen={showBulkTranslation} onClose={() => setShowBulkTranslation(false)} onImport={handleBulkImportTranslation} lessonId={lessonId} />
+      <BulkTranslationImportSheet isOpen={showBulkTranslation} onClose={() => setShowBulkTranslation(false)} onImport={onBulkTranslation} lessonId={lessonId} />
       
       <AddTopicSheet 
         isOpen={showAddTopic} 
@@ -301,7 +297,7 @@ const PracticeSession: React.FC<Props> = ({
         lessonId={lessonId}
         existingItem={editingTopic}
       />
-      <BulkTopicImportSheet isOpen={showBulkTopic} onClose={() => setShowBulkTopic(false)} onImport={handleBulkImportTopic} lessonId={lessonId} />
+      <BulkTopicImportSheet isOpen={showBulkTopic} onClose={() => setShowBulkTopic(false)} onImport={onBulkTopic} lessonId={lessonId} />
 
       <PremiumModal isOpen={!!deleteId} onClose={() => setDeleteId(null)} title="Delete?" size="sm">
           <div className="space-y-4">

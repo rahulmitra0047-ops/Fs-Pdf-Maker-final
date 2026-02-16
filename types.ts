@@ -4,6 +4,7 @@
 
 
 
+
 // Core Entity Types
 
 export interface MCQ {
@@ -343,6 +344,7 @@ export interface VocabWord {
   pronunciation?: string;
   createdAt: number;
   updatedAt: number;
+  order?: number;
 }
 
 export interface GrammarRule {
@@ -367,6 +369,7 @@ export interface GrammarRule {
   isFavorite: boolean;
   createdAt: number;
   updatedAt: number;
+  order?: number;
   
   // Optional / Legacy fields
   category?: string;
@@ -391,10 +394,12 @@ export interface TranslationItem {
   id: string;
   lessonId: string;
   bengaliText: string;
+  type?: 'job' | 'ielts'; // Optional for backwards compatibility, default job
   hints?: TranslationHint[]; // Added for translation assistance
   isCompleted: boolean;
   createdAt: number;
   updatedAt: number;
+  order?: number;
 }
 
 export interface PracticeTopic {
@@ -406,6 +411,17 @@ export interface PracticeTopic {
   ieltsTaskType?: 'task2' | 'task1_academic' | 'task1_general';
   minWords?: number;
   isCompleted: boolean;
+  createdAt: number;
+  updatedAt: number;
+  order?: number;
+}
+
+export interface Lesson {
+  id: string;
+  title: string;
+  subtitle?: string;
+  order: number;
+  status?: 'new' | 'in-progress' | 'completed'; // Virtual field based on content
   createdAt: number;
   updatedAt: number;
 }

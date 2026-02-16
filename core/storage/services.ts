@@ -1,11 +1,11 @@
 
 import { db } from './db';
 import { Table } from 'dexie';
-import { Document, Topic, Subtopic, MCQSet, Attempt, AppSettings, ExamTemplate, MCQStats, AuditLogEntry, MCQ } from '../../types';
+import { Document, Topic, Subtopic, MCQSet, Attempt, AppSettings, ExamTemplate, MCQStats, AuditLogEntry, MCQ, Lesson, GrammarRule, VocabWord, TranslationItem, PracticeTopic } from '../../types';
 import { dbFirestore } from '../firebase';
 import { 
   collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, 
-  query, where, writeBatch, orderBy, DocumentReference 
+  query, where, writeBatch, orderBy, DocumentReference, limit 
 } from 'firebase/firestore';
 import { getFromCache, saveToCache, cacheDB } from './mcqCache';
 
@@ -565,11 +565,92 @@ class CachedMCQSetService extends MCQSetFirestoreService {
   }
 }
 
+// --- LEARN MODULE SERVICES (FIRESTORE MIGRATION) ---
+
+const lessonFs = new CachedFirestoreService<Lesson>('learn_lessons', 'learn_lessons_cache');
+const grammarFs = new CachedFirestoreService<GrammarRule>('learn_grammar', 'learn_grammar_cache');
+const vocabFs = new CachedFirestoreService<VocabWord>('learn_vocab', 'learn_vocab_cache');
+const transFs = new CachedFirestoreService<TranslationItem>('learn_translations', 'learn_trans_cache');
+const topicFs = new CachedFirestoreService<PracticeTopic>('learn_topics', 'learn_topics_cache');
+
+export const lessonService = {
+  getLessons: async (): Promise<Lesson[]> => {
+    const items = await lessonFs.getAll();
+    return items.sort((a, b) => a.order - b.order);
+  },
+  getById: (id: string) => lessonFs.getById(id),
+  addLesson: (data: Lesson) => lessonFs.create(data),
+  updateLesson: (id: string, data: Partial<Lesson>) => lessonFs.update(id, data),
+  deleteLesson: async (id: string) => {
+    await lessonFs.delete(id);
+    // Soft cascade - try to clean up children in background (best effort)
+    Promise.all([
+        grammarService.getRules(id).then(r => r.forEach(i => grammarFs.delete(i.id))),
+        vocabService.getWords(id).then(r => r.forEach(i => vocabFs.delete(i.id))),
+        translationService.getTranslations(id).then(r => r.forEach(i => transFs.delete(i.id))),
+        practiceTopicService.getTopics(id).then(r => r.forEach(i => topicFs.delete(i.id))),
+    ]).catch(console.warn);
+  }
+};
+
+export const grammarService = {
+  getRules: async (lessonId: string): Promise<GrammarRule[]> => {
+    const all = await grammarFs.getAll();
+    return all.filter(i => i.lessonId === lessonId).sort((a, b) => (a.order || 0) - (b.order || 0));
+  },
+  addRule: (lessonId: string, data: GrammarRule) => grammarFs.create(data),
+  updateRule: (lessonId: string, id: string, data: Partial<GrammarRule>) => grammarFs.update(id, data),
+  deleteRule: (lessonId: string, id: string) => grammarFs.delete(id),
+  addBulkRules: async (lessonId: string, rules: GrammarRule[]) => {
+     for(const r of rules) await grammarFs.create(r);
+  }
+};
+
+export const vocabService = {
+  getWords: async (lessonId: string): Promise<VocabWord[]> => {
+    const all = await vocabFs.getAll();
+    return all.filter(i => i.lessonId === lessonId).sort((a, b) => (a.order || 0) - (b.order || 0));
+  },
+  addWord: (lessonId: string, data: VocabWord) => vocabFs.create(data),
+  updateWord: (lessonId: string, id: string, data: Partial<VocabWord>) => vocabFs.update(id, data),
+  deleteWord: (lessonId: string, id: string) => vocabFs.delete(id),
+  addBulkWords: async (lessonId: string, words: VocabWord[]) => {
+     for(const w of words) await vocabFs.create(w);
+  }
+};
+
+export const translationService = {
+  getTranslations: async (lessonId: string): Promise<TranslationItem[]> => {
+    const all = await transFs.getAll();
+    return all.filter(i => i.lessonId === lessonId).sort((a, b) => (a.order || 0) - (b.order || 0));
+  },
+  addTranslation: (lessonId: string, data: TranslationItem) => transFs.create(data),
+  updateTranslation: (lessonId: string, id: string, data: Partial<TranslationItem>) => transFs.update(id, data),
+  deleteTranslation: (lessonId: string, id: string) => transFs.delete(id),
+  addBulkTranslations: async (lessonId: string, items: TranslationItem[]) => {
+     for(const i of items) await transFs.create(i);
+  }
+};
+
+export const practiceTopicService = {
+  getTopics: async (lessonId: string): Promise<PracticeTopic[]> => {
+    const all = await topicFs.getAll();
+    return all.filter(i => i.lessonId === lessonId).sort((a, b) => (a.order || 0) - (b.order || 0));
+  },
+  addTopic: (lessonId: string, data: PracticeTopic) => topicFs.create(data),
+  updateTopic: (lessonId: string, id: string, data: Partial<PracticeTopic>) => topicFs.update(id, data),
+  deleteTopic: (lessonId: string, id: string) => topicFs.delete(id),
+  addBulkTopics: async (lessonId: string, items: PracticeTopic[]) => {
+     for(const i of items) await topicFs.create(i);
+  }
+};
+
 export { db };
 
 export const documentService = new BaseService<Document>(db.documents);
 export const attemptService = new BaseService<Attempt>(db.attempts);
-export const settingsService = new BaseService<AppSettings>(db.settings);
+// Settings migrated to Firestore for API Key sync
+export const settingsService = new CachedFirestoreService<AppSettings>('settings', 'settings_cache');
 export const examTemplateService = new BaseService<ExamTemplate>(db.examTemplates);
 export const mcqStatsService = new BaseService<MCQStats>(db.mcqStats);
 export const auditLogService = new BaseService<AuditLogEntry>(db.auditLogs);

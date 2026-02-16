@@ -1,4 +1,6 @@
 
+
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Icon from '../../shared/components/Icon';
@@ -6,18 +8,10 @@ import PremiumModal from '../../shared/components/PremiumModal';
 import PremiumInput from '../../shared/components/PremiumInput';
 import PremiumButton from '../../shared/components/PremiumButton';
 import { useToast } from '../../shared/context/ToastContext';
+import { Lesson } from '../../types';
+import { lessonService } from '../../core/storage/services';
+import { generateUUID } from '../../core/storage/idGenerator';
 
-interface Lesson {
-  id: string;
-  number: number;
-  title: string;
-  subtitle?: string;
-  grammar?: string;
-  vocabulary?: string;
-  status: 'new' | 'in-progress' | 'completed';
-}
-
-const STORAGE_KEY = 'mock_lessons_local';
 const ITEMS_PER_PAGE = 10;
 
 const LessonListPage: React.FC = () => {
@@ -28,16 +22,8 @@ const LessonListPage: React.FC = () => {
   const isLearnMode = location.pathname.includes('/learn');
   const title = isLearnMode ? 'Learn' : 'Practice';
 
-  // Fix: Lazy initialize state from localStorage to prevent overwriting with [] on mount
-  const [lessons, setLessons] = useState<Lesson[]>(() => {
-    try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        return saved ? JSON.parse(saved) : [];
-    } catch (e) {
-        console.error("Failed to load local lessons", e);
-        return [];
-    }
-  });
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -56,16 +42,27 @@ const LessonListPage: React.FC = () => {
   // Form State
   const [newTitle, setNewTitle] = useState('');
   const [newSubtitle, setNewSubtitle] = useState('');
-  const [newGrammar, setNewGrammar] = useState('');
-  const [newVocab, setNewVocab] = useState('');
 
   // FAB Menu
   const [isFabOpen, setIsFabOpen] = useState(false);
 
-  // Save to local storage whenever lessons change
+  // Load Lessons
+  const loadLessons = async () => {
+    setIsLoading(true);
+    try {
+      const data = await lessonService.getLessons();
+      setLessons(data);
+    } catch (e: any) {
+      console.error(e);
+      toast.error("Failed to load lessons");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(lessons));
-  }, [lessons]);
+    loadLessons();
+  }, []);
 
   // Adjust pagination if items are deleted and current page becomes empty
   useEffect(() => {
@@ -87,46 +84,48 @@ const LessonListPage: React.FC = () => {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
-  const handleAddLesson = () => {
+  const handleAddLesson = async () => {
       if (!newTitle.trim()) {
           toast.error("Lesson Title is required");
           return;
       }
 
-      // Auto-calculate next lesson number
-      const maxNum = lessons.length > 0 ? Math.max(...lessons.map(l => l.number)) : 0;
-      const nextNum = maxNum + 1;
-      
-      const newItem: Lesson = {
-          id: crypto.randomUUID(),
-          number: nextNum,
-          title: newTitle.trim(),
-          subtitle: newSubtitle.trim(),
-          grammar: newGrammar,
-          vocabulary: newVocab,
-          status: 'new'
-      };
-      
-      const updatedLessons = [...lessons, newItem].sort((a,b) => a.number - b.number);
-      setLessons(updatedLessons);
-      
-      // Auto-switch to the new page if added
-      const newTotalPages = Math.ceil(updatedLessons.length / ITEMS_PER_PAGE);
-      if (newTotalPages > Math.ceil(lessons.length / ITEMS_PER_PAGE)) {
-          setCurrentPage(newTotalPages);
-      }
+      try {
+        // Auto-calculate next lesson number/order
+        const maxOrder = lessons.length > 0 ? Math.max(...lessons.map(l => l.order)) : 0;
+        const nextOrder = maxOrder + 1;
+        
+        const newItem: Lesson = {
+            id: generateUUID(),
+            order: nextOrder,
+            title: newTitle.trim(),
+            subtitle: newSubtitle.trim(),
+            status: 'new',
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+        };
+        
+        await lessonService.addLesson(newItem);
+        setLessons(prev => [...prev, newItem].sort((a,b) => a.order - b.order));
+        
+        // Auto-switch to the new page if added
+        const newTotalPages = Math.ceil((lessons.length + 1) / ITEMS_PER_PAGE);
+        if (newTotalPages > Math.ceil(lessons.length / ITEMS_PER_PAGE)) {
+            setCurrentPage(newTotalPages);
+        }
 
-      setShowAddModal(false);
-      resetForm();
-      toast.success("Lesson added");
-      setIsFabOpen(false);
+        setShowAddModal(false);
+        resetForm();
+        toast.success("Lesson added");
+        setIsFabOpen(false);
+      } catch (e: any) {
+        toast.error("Failed to add lesson");
+      }
   };
 
   const resetForm = () => {
       setNewTitle('');
       setNewSubtitle('');
-      setNewGrammar('');
-      setNewVocab('');
   };
 
   const confirmDelete = (id: string, e: React.MouseEvent) => {
@@ -135,11 +134,16 @@ const LessonListPage: React.FC = () => {
       setActiveMenuId(null);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
       if (deleteId) {
-          setLessons(prev => prev.filter(l => l.id !== deleteId));
-          setDeleteId(null);
-          toast.success("Lesson deleted");
+          try {
+            await lessonService.deleteLesson(deleteId);
+            setLessons(prev => prev.filter(l => l.id !== deleteId));
+            setDeleteId(null);
+            toast.success("Lesson deleted");
+          } catch (e: any) {
+            toast.error("Failed to delete lesson");
+          }
       }
   };
 
@@ -151,19 +155,23 @@ const LessonListPage: React.FC = () => {
       setActiveMenuId(null);
   };
 
-  const handleRenameSave = () => {
+  const handleRenameSave = async () => {
       if (!renameId || !renameValue.trim()) {
           toast.error("Title cannot be empty");
           return;
       }
 
-      setLessons(prev => prev.map(l => 
-          l.id === renameId ? { ...l, title: renameValue.trim() } : l
-      ));
-      
-      setShowRenameModal(false);
-      setRenameId(null);
-      toast.success("Lesson renamed");
+      try {
+        await lessonService.updateLesson(renameId, { title: renameValue.trim(), updatedAt: Date.now() });
+        setLessons(prev => prev.map(l => 
+            l.id === renameId ? { ...l, title: renameValue.trim() } : l
+        ));
+        setShowRenameModal(false);
+        setRenameId(null);
+        toast.success("Lesson renamed");
+      } catch (e: any) {
+        toast.error("Failed to rename lesson");
+      }
   };
 
   // Pagination Logic
@@ -190,7 +198,12 @@ const LessonListPage: React.FC = () => {
         </header>
 
         <div className="max-w-3xl mx-auto px-4 mt-4">
-            {lessons.length === 0 ? (
+            {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-20 gap-3">
+                    <div className="w-8 h-8 border-4 border-[#EEF2FF] border-t-[#6366F1] rounded-full animate-spin"></div>
+                    <p className="text-sm text-gray-400">Loading lessons...</p>
+                </div>
+            ) : lessons.length === 0 ? (
                 <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-8">
                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-300">
                         <Icon name="book" size="xl" />
@@ -215,7 +228,7 @@ const LessonListPage: React.FC = () => {
                                     <div className="flex items-center gap-3.5">
                                         <div className="w-10 h-10 rounded-[10px] bg-[#EEF2FF] text-[#6366F1] flex flex-col items-center justify-center shadow-sm flex-shrink-0">
                                             <span className="text-[8px] font-bold uppercase tracking-normal opacity-60 leading-none mb-0.5">Lesson</span>
-                                            <span className="text-[15px] font-bold leading-none">{lesson.number}</span>
+                                            <span className="text-[15px] font-bold leading-none">{lesson.order}</span>
                                         </div>
                                         <div className="min-w-0">
                                             <h3 className="text-[15px] font-semibold text-[#111827] leading-tight truncate pr-2">{lesson.title}</h3>
@@ -259,7 +272,7 @@ const LessonListPage: React.FC = () => {
                                 <div className="flex items-center justify-between pt-2 border-t border-[#F9FAFB] mt-0.5">
                                     <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-50 text-green-700 border border-green-100 uppercase tracking-wide">
                                         <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                                        {lesson.status}
+                                        {lesson.status || 'new'}
                                     </span>
                                     <button className="text-[12px] font-bold text-[#6366F1] hover:text-[#4F46E5] transition-colors flex items-center gap-1 px-2 py-1 -mr-2">
                                         {isLearnMode ? 'Start' : 'Practice'} <Icon name="arrow-right" size="sm" />
@@ -352,28 +365,6 @@ const LessonListPage: React.FC = () => {
                         placeholder="e.g. Basics of Nouns" 
                         value={newSubtitle}
                         onChange={setNewSubtitle}
-                    />
-                </div>
-                
-                <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1.5 ml-1">Grammar Note (Optional)</label>
-                    <textarea 
-                        className="w-full bg-white border border-[#E5E7EB] rounded-[12px] px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all resize-none"
-                        rows={2}
-                        placeholder="Brief points..."
-                        value={newGrammar}
-                        onChange={(e) => setNewGrammar(e.target.value)}
-                    />
-                </div>
-
-                <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1.5 ml-1">Vocabulary (Optional)</label>
-                    <textarea 
-                        className="w-full bg-white border border-[#E5E7EB] rounded-[12px] px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all resize-none"
-                        rows={2}
-                        placeholder="Word list..."
-                        value={newVocab}
-                        onChange={(e) => setNewVocab(e.target.value)}
                     />
                 </div>
 
