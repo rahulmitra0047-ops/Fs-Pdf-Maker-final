@@ -1,13 +1,33 @@
 
+
+
+
+
 import { db } from './db';
 import { Table } from 'dexie';
-import { Document, Topic, Subtopic, MCQSet, Attempt, AppSettings, ExamTemplate, MCQStats, AuditLogEntry, MCQ, Lesson, GrammarRule, VocabWord, TranslationItem, PracticeTopic } from '../../types';
+import { Document, Topic, Subtopic, MCQSet, Attempt, AppSettings, ExamTemplate, MCQStats, AuditLogEntry, MCQ, Lesson, GrammarRule, VocabWord, TranslationItem, PracticeTopic, DailyProgress, UserActivity } from '../../types';
 import { dbFirestore } from '../firebase';
 import { 
   collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, 
   query, where, writeBatch, orderBy, DocumentReference, limit 
 } from 'firebase/firestore';
 import { getFromCache, saveToCache, cacheDB } from './mcqCache';
+
+// Helper to remove undefined fields (Firestore doesn't support them)
+const sanitizeForFirestore = (obj: any): any => {
+  if (Array.isArray(obj)) {
+    return obj.map(v => sanitizeForFirestore(v));
+  } else if (obj !== null && typeof obj === 'object') {
+    return Object.keys(obj).reduce((acc, key) => {
+      const value = obj[key];
+      if (value !== undefined) {
+        acc[key] = sanitizeForFirestore(value);
+      }
+      return acc;
+    }, {} as any);
+  }
+  return obj;
+};
 
 // --- Local Dexie Service (unchanged) ---
 class BaseService<T extends { id: string | number }> {
@@ -90,7 +110,8 @@ class FirestoreService<T extends { id: string }> {
 
   async create(data: T): Promise<string> {
     try {
-      await setDoc(doc(dbFirestore, this.collectionName, data.id), data);
+      const cleanData = sanitizeForFirestore(data);
+      await setDoc(doc(dbFirestore, this.collectionName, data.id), cleanData);
       return data.id;
     } catch (e: any) {
       if (isSuppressedError(e)) throw new Error("Operation blocked: Insufficient permissions");
@@ -102,7 +123,8 @@ class FirestoreService<T extends { id: string }> {
   async update(id: string, data: Partial<T>): Promise<void> {
     if (!id) return;
     try {
-      await updateDoc(doc(dbFirestore, this.collectionName, id), data);
+      const cleanData = sanitizeForFirestore(data);
+      await updateDoc(doc(dbFirestore, this.collectionName, id), cleanData);
     } catch (e: any) {
       if (isSuppressedError(e)) throw new Error("Operation blocked: Insufficient permissions");
       console.error(`Firestore update error for ${this.collectionName}:`, e);
@@ -224,7 +246,8 @@ class MCQSetFirestoreService extends FirestoreService<MCQSet> {
       const batch = writeBatch(dbFirestore);
       mcqs.forEach(m => {
         const mRef = doc(dbFirestore, 'live_mcqs', m.id);
-        batch.set(mRef, { ...m, setId: data.id, topicId: data.subtopicId });
+        const cleanM = sanitizeForFirestore({ ...m, setId: data.id, topicId: data.subtopicId });
+        batch.set(mRef, cleanM);
       });
       await batch.commit();
     }
@@ -240,7 +263,8 @@ class MCQSetFirestoreService extends FirestoreService<MCQSet> {
       const batch = writeBatch(dbFirestore);
       mcqs.forEach(m => {
         const ref = doc(dbFirestore, 'live_mcqs', m.id);
-        batch.set(ref, { ...m, setId: id }, { merge: true });
+        const cleanM = sanitizeForFirestore({ ...m, setId: id });
+        batch.set(ref, cleanM, { merge: true });
       });
       existing.forEach(e => {
         if (!newIds.has(e.id)) {
@@ -658,6 +682,10 @@ export const auditLogService = new BaseService<AuditLogEntry>(db.auditLogs);
 export const topicService = new CachedFirestoreService<Topic>('live_topics', 'live_topics_all');
 export const subtopicService = new CachedFirestoreService<Subtopic>('live_subtopics', 'live_subtopics_all');
 export const mcqSetService = new CachedMCQSetService();
+
+// Home Page Services
+export const dailyProgressService = new BaseService<DailyProgress>(db.dailyProgress);
+export const userActivityService = new BaseService<UserActivity>(db.userActivity);
 
 export const logAction = async (action: any, entity: any, entityId?: string, details?: string) => {
   try {

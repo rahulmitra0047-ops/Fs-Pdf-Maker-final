@@ -5,6 +5,8 @@
 
 
 
+
+
 // Core Entity Types
 
 export interface MCQ {
@@ -423,5 +425,24 @@ export interface Lesson {
   order: number;
   status?: 'new' | 'in-progress' | 'completed'; // Virtual field based on content
   createdAt: number;
+  updatedAt: number;
+}
+
+// Home Page Types
+export interface DailyProgress {
+  id: string; // date string YYYY-MM-DD
+  date: string;
+  completedCount: number;
+  target: number;
+  streak: number;
+  updatedAt: number;
+}
+
+export interface UserActivity {
+  id: string; // 'last_session'
+  lessonId: string;
+  lessonTitle: string;
+  lastTab: 'grammar' | 'vocabulary' | 'practice';
+  progress: number;
   updatedAt: number;
 }

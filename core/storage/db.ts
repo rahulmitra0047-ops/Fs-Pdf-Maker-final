@@ -1,6 +1,8 @@
 
+
+
 import Dexie, { Table } from 'dexie';
-import { Document, Topic, Subtopic, MCQSet, Attempt, AppSettings, ExamTemplate, MCQStats, AuditLogEntry, Lesson, GrammarRule, VocabWord, TranslationItem, PracticeTopic } from '../../types';
+import { Document, Topic, Subtopic, MCQSet, Attempt, AppSettings, ExamTemplate, MCQStats, AuditLogEntry, Lesson, GrammarRule, VocabWord, TranslationItem, PracticeTopic, DailyProgress, UserActivity } from '../../types';
 
 export class FSPDFMakerDB extends Dexie {
   documents!: Table<Document, string>;
@@ -19,6 +21,10 @@ export class FSPDFMakerDB extends Dexie {
   vocabulary!: Table<VocabWord, string>;
   translations!: Table<TranslationItem, string>;
   practiceTopics!: Table<PracticeTopic, string>;
+
+  // Home Page Tables
+  dailyProgress!: Table<DailyProgress, string>;
+  userActivity!: Table<UserActivity, string>;
 
   constructor() {
     super('FSPDFMakerDB');
@@ -61,6 +67,12 @@ export class FSPDFMakerDB extends Dexie {
       vocabulary: 'id, lessonId, order',
       translations: 'id, lessonId, order',
       practiceTopics: 'id, lessonId, order'
+    });
+
+    // Version 5: Home Page Data
+    (this as any).version(5).stores({
+      dailyProgress: 'id, date',
+      userActivity: 'id'
     });
   }
 }

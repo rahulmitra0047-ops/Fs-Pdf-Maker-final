@@ -1,4 +1,6 @@
 
+
+
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import RouteNotFound from '../../shared/components/RouteNotFound';
@@ -11,6 +13,7 @@ const CreatePdfPage = lazy(() => import('../../features/create-pdf/CreatePdfPage
 const RecentDocsPage = lazy(() => import('../../features/recent/RecentDocsPage'));
 const SettingsPage = lazy(() => import('../../features/settings/SettingsPage'));
 const PrintPage = lazy(() => import('../../features/print/PrintPage'));
+const HomePage = lazy(() => import('../../features/home/HomePage')); // Added HomePage
 
 // Live MCQ Pages
 const TopicListPage = lazy(() => import('../../features/live-mcq/TopicListPage'));
@@ -40,7 +43,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/" element={<Navigate to="/live-mcq/topics" replace />} />
           
           {/* Tab Routes */}
-          <Route path="/home" element={<ComingSoonPage />} />
+          <Route path="/home" element={<HomePage />} />
           <Route path="/learn" element={<LessonListPage />} />
           <Route path="/learn/lesson/:lessonId" element={<LessonDetailPage />} />
           <Route path="/practice" element={<LessonListPage />} />
