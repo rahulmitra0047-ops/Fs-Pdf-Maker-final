@@ -6,9 +6,12 @@ import { FlashcardDailyWord } from '../../types';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import FlashcardCard from './components/FlashcardCard';
+import { useTheme } from './context/ThemeContext';
+import ThemeIcon from './components/ThemeIcon';
 
 const DailyWordsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { currentTheme } = useTheme();
   const [words, setWords] = useState<FlashcardDailyWord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -119,25 +122,48 @@ const DailyWordsPage: React.FC = () => {
   // Empty State (Initial Load)
   if (!loading && !error && words.length === 0 && masteredSessionCount === 0) {
     return (
-      <div className="min-h-screen bg-[#F5F5F5] flex flex-col">
-        <div className="px-4 py-3 flex items-center sticky top-0 z-10">
-          <button onClick={() => navigate('/flashcards')} className="p-2 -ml-2 rounded-full hover:bg-gray-200/50">
-            <ArrowLeft className="w-6 h-6 text-[#424242]" />
+      <div 
+        className="min-h-screen flex flex-col transition-colors duration-300"
+        style={{ backgroundColor: currentTheme.background }}
+      >
+        <div 
+          className="px-4 py-3 flex items-center sticky top-0 z-10 backdrop-blur-md bg-opacity-80"
+          style={{ 
+            backgroundColor: currentTheme.cardBg,
+            borderBottom: `1px solid ${currentTheme.borderColor}`
+          }}
+        >
+          <button 
+            onClick={() => navigate('/flashcards')} 
+            className="p-2 -ml-2 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
+            style={{ color: currentTheme.textColor }}
+          >
+            <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-xl font-bold ml-2 text-[#1A1A1A]">Daily Words</h1>
-          <span className="ml-auto text-[#9E9E9E] text-sm font-medium">0/0</span>
+          <h1 
+            className="text-xl font-bold ml-2"
+            style={{ color: currentTheme.textColor }}
+          >
+            Daily Words
+          </h1>
+          <span className="ml-auto text-sm font-medium" style={{ color: currentTheme.subTextColor }}>0/0</span>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-          <div className="text-6xl mb-4 text-[#BDBDBD]">📅</div>
-          <p className="text-[#757575] text-lg mb-2">No daily words!</p>
-          <p className="text-[#9E9E9E] text-sm mb-6">Add from New Words</p>
+          <div className="text-6xl mb-4">📅</div>
+          <p className="text-lg mb-2" style={{ color: currentTheme.subTextColor }}>No daily words!</p>
+          <p className="text-sm mb-6" style={{ color: currentTheme.subTextColor }}>Add from New Words</p>
           <button 
             onClick={() => navigate('/flashcards/new')}
-            className="px-6 py-3 border border-[#6C63FF] text-[#6C63FF] font-bold rounded-2xl active:bg-blue-50"
+            className="px-6 py-3 border font-bold rounded-2xl active:scale-95 transition-transform"
+            style={{ 
+              borderColor: currentTheme.accentColor,
+              color: currentTheme.accentColor
+            }}
           >
             Go to New Words
           </button>
         </div>
+        <ThemeIcon />
       </div>
     );
   }
@@ -145,32 +171,47 @@ const DailyWordsPage: React.FC = () => {
   // Completion State
   if (!loading && !error && words.length === 0 && masteredSessionCount > 0) {
     return (
-      <div className="min-h-screen bg-[#F5F5F5] flex flex-col items-center justify-center p-6 text-center">
+      <div 
+        className="min-h-screen flex flex-col items-center justify-center p-6 text-center transition-colors duration-300"
+        style={{ backgroundColor: currentTheme.background }}
+      >
         <motion.div 
           initial={{ scale: 0 }}
           animate={{ scale: [0, 1.2, 1] }}
           transition={{ duration: 0.4 }}
-          className="w-20 h-20 rounded-full bg-[#6C63FF]/10 flex items-center justify-center mb-6"
+          className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
+          style={{ backgroundColor: `${currentTheme.accentColor}15` }}
         >
-          <Check size={48} className="text-[#6C63FF]" />
+          <Check size={48} style={{ color: currentTheme.accentColor }} />
         </motion.div>
-        <h2 className="text-[20px] font-bold text-[#1A1A1A] mb-2">All words mastered</h2>
-        <p className="text-[#757575] text-[14px] mb-8">{masteredSessionCount} words completed</p>
+        <h2 className="text-[20px] font-bold mb-2" style={{ color: currentTheme.textColor }}>All words mastered</h2>
+        <p className="text-[14px] mb-8" style={{ color: currentTheme.subTextColor }}>{masteredSessionCount} words completed</p>
         
         <div className="w-full max-w-xs space-y-3">
           <button 
             onClick={() => navigate('/flashcards/new')}
-            className="w-full py-3.5 bg-white border border-[#E0E0E0] text-[#424242] font-medium rounded-2xl active:bg-gray-50 shadow-sm"
+            className="w-full py-3.5 font-medium rounded-2xl active:scale-95 transition-transform shadow-sm"
+            style={{ 
+              backgroundColor: currentTheme.cardBg,
+              border: `1px solid ${currentTheme.borderColor}`,
+              color: currentTheme.textColor
+            }}
           >
             Add More Words
           </button>
           <button 
             onClick={() => navigate('/flashcards')}
-            className="w-full py-3.5 bg-white border border-[#E0E0E0] text-[#424242] font-medium rounded-2xl active:bg-gray-50 shadow-sm"
+            className="w-full py-3.5 font-medium rounded-2xl active:scale-95 transition-transform shadow-sm"
+            style={{ 
+              backgroundColor: currentTheme.cardBg,
+              border: `1px solid ${currentTheme.borderColor}`,
+              color: currentTheme.textColor
+            }}
           >
             Back to Flashcard
           </button>
         </div>
+        <ThemeIcon />
       </div>
     );
   }
@@ -178,14 +219,32 @@ const DailyWordsPage: React.FC = () => {
   const currentWord = words[currentIndex];
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] flex flex-col overflow-hidden">
+    <div 
+      className="min-h-screen flex flex-col overflow-hidden transition-colors duration-300"
+      style={{ backgroundColor: currentTheme.background }}
+    >
       {/* Top Bar */}
-      <div className="px-4 py-3 flex items-center sticky top-0 z-10">
-        <button onClick={() => navigate('/flashcards')} className="p-2 -ml-2 rounded-full hover:bg-gray-200/50">
-          <ArrowLeft className="w-6 h-6 text-[#424242]" />
+      <div 
+        className="px-4 py-3 flex items-center sticky top-0 z-10 backdrop-blur-md bg-opacity-80"
+        style={{ 
+          backgroundColor: currentTheme.cardBg,
+          borderBottom: `1px solid ${currentTheme.borderColor}`
+        }}
+      >
+        <button 
+          onClick={() => navigate('/flashcards')} 
+          className="p-2 -ml-2 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
+          style={{ color: currentTheme.textColor }}
+        >
+          <ArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-[18px] font-bold ml-2 text-[#1A1A1A]">Daily Words</h1>
-        <span className="ml-auto text-[#9E9E9E] text-[14px] font-medium">
+        <h1 
+          className="text-[18px] font-bold ml-2"
+          style={{ color: currentTheme.textColor }}
+        >
+          Daily Words
+        </h1>
+        <span className="ml-auto text-[14px] font-medium" style={{ color: currentTheme.subTextColor }}>
           {words.length > 0 ? `${currentIndex + 1}/${words.length}` : '0/0'}
         </span>
       </div>
@@ -194,7 +253,7 @@ const DailyWordsPage: React.FC = () => {
       <div className="flex-1 flex flex-col p-4 relative w-full max-w-md mx-auto h-full">
         {loading ? (
           <div className="flex-1 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#6C63FF]"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: currentTheme.accentColor }}></div>
           </div>
         ) : error ? (
           <div className="text-center mt-20">
@@ -226,11 +285,19 @@ const DailyWordsPage: React.FC = () => {
 
       {/* Bottom Buttons */}
       {words.length > 0 && (
-        <div className="p-6 pb-8 flex justify-center gap-4 z-20 bg-[#F5F5F5]">
+        <div 
+          className="p-6 pb-8 flex justify-center gap-4 z-20 backdrop-blur-md bg-opacity-80"
+          style={{ backgroundColor: currentTheme.background }}
+        >
           <button 
             onClick={handleMastered}
             disabled={loading || isAnimating}
-            className="flex items-center gap-2 px-6 py-3.5 bg-[#4CAF50] text-white font-bold text-[14px] rounded-[16px] shadow-[0px_4px_12px_rgba(76,175,80,0.3)] active:scale-95 transition-transform disabled:opacity-50"
+            className="flex items-center gap-2 px-6 py-3.5 font-bold text-[14px] rounded-[16px] active:scale-95 transition-transform disabled:opacity-50"
+            style={{ 
+              backgroundColor: currentTheme.buttonBg,
+              color: currentTheme.buttonText,
+              boxShadow: currentTheme.shadow
+            }}
           >
             <Check size={18} strokeWidth={3} />
             Mastered
@@ -238,13 +305,20 @@ const DailyWordsPage: React.FC = () => {
           <button 
             onClick={handleNext}
             disabled={loading || isAnimating}
-            className="flex items-center gap-2 px-6 py-3.5 bg-white border-[1.5px] border-[#E0E0E0] text-[#424242] font-medium text-[14px] rounded-[16px] shadow-[0px_4px_12px_rgba(0,0,0,0.05)] active:bg-gray-50 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-6 py-3.5 font-medium text-[14px] rounded-[16px] active:bg-black/5 transition-colors disabled:opacity-50"
+            style={{ 
+              backgroundColor: currentTheme.cardBg,
+              border: `1.5px solid ${currentTheme.borderColor !== 'transparent' ? currentTheme.borderColor : '#E0E0E0'}`,
+              color: currentTheme.textColor,
+              boxShadow: '0px 4px 12px rgba(0,0,0,0.05)'
+            }}
           >
             Next
             <ArrowRight size={18} />
           </button>
         </div>
       )}
+      <ThemeIcon />
     </div>
   );
 };

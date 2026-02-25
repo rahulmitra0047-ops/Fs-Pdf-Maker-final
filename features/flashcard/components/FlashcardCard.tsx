@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Volume2 } from 'lucide-react';
-import { FlashcardDailyWord, FlashcardMasteredWord } from '../../types';
+import { FlashcardDailyWord, FlashcardMasteredWord } from '../../../types';
+import { useTheme } from '../context/ThemeContext';
 
 interface FlashcardCardProps {
   word: FlashcardDailyWord | FlashcardMasteredWord;
@@ -11,6 +12,8 @@ interface FlashcardCardProps {
 }
 
 const FlashcardCard: React.FC<FlashcardCardProps> = ({ word, isFlipped, onFlip, onSpeak }) => {
+  const { currentTheme } = useTheme();
+
   return (
     <div 
       className="w-full h-full relative perspective-1000 cursor-pointer"
@@ -25,43 +28,67 @@ const FlashcardCard: React.FC<FlashcardCardProps> = ({ word, isFlipped, onFlip, 
       >
         {/* Front Side */}
         <div 
-          className="absolute inset-0 w-full h-full bg-white rounded-[24px] shadow-[0px_10px_40px_rgba(0,0,0,0.08)] flex flex-col items-center justify-center p-8 backface-hidden"
-          style={{ backfaceVisibility: 'hidden' }}
+          className="absolute inset-0 w-full h-full rounded-[24px] flex flex-col items-center justify-center p-8 backface-hidden"
+          style={{ 
+            backfaceVisibility: 'hidden',
+            backgroundColor: currentTheme.cardBg,
+            boxShadow: currentTheme.shadow,
+            border: `1px solid ${currentTheme.borderColor}`
+          }}
         >
-          <h2 className="text-[32px] font-bold text-[#1A1A1A] tracking-[1px] text-center leading-tight">
+          <h2 
+            className="text-[32px] font-bold tracking-[1px] text-center leading-tight"
+            style={{ color: currentTheme.textColor }}
+          >
             {word.word}
           </h2>
           
           <button 
-            onClick={(e) => onSpeak(e, word.word)}
-            className="mt-6 p-3 text-[#6C63FF] bg-[#6C63FF]/5 hover:bg-[#6C63FF]/10 rounded-full transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSpeak(e, word.word);
+            }}
+            className="mt-6 p-3 rounded-full transition-colors"
+            style={{ 
+              color: currentTheme.accentColor,
+              backgroundColor: `${currentTheme.accentColor}10` // 10% opacity
+            }}
           >
             <Volume2 size={28} />
           </button>
           
-          <div className="absolute bottom-8 text-[12px] font-medium text-[#BDBDBD] tracking-wide uppercase">
+          <div 
+            className="absolute bottom-8 text-[12px] font-medium tracking-wide uppercase"
+            style={{ color: currentTheme.subTextColor }}
+          >
             Tap to flip
           </div>
         </div>
 
         {/* Back Side */}
         <div 
-          className="absolute inset-0 w-full h-full bg-white rounded-[24px] shadow-[0px_10px_40px_rgba(0,0,0,0.08)] flex flex-col items-center justify-center p-8 backface-hidden"
+          className="absolute inset-0 w-full h-full rounded-[24px] flex flex-col items-center justify-center p-8 backface-hidden"
           style={{ 
             backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)'
+            transform: 'rotateY(180deg)',
+            backgroundColor: currentTheme.cardBg,
+            boxShadow: currentTheme.shadow,
+            border: `1px solid ${currentTheme.borderColor}`
           }}
         >
           <div className="flex flex-col items-center text-center w-full max-w-xs">
             <div className="flex items-center justify-center flex-wrap gap-2 mb-6">
-              <span className="text-[24px] font-bold text-[#1A1A1A]">{word.word}</span>
-              <span className="text-[#BDBDBD] text-xl">→</span>
-              <span className="text-[24px] font-bold text-[#6C63FF]">{word.meaning}</span>
+              <span className="text-[24px] font-bold" style={{ color: currentTheme.textColor }}>{word.word}</span>
+              <span className="text-xl" style={{ color: currentTheme.subTextColor }}>→</span>
+              <span className="text-[24px] font-bold" style={{ color: currentTheme.accentColor }}>{word.meaning}</span>
             </div>
             
             {word.examples && word.examples.length > 0 && (
-              <div className="relative mt-2 px-4 py-3 bg-gray-50 rounded-xl w-full">
-                <p className="text-[15px] text-[#424242] italic leading-relaxed">
+              <div 
+                className="relative mt-2 px-4 py-3 rounded-xl w-full"
+                style={{ backgroundColor: `${currentTheme.accentColor}08` }}
+              >
+                <p className="text-[15px] italic leading-relaxed" style={{ color: currentTheme.subTextColor }}>
                   "{word.examples[0]}"
                 </p>
               </div>
@@ -70,7 +97,14 @@ const FlashcardCard: React.FC<FlashcardCardProps> = ({ word, isFlipped, onFlip, 
             {word.synonyms && word.synonyms.length > 0 && (
               <div className="mt-6 flex flex-wrap justify-center gap-2">
                 {word.synonyms.slice(0, 3).map((syn, idx) => (
-                  <span key={idx} className="px-3 py-1 bg-gray-100 text-[#757575] text-[12px] rounded-full font-medium">
+                  <span 
+                    key={idx} 
+                    className="px-3 py-1 text-[12px] rounded-full font-medium"
+                    style={{ 
+                      backgroundColor: `${currentTheme.accentColor}15`,
+                      color: currentTheme.subTextColor
+                    }}
+                  >
                     {syn}
                   </span>
                 ))}
@@ -78,7 +112,10 @@ const FlashcardCard: React.FC<FlashcardCardProps> = ({ word, isFlipped, onFlip, 
             )}
           </div>
           
-          <div className="absolute bottom-8 text-[12px] font-medium text-[#BDBDBD] tracking-wide uppercase">
+          <div 
+            className="absolute bottom-8 text-[12px] font-medium tracking-wide uppercase"
+            style={{ color: currentTheme.subTextColor }}
+          >
             Tap to flip
           </div>
         </div>

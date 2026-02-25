@@ -13,6 +13,7 @@ import {
 } from '../../core/storage/services';
 import { DailyProgress, UserActivity, Lesson } from '../../types';
 import Skeleton from '../../shared/components/Skeleton';
+import MotivationalQuote from './components/MotivationalQuote';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -38,7 +39,6 @@ const HomePage: React.FC = () => {
     mcqs: 0
   });
   
-  const [lastSession, setLastSession] = useState<UserActivity | null>(null);
   const [allLessons, setAllLessons] = useState<Lesson[]>([]);
 
   // List Data for Modal
@@ -101,8 +101,6 @@ const HomePage: React.FC = () => {
       
       let vCount = 0, rCount = 0, pCompleted = 0;
       let todaysCompletedCount = 0;
-      let latestActivity: UserActivity | null = null;
-      let maxUpdatedAt = 0;
       
       // Daily Counters
       let dailyV = 0, dailyR = 0, dailyP = 0;
@@ -143,52 +141,15 @@ const HomePage: React.FC = () => {
             if (getLocalDateStr(p.updatedAt) === todayStr) dailyP++;
         });
 
-        // Last Session Logic
+        // Calculate completed count for daily goal
         const checkItemDate = (item: any) => {
            const itemDate = getLocalDateStr(item.updatedAt);
            if (item.isCompleted && itemDate === todayStr) {
                todaysCompletedCount++;
            }
-           if (item.updatedAt > maxUpdatedAt) {
-               maxUpdatedAt = item.updatedAt;
-               
-               // Calculate Progress for this lesson
-               const totalPractice = d.ts.length + d.ps.length;
-               const donePractice = completedTs.length + completedPs.length;
-               const progressPercent = totalPractice > 0 ? Math.round((donePractice / totalPractice) * 100) : 0;
-
-               latestActivity = {
-                   id: 'last_session',
-                   lessonId: lessons[idx].id,
-                   lessonTitle: lessons[idx].title,
-                   lastTab: d.rs.includes(item as any) ? 'grammar' : d.vs.includes(item as any) ? 'vocabulary' : 'practice',
-                   progress: progressPercent,
-                   updatedAt: maxUpdatedAt
-               };
-           }
         };
 
         [...completedTs, ...completedPs].forEach(checkItemDate);
-        
-        // Also check uncompleted items for "Last Viewed" to update pointer
-        [...d.rs, ...d.vs, ...d.ts, ...d.ps].forEach(item => {
-             if (item.updatedAt > maxUpdatedAt) {
-               maxUpdatedAt = item.updatedAt;
-               
-               const totalPractice = d.ts.length + d.ps.length;
-               const donePractice = completedTs.length + completedPs.length;
-               const progressPercent = totalPractice > 0 ? Math.round((donePractice / totalPractice) * 100) : 0;
-
-               latestActivity = {
-                   id: 'last_session',
-                   lessonId: lessons[idx].id,
-                   lessonTitle: lessons[idx].title,
-                   lastTab: d.rs.includes(item as any) ? 'grammar' : d.vs.includes(item as any) ? 'vocabulary' : 'practice',
-                   progress: progressPercent,
-                   updatedAt: maxUpdatedAt
-               };
-             }
-        });
       });
 
       // MCQs Today
@@ -203,8 +164,6 @@ const HomePage: React.FC = () => {
       setLearnedRules(allR);
       setLearnedVocab(allV);
       setLearnedPassages(allP);
-
-      if (latestActivity) setLastSession(latestActivity);
 
       // --- Background Daily Goal Sync ---
       if (!dailyRec) {
@@ -270,57 +229,6 @@ const HomePage: React.FC = () => {
       setListModalOpen(true);
   };
 
-  // Daily Goal Item with Ring & Total Action
-  const GoalItem = ({ label, current, target, color, ringColor, total, onTotalClick }: { 
-      label: string, current: number, target: number, color: string, ringColor: string, total: number, onTotalClick: () => void 
-  }) => {
-      const percentage = Math.min(100, Math.round((current / target) * 100));
-      const radius = 18;
-      const circumference = 2 * Math.PI * radius;
-      const offset = circumference - (percentage / 100) * circumference;
-
-      return (
-          <div className="flex flex-col items-center gap-1">
-              <div className="relative w-[44px] h-[44px] flex items-center justify-center mb-0.5">
-                  {/* Background Ring */}
-                  <svg className="w-full h-full transform -rotate-90">
-                      <circle cx="22" cy="22" r={radius} stroke="currentColor" strokeWidth="3" fill="transparent" className="text-slate-100" />
-                      <circle cx="22" cy="22" r={radius} stroke="currentColor" strokeWidth="3" fill="transparent" 
-                          strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" className={ringColor} />
-                  </svg>
-                  <div className="absolute flex flex-col items-center justify-center leading-none">
-                      <span className={`text-[11px] font-bold ${color}`}>{current}</span>
-                      <span className="text-[8px] text-gray-300 font-medium">/{target}</span>
-                  </div>
-              </div>
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{label}</span>
-              
-              <button 
-                onClick={onTotalClick}
-                className="text-[9px] font-semibold text-slate-400 flex items-center gap-0.5 hover:text-indigo-600 transition-colors bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100 mt-0.5 active:scale-95"
-              >
-                  Total: {total} <Icon name="chevron-right" size="sm" className="w-2.5 h-2.5" />
-              </button>
-          </div>
-      );
-  };
-
-  const getSessionIcon = (tab: string) => {
-      switch(tab) {
-          case 'vocabulary': return 'book';
-          case 'practice': return 'edit-3';
-          default: return 'layout-grid'; // grammar
-      }
-  };
-
-  const getSessionLabel = (tab: string) => {
-      switch(tab) {
-          case 'vocabulary': return 'Vocabulary';
-          case 'practice': return 'Practice';
-          default: return 'Grammar';
-      }
-  };
-
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans pb-24 overflow-hidden flex flex-col">
       
@@ -333,70 +241,14 @@ const HomePage: React.FC = () => {
         </div>
         <div className="flex items-center gap-3">
             <span className="text-[11px] font-medium text-gray-500">{greeting}</span>
-            <button 
-              onClick={() => navigate('/settings')}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-100 text-gray-500 hover:text-indigo-600 active:scale-95 shadow-sm"
-            >
-              <Icon name="settings" size="sm" />
-            </button>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col justify-evenly max-w-md mx-auto px-5 w-full py-2">
+      <main className="flex-1 flex flex-col justify-start gap-6 max-w-md mx-auto px-5 w-full py-2">
         
-        {/* 2. Daily Goal Section */}
-        <div className="w-full bg-white rounded-[20px] p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100/80">
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[14px] font-bold text-slate-800 flex items-center gap-2">
-                    <div className="p-1 bg-indigo-50 rounded-full text-indigo-600">
-                        <Icon name="target" size="sm" /> 
-                    </div>
-                    Daily Goals
-                </h3>
-                <span className="text-[10px] font-semibold text-slate-400 bg-slate-50 px-2 py-1 rounded-[8px] border border-slate-100">
-                    Today
-                </span>
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-                <GoalItem 
-                    label="Rules" 
-                    current={dailyStats.rules} 
-                    target={5} 
-                    color="text-orange-500" 
-                    ringColor="text-orange-500" 
-                    total={stats.rulesCount}
-                    onTotalClick={() => openList('rule')}
-                />
-                <GoalItem 
-                    label="Vocab" 
-                    current={dailyStats.vocab} 
-                    target={10} 
-                    color="text-blue-500" 
-                    ringColor="text-blue-500"
-                    total={stats.vocabCount}
-                    onTotalClick={() => openList('vocab')}
-                />
-                <GoalItem 
-                    label="Psgs" 
-                    current={dailyStats.passages} 
-                    target={2} 
-                    color="text-emerald-500" 
-                    ringColor="text-emerald-500"
-                    total={stats.passagesCompleted}
-                    onTotalClick={() => openList('passage')}
-                />
-                <GoalItem 
-                    label="MCQs" 
-                    current={dailyStats.mcqs} 
-                    target={20} 
-                    color="text-purple-500" 
-                    ringColor="text-purple-500"
-                    total={stats.mcqCount}
-                    onTotalClick={() => navigate('/live-mcq/exam-center')}
-                />
-            </div>
-        </div>
+        {/* 2. Motivational Quote Section */}
+        <MotivationalQuote />
 
         {/* 3. Action Grid (2x2) */}
         <div className="grid grid-cols-2 gap-3 w-full">
@@ -465,77 +317,8 @@ const HomePage: React.FC = () => {
             </div>
         </div>
 
-        {/* 4. Enhanced Continue Learning */}
-        <div className="w-full">
-            {lastSession ? (
-                <div
-                    onClick={() => navigate(`/learn/lesson/${lastSession.lessonId}?tab=${lastSession.lastTab}`)}
-                    className="relative w-full bg-white border border-indigo-100 rounded-[20px] p-4 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all active:scale-[0.99] cursor-pointer group overflow-hidden"
-                >
-                    {/* Decorators */}
-                    <div className="absolute -top-6 -right-6 w-20 h-20 bg-indigo-50/50 rounded-full blur-xl group-hover:bg-indigo-100/50 transition-colors"></div>
-                    
-                    {/* Header Label */}
-                    <div className="flex justify-between items-center mb-3 relative z-10">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pick up where you left off</span>
-                    </div>
-
-                    <div className="flex items-center justify-between relative z-10">
-                        <div className="flex items-center gap-4">
-                            {/* Icon Box */}
-                            <div className="w-[48px] h-[48px] rounded-[14px] bg-[#EEF2FF] text-[#6366F1] flex items-center justify-center shadow-sm border border-indigo-50 group-hover:scale-105 transition-transform duration-300">
-                                <Icon name={getSessionIcon(lastSession.lastTab)} size="md" />
-                            </div>
-                            
-                            {/* Text Content */}
-                            <div>
-                                <h4 className="text-[15px] font-bold text-slate-800 leading-tight group-hover:text-indigo-700 transition-colors">
-                                    {lastSession.lessonTitle}
-                                </h4>
-                                <p className="text-[12px] text-slate-500 font-medium mt-0.5">
-                                    Resume {getSessionLabel(lastSession.lastTab)}
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Play Button */}
-                        <div className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-200 group-hover:bg-indigo-700 transition-colors">
-                            <Icon name="play" size="sm" className="ml-0.5" />
-                        </div>
-                    </div>
-
-                    {/* Progress Bar (Only if > 0) */}
-                    {lastSession.progress > 0 && (
-                        <div className="mt-4 relative z-10">
-                            <div className="flex justify-between text-[10px] font-bold text-slate-400 mb-1.5">
-                                <span>Progress</span>
-                                <span>{lastSession.progress}%</span>
-                            </div>
-                            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                <div 
-                                    className="h-full bg-gradient-to-r from-indigo-500 to-indigo-400 rounded-full transition-all duration-500 ease-out"
-                                    style={{ width: `${lastSession.progress}%` }}
-                                ></div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            ) : (
-                <button
-                    onClick={() => navigate('/learn')}
-                    className="w-full bg-white border border-dashed border-gray-300 rounded-[16px] p-5 text-center hover:bg-gray-50 active:scale-[0.99] transition-all group"
-                >
-                    <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-2 text-gray-400 group-hover:text-indigo-500 group-hover:bg-indigo-50 transition-colors">
-                        <Icon name="plus" size="md" />
-                    </div>
-                    <span className="text-sm font-bold text-gray-600 block">Start Your Learning Journey</span>
-                    <span className="text-xs text-gray-400">Create your first lesson to begin</span>
-                </button>
-            )}
-        </div>
-
       </main>
-
+      
       <GlobalSearchModal isOpen={showSearch} onClose={() => setShowSearch(false)} />
 
       {/* Detail List Modal */}

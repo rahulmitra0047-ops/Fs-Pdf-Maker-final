@@ -6,9 +6,12 @@ import { FlashcardMasteredWord } from '../../types';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import FlashcardCard from './components/FlashcardCard';
+import { useTheme } from './context/ThemeContext';
+import ThemeIcon from './components/ThemeIcon';
 
 const ReviewFlashcardPage: React.FC = () => {
   const navigate = useNavigate();
+  const { currentTheme } = useTheme();
   const { date } = useParams<{ date: string }>();
   const [words, setWords] = useState<FlashcardMasteredWord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,17 +88,29 @@ const ReviewFlashcardPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#6C63FF]"></div>
+      <div 
+        className="min-h-screen flex items-center justify-center transition-colors duration-300"
+        style={{ backgroundColor: currentTheme.background }}
+      >
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: currentTheme.accentColor }}></div>
       </div>
     );
   }
 
   if (error || words.length === 0) {
     return (
-      <div className="min-h-screen bg-[#F5F5F5] flex flex-col items-center justify-center p-6 text-center">
-        <p className="text-[#757575] mb-4">No words found for this date</p>
-        <button onClick={() => navigate(-1)} className="text-[#6C63FF] font-bold">Go Back</button>
+      <div 
+        className="min-h-screen flex flex-col items-center justify-center p-6 text-center transition-colors duration-300"
+        style={{ backgroundColor: currentTheme.background }}
+      >
+        <p className="mb-4" style={{ color: currentTheme.subTextColor }}>No words found for this date</p>
+        <button 
+          onClick={() => navigate(-1)} 
+          className="font-bold"
+          style={{ color: currentTheme.accentColor }}
+        >
+          Go Back
+        </button>
       </div>
     );
   }
@@ -103,14 +118,32 @@ const ReviewFlashcardPage: React.FC = () => {
   const currentWord = words[currentIndex];
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] flex flex-col overflow-hidden">
+    <div 
+      className="min-h-screen flex flex-col overflow-hidden transition-colors duration-300"
+      style={{ backgroundColor: currentTheme.background }}
+    >
       {/* Top Bar */}
-      <div className="px-4 py-3 flex items-center sticky top-0 z-10">
-        <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-gray-200/50">
-          <ArrowLeft className="w-6 h-6 text-[#424242]" />
+      <div 
+        className="px-4 py-3 flex items-center sticky top-0 z-10 backdrop-blur-md bg-opacity-80"
+        style={{ 
+          backgroundColor: currentTheme.cardBg,
+          borderBottom: `1px solid ${currentTheme.borderColor}`
+        }}
+      >
+        <button 
+          onClick={() => navigate(-1)} 
+          className="p-2 -ml-2 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
+          style={{ color: currentTheme.textColor }}
+        >
+          <ArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-[18px] font-bold ml-2 text-[#1A1A1A]">Review • {formatDate(date || '')}</h1>
-        <span className="ml-auto text-[#9E9E9E] text-[14px] font-medium">
+        <h1 
+          className="text-[18px] font-bold ml-2"
+          style={{ color: currentTheme.textColor }}
+        >
+          Review • {formatDate(date || '')}
+        </h1>
+        <span className="ml-auto text-[14px] font-medium" style={{ color: currentTheme.subTextColor }}>
           {currentIndex + 1}/{words.length}
         </span>
       </div>
@@ -119,7 +152,7 @@ const ReviewFlashcardPage: React.FC = () => {
       <div className="flex-1 flex flex-col p-4 relative w-full max-w-md mx-auto h-full">
         {loading ? (
           <div className="flex-1 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#6C63FF]"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: currentTheme.accentColor }}></div>
           </div>
         ) : currentWord && (
           <div className="flex-1 relative w-full h-full perspective-1000">
@@ -145,16 +178,26 @@ const ReviewFlashcardPage: React.FC = () => {
       </div>
 
       {/* Bottom Buttons */}
-      <div className="p-6 pb-8 flex justify-center z-20 bg-[#F5F5F5]">
+      <div 
+        className="p-6 pb-8 flex justify-center z-20 backdrop-blur-md bg-opacity-80"
+        style={{ backgroundColor: currentTheme.background }}
+      >
         <button 
           onClick={handleNext}
           disabled={loading || isAnimating}
-          className="flex items-center gap-2 px-8 py-3.5 bg-white border-[1.5px] border-[#E0E0E0] text-[#424242] font-medium text-[14px] rounded-[16px] shadow-[0px_4px_12px_rgba(0,0,0,0.05)] active:bg-gray-50 transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-8 py-3.5 font-medium text-[14px] rounded-[16px] active:bg-black/5 transition-colors disabled:opacity-50"
+          style={{ 
+            backgroundColor: currentTheme.cardBg,
+            border: `1.5px solid ${currentTheme.borderColor !== 'transparent' ? currentTheme.borderColor : '#E0E0E0'}`,
+            color: currentTheme.textColor,
+            boxShadow: '0px 4px 12px rgba(0,0,0,0.05)'
+          }}
         >
           Next
           <ArrowRight size={18} />
         </button>
       </div>
+      <ThemeIcon />
     </div>
   );
 };

@@ -485,3 +485,5 @@ export interface FlashcardMasteredWord extends FlashcardBase {
   masteredAt: number;
   masteredDate: string; // YYYY-MM-DD
 }
+
+export type FlashcardWord = FlashcardNewWord | FlashcardDailyWord | FlashcardMasteredWord;

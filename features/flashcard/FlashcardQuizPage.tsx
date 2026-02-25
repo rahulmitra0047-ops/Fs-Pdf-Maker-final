@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { flashcardService } from '../../core/storage/services';
 import { FlashcardMasteredWord } from '../../types';
 import toast from 'react-hot-toast';
+import { useTheme } from './context/ThemeContext';
+import ThemeIcon from './components/ThemeIcon';
 
 type QuizStep = 'selection' | 'quiz' | 'result';
 
@@ -17,6 +19,7 @@ interface Question {
 
 const FlashcardQuizPage: React.FC = () => {
   const navigate = useNavigate();
+  const { currentTheme } = useTheme();
   const [step, setStep] = useState<QuizStep>('selection');
   const [questionCount, setQuestionCount] = useState(5);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -135,17 +138,35 @@ const FlashcardQuizPage: React.FC = () => {
 
   if (step === 'selection') {
     return (
-      <div className="min-h-screen bg-[#F5F5F5] flex flex-col">
-        <div className="px-4 py-3 flex items-center sticky top-0 z-10">
-          <button onClick={() => navigate('/flashcards')} className="p-2 -ml-2 rounded-full hover:bg-gray-200/50">
-            <ArrowLeft className="w-6 h-6 text-[#424242]" />
+      <div 
+        className="min-h-screen flex flex-col transition-colors duration-300"
+        style={{ backgroundColor: currentTheme.background }}
+      >
+        <div 
+          className="px-4 py-3 flex items-center sticky top-0 z-10 backdrop-blur-md bg-opacity-80"
+          style={{ 
+            backgroundColor: currentTheme.cardBg,
+            borderBottom: `1px solid ${currentTheme.borderColor}`
+          }}
+        >
+          <button 
+            onClick={() => navigate('/flashcards')} 
+            className="p-2 -ml-2 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
+            style={{ color: currentTheme.textColor }}
+          >
+            <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-[18px] font-bold ml-2 text-[#1A1A1A]">Quiz Mode</h1>
+          <h1 
+            className="text-[18px] font-bold ml-2"
+            style={{ color: currentTheme.textColor }}
+          >
+            Quiz Mode
+          </h1>
         </div>
 
         <div className="flex-1 flex flex-col items-center justify-center p-6">
-          <h2 className="text-[24px] font-bold text-[#1A1A1A] mb-2">Select Questions</h2>
-          <p className="text-[#757575] mb-8">Choose how many words to practice</p>
+          <h2 className="text-[24px] font-bold mb-2" style={{ color: currentTheme.textColor }}>Select Questions</h2>
+          <p className="mb-8" style={{ color: currentTheme.subTextColor }}>Choose how many words to practice</p>
 
           <div className="grid grid-cols-2 gap-4 w-full max-w-xs">
             {[5, 10, 15, 20].map(count => (
@@ -153,14 +174,20 @@ const FlashcardQuizPage: React.FC = () => {
                 key={count}
                 onClick={() => startQuiz(count)}
                 disabled={loading}
-                className="py-6 bg-white rounded-[20px] shadow-sm border border-transparent hover:border-[#6C63FF] active:scale-95 transition-all flex flex-col items-center justify-center gap-2"
+                className="py-6 rounded-[20px] shadow-sm border transition-all flex flex-col items-center justify-center gap-2 active:scale-95"
+                style={{ 
+                  backgroundColor: currentTheme.cardBg,
+                  borderColor: currentTheme.borderColor,
+                  color: currentTheme.textColor
+                }}
               >
-                <span className="text-[24px] font-bold text-[#1A1A1A]">{count}</span>
-                <span className="text-[12px] text-[#9E9E9E] uppercase tracking-wider">Questions</span>
+                <span className="text-[24px] font-bold">{count}</span>
+                <span className="text-[12px] uppercase tracking-wider" style={{ color: currentTheme.subTextColor }}>Questions</span>
               </button>
             ))}
           </div>
         </div>
+        <ThemeIcon />
       </div>
     );
   }
@@ -170,11 +197,15 @@ const FlashcardQuizPage: React.FC = () => {
     const progress = ((currentIndex + 1) / questionCount) * 100;
 
     return (
-      <div className="min-h-screen bg-[#F5F5F5] flex flex-col">
+      <div 
+        className="min-h-screen flex flex-col transition-colors duration-300"
+        style={{ backgroundColor: currentTheme.background }}
+      >
         {/* Progress Bar */}
-        <div className="h-1 bg-gray-200 w-full">
+        <div className="h-1 w-full" style={{ backgroundColor: `${currentTheme.accentColor}20` }}>
           <motion.div 
-            className="h-full bg-[#6C63FF]" 
+            className="h-full" 
+            style={{ backgroundColor: currentTheme.accentColor }}
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.3 }}
@@ -182,18 +213,29 @@ const FlashcardQuizPage: React.FC = () => {
         </div>
 
         <div className="px-4 py-3 flex items-center justify-between">
-          <button onClick={() => navigate('/flashcards')} className="p-2 -ml-2 rounded-full hover:bg-gray-200/50">
-            <X className="w-6 h-6 text-[#424242]" />
+          <button 
+            onClick={() => navigate('/flashcards')} 
+            className="p-2 -ml-2 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
+            style={{ color: currentTheme.textColor }}
+          >
+            <X className="w-6 h-6" />
           </button>
-          <span className="text-[#9E9E9E] font-medium text-[14px]">
+          <span className="font-medium text-[14px]" style={{ color: currentTheme.subTextColor }}>
             {currentIndex + 1}/{questionCount}
           </span>
         </div>
 
         <div className="flex-1 flex flex-col p-6 max-w-md mx-auto w-full">
           {/* Question Card */}
-          <div className="bg-white rounded-[24px] p-8 shadow-[0px_10px_40px_rgba(0,0,0,0.05)] mb-8 flex items-center justify-center min-h-[180px]">
-            <h2 className="text-[28px] font-bold text-[#1A1A1A] text-center">
+          <div 
+            className="rounded-[24px] p-8 mb-8 flex items-center justify-center min-h-[180px]"
+            style={{ 
+              backgroundColor: currentTheme.cardBg,
+              boxShadow: currentTheme.shadow,
+              border: `1px solid ${currentTheme.borderColor}`
+            }}
+          >
+            <h2 className="text-[28px] font-bold text-center" style={{ color: currentTheme.textColor }}>
               {currentQuestion.type === 'en-to-bn' ? currentQuestion.word.word : currentQuestion.word.meaning}
             </h2>
           </div>
@@ -201,15 +243,20 @@ const FlashcardQuizPage: React.FC = () => {
           {/* Options */}
           <div className="space-y-3">
             {currentQuestion.options.map((option, idx) => {
-              let stateClass = "bg-white border-transparent text-[#424242]";
+              let style = {
+                backgroundColor: currentTheme.cardBg,
+                borderColor: 'transparent',
+                color: currentTheme.textColor,
+                opacity: 1
+              };
               
               if (isAnswered) {
                 if (option === currentQuestion.correctOption) {
-                  stateClass = "bg-[#E8F5E9] border-[#4CAF50] text-[#2E7D32]"; // Correct Green
+                  style = { ...style, backgroundColor: '#E8F5E9', borderColor: '#4CAF50', color: '#2E7D32' }; // Correct Green
                 } else if (option === selectedOption) {
-                  stateClass = "bg-[#FFEBEE] border-[#EF5350] text-[#C62828]"; // Wrong Red
+                  style = { ...style, backgroundColor: '#FFEBEE', borderColor: '#EF5350', color: '#C62828' }; // Wrong Red
                 } else {
-                  stateClass = "bg-white border-transparent opacity-50"; // Dim others
+                  style = { ...style, opacity: 0.5 }; // Dim others
                 }
               }
 
@@ -218,7 +265,8 @@ const FlashcardQuizPage: React.FC = () => {
                   key={idx}
                   onClick={() => handleOptionClick(option)}
                   disabled={isAnswered}
-                  className={`w-full p-4 rounded-[16px] border-[1.5px] font-medium text-[16px] shadow-sm transition-all ${stateClass} ${!isAnswered && 'active:scale-[0.98] hover:shadow-md'}`}
+                  className={`w-full p-4 rounded-[16px] border-[1.5px] font-medium text-[16px] shadow-sm transition-all ${!isAnswered && 'active:scale-[0.98] hover:shadow-md'}`}
+                  style={style}
                 >
                   {option}
                 </button>
@@ -234,25 +282,31 @@ const FlashcardQuizPage: React.FC = () => {
     const isPerfect = score === questionCount;
     
     return (
-      <div className="min-h-screen bg-[#F5F5F5] flex flex-col items-center justify-center p-6 text-center">
+      <div 
+        className="min-h-screen flex flex-col items-center justify-center p-6 text-center transition-colors duration-300"
+        style={{ backgroundColor: currentTheme.background }}
+      >
         <motion.div 
           initial={{ scale: 0 }}
           animate={{ scale: [0, 1.2, 1] }}
-          className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 ${isPerfect ? 'bg-[#4CAF50]/10' : 'bg-[#6C63FF]/10'}`}
+          className="w-24 h-24 rounded-full flex items-center justify-center mb-6"
+          style={{ 
+            backgroundColor: isPerfect ? '#4CAF5015' : `${currentTheme.accentColor}15`
+          }}
         >
           {isPerfect ? (
             <span className="text-4xl">🎉</span>
           ) : (
-            <span className="text-[32px] font-bold text-[#6C63FF]">{score}</span>
+            <span className="text-[32px] font-bold" style={{ color: currentTheme.accentColor }}>{score}</span>
           )}
         </motion.div>
 
-        <h2 className="text-[24px] font-bold text-[#1A1A1A] mb-2">
+        <h2 className="text-[24px] font-bold mb-2" style={{ color: currentTheme.textColor }}>
           {isPerfect ? 'Perfect Score!' : 'Quiz Completed'}
         </h2>
         
-        <p className="text-[#757575] text-[16px] mb-8">
-          You got <span className="font-bold text-[#1A1A1A]">{score}/{questionCount}</span> correct
+        <p className="text-[16px] mb-8" style={{ color: currentTheme.subTextColor }}>
+          You got <span className="font-bold" style={{ color: currentTheme.textColor }}>{score}/{questionCount}</span> correct
         </p>
 
         {wrongWords.length > 0 && (
@@ -265,10 +319,16 @@ const FlashcardQuizPage: React.FC = () => {
 
         <button 
           onClick={() => navigate('/flashcards')}
-          className="w-full max-w-xs py-3.5 bg-[#1A1A1A] text-white font-bold rounded-[16px] shadow-lg active:scale-95 transition-transform"
+          className="w-full max-w-xs py-3.5 font-bold rounded-[16px] shadow-lg active:scale-95 transition-transform"
+          style={{ 
+            backgroundColor: currentTheme.buttonBg,
+            color: currentTheme.buttonText,
+            boxShadow: currentTheme.shadow
+          }}
         >
           Back to Home
         </button>
+        <ThemeIcon />
       </div>
     );
   }

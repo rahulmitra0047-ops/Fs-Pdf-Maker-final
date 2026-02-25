@@ -10,6 +10,7 @@ import OfflineIndicator from './shared/components/OfflineIndicator';
 import { useSettings } from './shared/hooks/useSettings';
 import { aiManager } from './core/ai/aiManager';
 import { migrateLearnData } from './core/migration/learnMigration';
+import { ThemeProvider } from './features/flashcard/context/ThemeContext';
 
 // Module-level flag to track if we've handled the initial redirect.
 let isInitialLoad = true;
@@ -61,11 +62,13 @@ const App: React.FC = () => {
   return (
     <RootErrorBoundary>
       <ToastProvider>
-        <OfflineIndicator />
-        <HashRouter>
-          <AppLogicHandler />
-          <AppRoutes />
-        </HashRouter>
+        <ThemeProvider>
+          <OfflineIndicator />
+          <HashRouter>
+            <AppLogicHandler />
+            <AppRoutes />
+          </HashRouter>
+        </ThemeProvider>
       </ToastProvider>
     </RootErrorBoundary>
   );

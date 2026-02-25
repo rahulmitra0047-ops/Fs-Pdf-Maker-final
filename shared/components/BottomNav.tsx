@@ -12,7 +12,7 @@ const BottomNav: React.FC = () => {
     // Exact match for root/home paths to avoid highlighting on sub-routes incorrectly if needed
     if (route === '/home') return path === '/home';
     if (route === '/learn') return path === '/learn';
-    if (route === '/practice') return path === '/practice';
+    if (route === '/settings') return path === '/settings';
     // For modules with sub-routes
     return path.startsWith(route);
   };
@@ -70,15 +70,15 @@ const BottomNav: React.FC = () => {
         <span className="text-[10px] font-bold">Learn</span>
       </button>
 
-      {/* 5. Practice */}
+      {/* 5. Settings */}
       <button 
-        onClick={() => navigate('/practice')}
-        className={navItemClass(isActive('/practice'))}
+        onClick={() => navigate('/settings')}
+        className={navItemClass(isActive('/settings'))}
       >
-        <div className={iconContainerClass(isActive('/practice'))}>
-            <Icon name="pencil" size="md" strokeWidth={isActive('/practice') ? 2.5 : 2} />
+        <div className={iconContainerClass(isActive('/settings'))}>
+            <Icon name="settings" size="md" strokeWidth={isActive('/settings') ? 2.5 : 2} />
         </div>
-        <span className="text-[10px] font-bold">Practice</span>
+        <span className="text-[10px] font-bold">Settings</span>
       </button>
 
     </div>
