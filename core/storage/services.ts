@@ -5,7 +5,7 @@
 
 import { db } from './db';
 import { Table } from 'dexie';
-import { Document, Topic, Subtopic, MCQSet, Attempt, AppSettings, ExamTemplate, MCQStats, AuditLogEntry, MCQ, Lesson, GrammarRule, VocabWord, TranslationItem, PracticeTopic, DailyProgress, UserActivity } from '../../types';
+import { Document, Topic, Subtopic, MCQSet, Attempt, AppSettings, ExamTemplate, MCQStats, AuditLogEntry, MCQ, Lesson, GrammarRule, VocabWord, TranslationItem, PracticeTopic, DailyProgress, UserActivity, FlashcardNewWord, FlashcardDailyWord, FlashcardMasteredWord } from '../../types';
 import { dbFirestore } from '../firebase';
 import { 
   collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, 
@@ -47,7 +47,7 @@ class BaseService<T extends { id: string | number }> {
   }
 
   async update(id: string | number, data: Partial<T>): Promise<number> {
-    return await this.table.update(id, data);
+    return await this.table.update(id, data as any);
   }
 
   async delete(id: string | number): Promise<void> {
@@ -631,6 +631,9 @@ export const grammarService = {
 };
 
 export const vocabService = {
+  getAll: async (): Promise<VocabWord[]> => {
+    return await vocabFs.getAll();
+  },
   getWords: async (lessonId: string): Promise<VocabWord[]> => {
     const all = await vocabFs.getAll();
     return all.filter(i => i.lessonId === lessonId).sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -701,3 +704,283 @@ export const logAction = async (action: any, entity: any, entityId?: string, det
     console.warn("Failed to log action", e);
   }
 };
+
+// --- Flashcard System Services (Old - Removed) ---
+
+
+// (Old Flashcard Logic Removed)
+
+
+// --- Flashcard System Services (New) ---
+
+const flashcardNewFs = new CachedFirestoreService<FlashcardNewWord>('flashcard_new_words', 'flashcard_new_cache');
+const flashcardDailyFs = new CachedFirestoreService<FlashcardDailyWord>('flashcard_daily_words', 'flashcard_daily_cache');
+const flashcardMasteredFs = new CachedFirestoreService<FlashcardMasteredWord>('flashcard_mastered', 'flashcard_mastered_cache');
+
+export const flashcardService = {
+  // New Words
+  getNewWords: () => flashcardNewFs.getAll(),
+  
+  checkWordExists: async (word: string): Promise<'new' | 'daily' | 'mastered' | null> => {
+    const w = word.toLowerCase().trim();
+    const newWords = await flashcardNewFs.getAll();
+    if (newWords.some(i => i.word.toLowerCase().trim() === w)) return 'new';
+    const daily = await flashcardDailyFs.getAll();
+    if (daily.some(i => i.word.toLowerCase().trim() === w)) return 'daily';
+    const mastered = await flashcardMasteredFs.getAll();
+    if (mastered.some(i => i.word.toLowerCase().trim() === w)) return 'mastered';
+    return null;
+  },
+
+  addNewWord: async (data: FlashcardNewWord) => {
+    // Duplicate check
+    const exists = await flashcardService.checkWordExists(data.word);
+    if (exists) throw new Error(`Duplicate: ${exists}`);
+    return await flashcardNewFs.create(data);
+  },
+
+  getBulkDuplicateStatus: async (words: string[]) => {
+    const newWords = await flashcardNewFs.getAll();
+    const daily = await flashcardDailyFs.getAll();
+    const mastered = await flashcardMasteredFs.getAll();
+
+    const newSet = new Set(newWords.map(w => w.word.toLowerCase().trim()));
+    const dailySet = new Set(daily.map(w => w.word.toLowerCase().trim()));
+    const masteredSet = new Set(mastered.map(w => w.word.toLowerCase().trim()));
+
+    return words.map(w => {
+        const lower = w.toLowerCase().trim();
+        if (newSet.has(lower)) return { word: w, status: 'new' as const };
+        if (dailySet.has(lower)) return { word: w, status: 'daily' as const };
+        if (masteredSet.has(lower)) return { word: w, status: 'mastered' as const };
+        return { word: w, status: null };
+    });
+  },
+
+  addBulkNewWords: async (words: FlashcardNewWord[]) => {
+    const status = await flashcardService.getBulkDuplicateStatus(words.map(w => w.word));
+    const uniqueWords = words.filter((w, i) => status[i].status === null);
+    
+    if (uniqueWords.length === 0) return 0;
+
+    // Batch create
+    const batch = writeBatch(dbFirestore);
+    const currentCache = await getFromCache<FlashcardNewWord>('flashcard_new_cache') || [];
+    const newCache = [...currentCache];
+
+    uniqueWords.forEach(w => {
+      const ref = doc(dbFirestore, 'flashcard_new_words', w.id);
+      batch.set(ref, sanitizeForFirestore(w));
+      newCache.push(w);
+    });
+
+    await saveToCache('flashcard_new_cache', newCache);
+    await batch.commit();
+    return uniqueWords.length;
+  },
+
+  deleteNewWord: (id: string) => flashcardNewFs.delete(id),
+
+  moveToDaily: async (wordId: string) => {
+    console.log('[moveToDaily] Starting for wordId:', wordId);
+    try {
+      const word = await flashcardNewFs.getById(wordId);
+      if (!word) {
+        console.error('[moveToDaily] Word not found in New Words:', wordId);
+        throw new Error('Word not found');
+      }
+      console.log('[moveToDaily] Found word:', word);
+
+      const dailyWord: FlashcardDailyWord = {
+        ...word,
+        addedToDailyAt: Date.now(),
+        sourceWordId: word.id
+      };
+
+      // Sanitize dailyWord to remove undefined values
+      const sanitizedDailyWord = JSON.parse(JSON.stringify(dailyWord)); // Simple sanitization
+      // Or better, manually ensure no undefined
+      Object.keys(sanitizedDailyWord).forEach(key => {
+        if (sanitizedDailyWord[key] === undefined) delete sanitizedDailyWord[key];
+      });
+
+      console.log('[moveToDaily] Sanitized dailyWord:', sanitizedDailyWord);
+
+      // Transaction-like operation
+      const batch = writeBatch(dbFirestore);
+      
+      // Add to Daily
+      const dailyRef = doc(dbFirestore, 'flashcard_daily_words', dailyWord.id);
+      batch.set(dailyRef, sanitizedDailyWord);
+
+      // Remove from New (Hard Delete)
+      const newRef = doc(dbFirestore, 'flashcard_new_words', wordId);
+      batch.delete(newRef); 
+
+      await batch.commit();
+      console.log('[moveToDaily] Batch committed');
+
+      // Update caches manually for speed
+      // 1. Update New Words Cache (Remove)
+      const newCache = await getFromCache<FlashcardNewWord>('flashcard_new_cache') || [];
+      const updatedNewCache = newCache.filter(w => w.id !== wordId);
+      await saveToCache('flashcard_new_cache', updatedNewCache);
+
+      // 2. Update Daily Words Cache (Add)
+      const dailyCache = await getFromCache<FlashcardDailyWord>('flashcard_daily_cache') || [];
+      
+      const existsInCache = dailyCache.some(w => w.id === dailyWord.id);
+      let updatedDailyCache;
+      if (existsInCache) {
+          updatedDailyCache = dailyCache.map(w => w.id === dailyWord.id ? dailyWord : w);
+      } else {
+          updatedDailyCache = [...dailyCache, dailyWord];
+      }
+      
+      await saveToCache('flashcard_daily_cache', updatedDailyCache);
+      console.log('[moveToDaily] Caches updated');
+
+    } catch (error) {
+      console.error('[moveToDaily] Error:', error);
+      throw error;
+    }
+  },
+
+  moveRandomToDaily: async (count: number) => {
+    const allNew = await flashcardNewFs.getAll();
+    if (allNew.length === 0) return 0;
+
+    const shuffled = [...allNew].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, count);
+
+    const batch = writeBatch(dbFirestore);
+    const now = Date.now();
+
+    const dailyWords: FlashcardDailyWord[] = selected.map(w => ({
+      ...w,
+      addedToDailyAt: now,
+      sourceWordId: w.id
+    }));
+
+    // Add to Daily
+    dailyWords.forEach(w => {
+      const ref = doc(dbFirestore, 'flashcard_daily_words', w.id);
+      batch.set(ref, sanitizeForFirestore(w));
+    });
+
+    // Remove from New (Hard Delete)
+    const movedIds = new Set(selected.map(w => w.id));
+    selected.forEach(w => {
+      const ref = doc(dbFirestore, 'flashcard_new_words', w.id);
+      batch.delete(ref);
+    });
+
+    await batch.commit();
+
+    // Update caches manually to avoid full wipe
+    const currentNew = await getFromCache<FlashcardNewWord>('flashcard_new_cache') || [];
+    const updatedNew = currentNew.filter(w => !movedIds.has(w.id));
+    await saveToCache('flashcard_new_cache', updatedNew);
+
+    const currentDaily = await getFromCache<FlashcardDailyWord>('flashcard_daily_cache') || [];
+    await saveToCache('flashcard_daily_cache', [...currentDaily, ...dailyWords]);
+    
+    return selected.length;
+  },
+
+  // Daily Words
+  getDailyWords: () => flashcardDailyFs.getAll(),
+  
+  getDailyWordsCount: async () => {
+    const words = await flashcardDailyFs.getAll();
+    return words.length;
+  },
+
+  moveDailyToMastered: async (wordId: string) => {
+    const word = await flashcardDailyFs.getById(wordId);
+    if (!word) throw new Error('Word not found');
+
+    const now = Date.now();
+    const today = new Date().toISOString().split('T')[0];
+
+    const masteredWord: FlashcardMasteredWord = {
+      ...word,
+      masteredAt: now,
+      masteredDate: today
+    };
+
+    const batch = writeBatch(dbFirestore);
+    
+    // Add to Mastered
+    batch.set(doc(dbFirestore, 'flashcard_mastered', masteredWord.id), sanitizeForFirestore(masteredWord));
+
+    // Remove from Daily
+    batch.update(doc(dbFirestore, 'flashcard_daily_words', wordId), { isDeleted: true, deletedAt: now });
+
+    await batch.commit();
+
+    // Update caches
+    const dailyCache = await getFromCache<FlashcardDailyWord>('flashcard_daily_cache') || [];
+    await saveToCache('flashcard_daily_cache', dailyCache.filter(w => w.id !== wordId));
+
+    const masteredCache = await getFromCache<FlashcardMasteredWord>('flashcard_mastered_cache') || [];
+    await saveToCache('flashcard_mastered_cache', [...masteredCache, masteredWord]);
+  },
+
+  // Mastered Words
+  getMasteredWords: () => flashcardMasteredFs.getAll(),
+
+  getMasteredByDate: async (date: string) => {
+    const all = await flashcardMasteredFs.getAll();
+    return all.filter(w => w.masteredDate === date);
+  },
+
+  getMasteredDates: async () => {
+    const all = await flashcardMasteredFs.getAll();
+    const dates: Record<string, number> = {};
+    all.forEach(w => {
+      dates[w.masteredDate] = (dates[w.masteredDate] || 0) + 1;
+    });
+    
+    return Object.entries(dates)
+      .map(([date, count]) => ({ date, count }))
+      .sort((a, b) => b.date.localeCompare(a.date));
+  },
+
+  getMasteredCount: async () => {
+    const words = await flashcardMasteredFs.getAll();
+    return words.length;
+  },
+
+  moveMasteredToDaily: async (wordId: string) => {
+    const word = await flashcardMasteredFs.getById(wordId);
+    if (!word) throw new Error('Word not found');
+
+    const dailyWord: FlashcardDailyWord = {
+      ...word,
+      addedToDailyAt: Date.now(),
+      sourceWordId: word.id
+    };
+
+    const batch = writeBatch(dbFirestore);
+    
+    // Add to Daily
+    const dailyRef = doc(dbFirestore, 'flashcard_daily_words', dailyWord.id);
+    batch.set(dailyRef, sanitizeForFirestore(dailyWord));
+
+    // Remove from Mastered
+    const masteredRef = doc(dbFirestore, 'flashcard_mastered', wordId);
+    batch.delete(masteredRef);
+
+    await batch.commit();
+
+    // Update caches
+    const masteredCache = await getFromCache<FlashcardMasteredWord>('flashcard_mastered_cache') || [];
+    await saveToCache('flashcard_mastered_cache', masteredCache.filter(w => w.id !== wordId));
+
+    const dailyCache = await getFromCache<FlashcardDailyWord>('flashcard_daily_cache') || [];
+    await saveToCache('flashcard_daily_cache', [...dailyCache, dailyWord]);
+  }
+};
+
+

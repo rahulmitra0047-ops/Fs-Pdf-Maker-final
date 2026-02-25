@@ -47,10 +47,10 @@ const AppLogicHandler = () => {
         return;
     }
 
-    // 2. Default Redirect to First Tab (Live MCQ)
+    // 2. Default Redirect to First Tab (Home)
     if (isInitialLoad) {
       isInitialLoad = false;
-      navigate('/live-mcq/topics', { replace: true });
+      navigate('/home', { replace: true });
     }
   }, [navigate]);
 

@@ -34,13 +34,21 @@ const AdvancedResultPage = lazy(() => import('../../features/live-mcq/exam/Advan
 const LessonListPage = lazy(() => import('../../features/learn/LessonListPage'));
 const LessonDetailPage = lazy(() => import('../../features/learn/LessonDetailPage'));
 
+// Flashcard Pages
+const FlashcardHome = lazy(() => import('../../features/flashcard/FlashcardHome'));
+const NewWordsPage = lazy(() => import('../../features/flashcard/NewWordsPage'));
+const DailyWordsPage = lazy(() => import('../../features/flashcard/DailyWordsPage'));
+const MasteredWordsPage = lazy(() => import('../../features/flashcard/MasteredWordsPage'));
+const ReviewFlashcardPage = lazy(() => import('../../features/flashcard/ReviewFlashcardPage'));
+const FlashcardQuizPage = lazy(() => import('../../features/flashcard/FlashcardQuizPage'));
+
 const AppRoutes: React.FC = () => {
   return (
     <Suspense fallback={<SuspenseFallback />}>
       <Routes>
         <Route element={<MainLayout />}>
-          {/* Redirect Root to First Tab (Live MCQ) */}
-          <Route path="/" element={<Navigate to="/live-mcq/topics" replace />} />
+          {/* Redirect Root to First Tab (Home) */}
+          <Route path="/" element={<Navigate to="/home" replace />} />
           
           {/* Tab Routes */}
           <Route path="/home" element={<HomePage />} />
@@ -68,6 +76,14 @@ const AppRoutes: React.FC = () => {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/print/:docId" element={<PrintPage />} />
         
+        {/* Flashcards */}
+        <Route path="/flashcards" element={<FlashcardHome />} />
+        <Route path="/flashcards/new" element={<NewWordsPage />} />
+        <Route path="/flashcards/daily" element={<DailyWordsPage />} />
+        <Route path="/flashcards/mastered" element={<MasteredWordsPage />} />
+        <Route path="/flashcards/review/:date" element={<ReviewFlashcardPage />} />
+        <Route path="/flashcards/quiz" element={<FlashcardQuizPage />} />
+
         {/* Live MCQ - Immersive/Active Modes (No Bottom Nav) */}
         <Route path="/live-mcq/practice" element={<PracticeSession />} />
         <Route path="/live-mcq/practice/:setId" element={<PracticeSession />} />

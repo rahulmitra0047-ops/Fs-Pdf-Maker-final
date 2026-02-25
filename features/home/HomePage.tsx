@@ -62,10 +62,19 @@ const HomePage: React.FC = () => {
     fetchData();
   }, []);
 
+  // Helper for Local Date String (YYYY-MM-DD)
+  const getLocalDateStr = (timestamp?: number | string | Date) => {
+      const date = timestamp ? new Date(timestamp) : new Date();
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = getLocalDateStr();
       
       const [lessons, dailyRec, userActRecs, mcqStats, attempts] = await Promise.all([
         lessonService.getLessons(),
@@ -110,14 +119,14 @@ const HomePage: React.FC = () => {
         vCount += d.vs.length;
         d.vs.forEach(v => {
              allV.push({ word: v.word, meaning: v.meaning });
-             if (new Date(v.createdAt).toISOString().split('T')[0] === todayStr) dailyV++;
+             if (getLocalDateStr(v.createdAt) === todayStr) dailyV++;
         });
 
         // Rules
         rCount += d.rs.length;
         d.rs.forEach(r => {
              allR.push({ title: r.title, lesson: lTitle });
-             if (new Date(r.createdAt).toISOString().split('T')[0] === todayStr) dailyR++;
+             if (getLocalDateStr(r.createdAt) === todayStr) dailyR++;
         });
         
         // Passages
@@ -127,16 +136,16 @@ const HomePage: React.FC = () => {
 
         completedTs.forEach(t => {
             allP.push({ title: t.bengaliText.substring(0, 40) + (t.bengaliText.length>40?'...':''), type: 'Translation' });
-            if (new Date(t.updatedAt).toISOString().split('T')[0] === todayStr) dailyP++;
+            if (getLocalDateStr(t.updatedAt) === todayStr) dailyP++;
         });
         completedPs.forEach(p => {
             allP.push({ title: p.title, type: 'Writing' });
-            if (new Date(p.updatedAt).toISOString().split('T')[0] === todayStr) dailyP++;
+            if (getLocalDateStr(p.updatedAt) === todayStr) dailyP++;
         });
 
         // Last Session Logic
         const checkItemDate = (item: any) => {
-           const itemDate = new Date(item.updatedAt).toISOString().split('T')[0];
+           const itemDate = getLocalDateStr(item.updatedAt);
            if (item.isCompleted && itemDate === todayStr) {
                todaysCompletedCount++;
            }
@@ -184,7 +193,7 @@ const HomePage: React.FC = () => {
 
       // MCQs Today
       const todayAttempts = attempts.filter(a => 
-          new Date(a.completedAt).toISOString().split('T')[0] === todayStr
+          getLocalDateStr(a.completedAt) === todayStr
       );
       const dailyM = todayAttempts.reduce((acc, a) => acc + a.total, 0);
 
@@ -199,14 +208,31 @@ const HomePage: React.FC = () => {
 
       // --- Background Daily Goal Sync ---
       if (!dailyRec) {
-          await dailyProgressService.create({
-              id: todayStr,
-              date: todayStr,
-              completedCount: todaysCompletedCount,
-              target: 5,
-              streak: 0, 
-              updatedAt: Date.now()
-          });
+          try {
+              await dailyProgressService.create({
+                  id: todayStr,
+                  date: todayStr,
+                  completedCount: todaysCompletedCount,
+                  target: 5,
+                  streak: 0, 
+                  updatedAt: Date.now()
+              });
+          } catch (e: any) {
+              // Ignore ConstraintError (duplicate key) as it means another process/tab created it
+              if (e.name !== 'ConstraintError' && !e.message?.includes('exists')) {
+                  console.error("Failed to create daily progress", e);
+              } else {
+                  // Retry update if create failed due to existence (race condition)
+                  try {
+                      const existing = await dailyProgressService.getById(todayStr);
+                      if (existing && todaysCompletedCount > existing.completedCount) {
+                          await dailyProgressService.update(todayStr, { completedCount: todaysCompletedCount });
+                      }
+                  } catch (retryError) {
+                      console.error("Failed to update daily progress on retry", retryError);
+                  }
+              }
+          }
       } else if (todaysCompletedCount > dailyRec.completedCount) {
           dailyProgressService.update(todayStr, { completedCount: todaysCompletedCount });
       }
@@ -408,7 +434,7 @@ const HomePage: React.FC = () => {
 
             {/* Flashcards */}
             <div 
-                onClick={() => toast.info("Flashcards coming soon!")}
+                onClick={() => navigate('/flashcards')}
                 className="group relative overflow-hidden rounded-[18px] p-3.5 cursor-pointer shadow-sm border border-orange-100 hover:border-orange-200 active:scale-[0.98] transition-all bg-white min-h-[90px] flex flex-col justify-between"
             >
                 <div className="absolute top-2 right-2 opacity-5 text-orange-600">

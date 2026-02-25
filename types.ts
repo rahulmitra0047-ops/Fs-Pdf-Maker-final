@@ -347,6 +347,12 @@ export interface VocabWord {
   createdAt: number;
   updatedAt: number;
   order?: number;
+  
+  // SRS Fields (Flashcard)
+  nextReviewDate?: number; // Timestamp
+  interval?: number; // Days
+  repetition?: number; // Count
+  easeFactor?: number; // Multiplier (default 2.5)
 }
 
 export interface GrammarRule {
@@ -445,4 +451,37 @@ export interface UserActivity {
   lastTab: 'grammar' | 'vocabulary' | 'practice';
   progress: number;
   updatedAt: number;
+}
+
+// Flashcard System Types (New)
+export interface FlashcardBase {
+  id: string;
+  word: string;
+  meaning: string;
+  type: 'Verb' | 'Noun' | 'Adjective' | 'Adverb' | 'Other';
+  verbForms?: {
+    v1: string;
+    v1s: string;
+    v2: string;
+    v3: string;
+    vIng: string;
+  } | null;
+  examples: string[];
+  synonyms: string[];
+  pronunciation: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface FlashcardNewWord extends FlashcardBase {}
+
+export interface FlashcardDailyWord extends FlashcardBase {
+  addedToDailyAt: number;
+  sourceWordId: string;
+}
+
+export interface FlashcardMasteredWord extends FlashcardBase {
+  addedToDailyAt: number;
+  masteredAt: number;
+  masteredDate: string; // YYYY-MM-DD
 }
