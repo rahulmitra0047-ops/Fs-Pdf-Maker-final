@@ -9,78 +9,67 @@ const BottomNav: React.FC = () => {
   const path = location.pathname;
 
   const isActive = (route: string) => {
-    // Exact match for root/home paths to avoid highlighting on sub-routes incorrectly if needed
     if (route === '/home') return path === '/home';
     if (route === '/learn') return path === '/learn';
     if (route === '/settings') return path === '/settings';
-    // For modules with sub-routes
     return path.startsWith(route);
   };
 
   const navItemClass = (active: boolean) => 
-    `flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200 ${active ? 'text-[#6366F1]' : 'text-gray-400 hover:text-gray-600'}`;
-
-  const iconContainerClass = (active: boolean) => 
-    `p-1.5 rounded-full ${active ? 'bg-indigo-50' : 'bg-transparent'}`;
+    `flex flex-col items-center gap-1 w-1/5 group cursor-pointer transition-colors ${active ? 'text-slate-700' : 'text-slate-400 hover:text-slate-600'}`;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 z-50 pb-safe flex justify-around items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-      
-      {/* 1. Live MCQ */}
-      <button 
-        onClick={() => navigate('/live-mcq/topics')}
-        className={navItemClass(isActive('/live-mcq'))}
-      >
-        <div className={iconContainerClass(isActive('/live-mcq'))}>
-            <Icon name="book-open" size="md" strokeWidth={isActive('/live-mcq') ? 2.5 : 2} />
-        </div>
-        <span className="text-[10px] font-bold">Live MCQ</span>
-      </button>
+    <div className="fixed bottom-0 left-0 right-0 bg-white/70 backdrop-blur-md border-t border-slate-200 pb-8 pt-4 px-6 z-50">
+      <ul className="flex justify-between items-end">
+        
+        {/* 1. Live MCQ */}
+        <li 
+          onClick={() => navigate('/live-mcq/topics')}
+          className={navItemClass(isActive('/live-mcq'))}
+        >
+          <Icon name="book-open" size="lg" className="mb-0.5" />
+          <span className="text-[10px] font-medium">Live MCQ</span>
+        </li>
 
-      {/* 2. PDF */}
-      <button 
-        onClick={() => navigate('/create')}
-        className={navItemClass(isActive('/create'))}
-      >
-        <div className={iconContainerClass(isActive('/create'))}>
-            <Icon name="file-text" size="md" strokeWidth={isActive('/create') ? 2.5 : 2} />
-        </div>
-        <span className="text-[10px] font-bold">PDF</span>
-      </button>
+        {/* 2. PDF */}
+        <li 
+          onClick={() => navigate('/create')}
+          className={navItemClass(isActive('/create'))}
+        >
+          <Icon name="file-text" size="lg" className="mb-0.5" />
+          <span className="text-[10px] font-medium">PDF</span>
+        </li>
 
-      {/* 3. Home */}
-      <button 
-        onClick={() => navigate('/home')}
-        className={navItemClass(isActive('/home'))}
-      >
-        <div className={iconContainerClass(isActive('/home'))}>
-            <Icon name="home" size="md" strokeWidth={isActive('/home') ? 2.5 : 2} />
-        </div>
-        <span className="text-[10px] font-bold">Home</span>
-      </button>
+        {/* 3. Home (Floating) */}
+        <li 
+          onClick={() => navigate('/home')}
+          className="flex flex-col items-center gap-1 w-1/5 -mt-6 group cursor-pointer relative"
+        >
+          <div className={`w-12 h-12 rounded-full flex items-center justify-center absolute -top-10 group-hover:scale-110 transition-transform shadow-[0_4px_20px_-2px_rgba(16,185,129,0.2)] ${isActive('/home') ? 'bg-slate-700 text-white' : 'bg-slate-700/10 text-slate-700'}`}>
+            <Icon name="home" size="lg" />
+          </div>
+          <span className={`text-[10px] font-bold mt-4 ${isActive('/home') ? 'text-slate-700' : 'text-slate-400'}`}>Home</span>
+        </li>
 
-      {/* 4. Learn */}
-      <button 
-        onClick={() => navigate('/learn')}
-        className={navItemClass(isActive('/learn'))}
-      >
-        <div className={iconContainerClass(isActive('/learn'))}>
-            <Icon name="book" size="md" strokeWidth={isActive('/learn') ? 2.5 : 2} />
-        </div>
-        <span className="text-[10px] font-bold">Learn</span>
-      </button>
+        {/* 4. Learn */}
+        <li 
+          onClick={() => navigate('/learn')}
+          className={navItemClass(isActive('/learn'))}
+        >
+          <Icon name="book" size="lg" className="mb-0.5" />
+          <span className="text-[10px] font-medium">Learn</span>
+        </li>
 
-      {/* 5. Settings */}
-      <button 
-        onClick={() => navigate('/settings')}
-        className={navItemClass(isActive('/settings'))}
-      >
-        <div className={iconContainerClass(isActive('/settings'))}>
-            <Icon name="settings" size="md" strokeWidth={isActive('/settings') ? 2.5 : 2} />
-        </div>
-        <span className="text-[10px] font-bold">Settings</span>
-      </button>
+        {/* 5. Settings */}
+        <li 
+          onClick={() => navigate('/settings')}
+          className={navItemClass(isActive('/settings'))}
+        >
+          <Icon name="settings" size="lg" className="mb-0.5" />
+          <span className="text-[10px] font-medium">Settings</span>
+        </li>
 
+      </ul>
     </div>
   );
 };

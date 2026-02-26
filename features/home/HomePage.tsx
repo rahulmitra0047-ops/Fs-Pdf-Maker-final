@@ -233,86 +233,87 @@ const HomePage: React.FC = () => {
     <div className="min-h-screen bg-[#F8FAFC] font-sans pb-24 overflow-hidden flex flex-col">
       
       {/* 1. Compact Header */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100/50 px-5 h-[56px] flex items-center justify-between flex-none">
-        <div>
-            <h1 className="text-[18px] font-serif font-bold text-gray-900 tracking-tight flex items-center gap-1">
-                <span className="text-indigo-600 text-[22px]">✦</span> Edunex
-            </h1>
+      <header className="sticky top-0 z-40 bg-[#F8FAFC]/80 backdrop-blur-xl px-6 pt-12 pb-6 flex items-center justify-between flex-none">
+        <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center transform rotate-45 shadow-lg">
+                <span className="text-white transform -rotate-45 text-lg">✦</span>
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-700">Edunex</h1>
         </div>
-        <div className="flex items-center gap-3">
-            <span className="text-[11px] font-medium text-gray-500">{greeting}</span>
+        <div className="text-sm font-medium text-slate-400">
+            {greeting}
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col justify-start gap-6 max-w-md mx-auto px-5 w-full py-2">
+      <main className="flex-1 flex flex-col justify-start gap-8 max-w-md mx-auto px-6 w-full py-2 overflow-y-auto">
         
         {/* 2. Motivational Quote Section */}
         <MotivationalQuote />
 
         {/* 3. Action Grid (2x2) */}
-        <div className="grid grid-cols-2 gap-3 w-full">
+        <div className="grid grid-cols-2 gap-4 w-full">
             {/* Quick Practice */}
             <div 
                 onClick={handleQuickPractice}
-                className="group relative overflow-hidden rounded-[18px] p-3.5 cursor-pointer shadow-lg shadow-indigo-200/40 active:scale-[0.98] transition-all bg-gradient-to-br from-indigo-600 to-indigo-700 text-white min-h-[90px] flex flex-col justify-between"
+                className="col-span-1 bg-slate-700 text-white rounded-[24px] p-6 relative overflow-hidden shadow-xl shadow-slate-900/10 group cursor-pointer hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 h-44 flex flex-col justify-between"
             >
-                <div className="absolute top-2 right-2 opacity-10 group-hover:scale-110 transition-transform duration-500">
-                    <Icon name="clock" size="xl" />
+                <div className="absolute top-0 right-0 p-4 opacity-10 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform duration-500">
+                    <Icon name="clock" size="xl" className="w-16 h-16" />
                 </div>
-                <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                    <Icon name="play" size="sm" />
+                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/10 shadow-inner">
+                    <Icon name="play" size="md" className="text-white" />
                 </div>
                 <div>
-                    <h3 className="text-[14px] font-bold leading-tight">Quick<br/>Practice</h3>
+                    <h3 className="font-bold text-lg leading-tight">Quick<br/>Practice</h3>
                 </div>
             </div>
 
             {/* Exam Center */}
             <div 
                 onClick={() => navigate('/live-mcq/exam-center')}
-                className="group relative overflow-hidden rounded-[18px] p-3.5 cursor-pointer shadow-sm border border-purple-100 hover:border-purple-200 active:scale-[0.98] transition-all bg-white min-h-[90px] flex flex-col justify-between"
+                className="col-span-1 bg-white rounded-[24px] p-6 relative overflow-hidden shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-slate-100 hover:border-purple-200 transition-all duration-300 h-44 flex flex-col justify-between group cursor-pointer"
             >
-                <div className="absolute top-2 right-2 opacity-5 text-purple-600">
-                    <Icon name="target" size="xl" />
+                <div className="absolute top-0 right-0 p-4 opacity-5 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform duration-500">
+                    <Icon name="target" size="xl" className="w-16 h-16 text-slate-700" />
                 </div>
-                <div className="w-8 h-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center">
-                    <Icon name="target" size="sm" />
+                <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center">
+                    <Icon name="target" size="md" className="text-purple-500" />
                 </div>
                 <div>
-                    <h3 className="text-[14px] font-bold text-slate-800 leading-tight">Exam<br/>Center</h3>
+                    <h3 className="font-bold text-lg leading-tight text-slate-700">Exam<br/>Center</h3>
                 </div>
             </div>
 
             {/* Flashcards */}
             <div 
                 onClick={() => navigate('/flashcards')}
-                className="group relative overflow-hidden rounded-[18px] p-3.5 cursor-pointer shadow-sm border border-orange-100 hover:border-orange-200 active:scale-[0.98] transition-all bg-white min-h-[90px] flex flex-col justify-between"
+                className="col-span-1 bg-white rounded-[24px] p-6 relative overflow-hidden shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-slate-100 hover:border-orange-200 transition-all duration-300 h-44 flex flex-col justify-between group cursor-pointer"
             >
-                <div className="absolute top-2 right-2 opacity-5 text-orange-600">
-                    <Icon name="file-text" size="xl" />
+                <div className="absolute top-0 right-0 p-4 opacity-5 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform duration-500">
+                    <Icon name="file-text" size="xl" className="w-16 h-16 text-slate-700" />
                 </div>
-                <div className="w-8 h-8 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center">
-                    <Icon name="file-text" size="sm" />
+                <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center">
+                    <Icon name="layers" size="md" className="text-orange-500" />
                 </div>
                 <div>
-                    <h3 className="text-[14px] font-bold text-slate-800 leading-tight">Flash<br/>Cards</h3>
+                    <h3 className="font-bold text-lg leading-tight text-slate-700">Flash<br/>Cards</h3>
                 </div>
             </div>
 
             {/* Synonym Finder */}
             <div 
                 onClick={() => toast.info("Synonym Finder coming soon!")}
-                className="group relative overflow-hidden rounded-[18px] p-3.5 cursor-pointer shadow-sm border border-cyan-100 hover:border-cyan-200 active:scale-[0.98] transition-all bg-white min-h-[90px] flex flex-col justify-between"
+                className="col-span-1 bg-white rounded-[24px] p-6 relative overflow-hidden shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-slate-100 hover:border-emerald-200 transition-all duration-300 h-44 flex flex-col justify-between group cursor-pointer"
             >
-                <div className="absolute top-2 right-2 opacity-5 text-cyan-600">
-                    <Icon name="search" size="xl" />
+                <div className="absolute top-0 right-0 p-4 opacity-5 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform duration-500">
+                    <Icon name="search" size="xl" className="w-16 h-16 text-slate-700" />
                 </div>
-                <div className="w-8 h-8 rounded-full bg-cyan-50 text-cyan-600 flex items-center justify-center">
-                    <Icon name="search" size="sm" />
+                <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center">
+                    <Icon name="search" size="md" className="text-emerald-500" />
                 </div>
                 <div>
-                    <h3 className="text-[14px] font-bold text-slate-800 leading-tight">Synonym<br/>Finder</h3>
+                    <h3 className="font-bold text-lg leading-tight text-slate-700">Synonym<br/>Finder</h3>
                 </div>
             </div>
         </div>
