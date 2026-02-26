@@ -138,14 +138,14 @@ const RecentDocsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] pb-20 pt-[60px]">
+    <div className="min-h-screen bg-[#F8FAFC] pb-20 pt-[60px]">
         {/* Custom Header - Fixed Layout Issue */}
-        <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/90 backdrop-blur-md border-b border-gray-100 z-50 px-4 flex items-center justify-between transition-all">
+        <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 z-50 px-4 flex items-center justify-between transition-all">
             {/* Left: Back Button */}
             <div className="flex-shrink-0 flex items-center">
                 <button 
                     onClick={() => navigate('/')} 
-                    className="p-2 text-[#6B7280] hover:text-gray-900 rounded-full transition-colors active:scale-95"
+                    className="p-2 text-slate-500 hover:text-slate-900 rounded-full transition-colors active:scale-95"
                 >
                     <Icon name="arrow-left" size="md" />
                 </button>
@@ -153,7 +153,7 @@ const RecentDocsPage: React.FC = () => {
             
             {/* Center: Title (Flexbox centering instead of absolute to prevent overlap) */}
             <div className="flex-1 text-center px-2 min-w-0">
-                <h1 className="text-[18px] font-semibold text-[#111827] tracking-tight truncate">
+                <h1 className="text-[18px] font-semibold text-slate-900 tracking-tight truncate">
                     Recent Documents
                 </h1>
             </div>
@@ -162,17 +162,17 @@ const RecentDocsPage: React.FC = () => {
             <div className="flex-shrink-0 flex items-center gap-2">
                 <button 
                     onClick={() => setShowArchived(!showArchived)}
-                    className={`p-2 rounded-full transition-colors ${showArchived ? 'text-[#6366F1] bg-indigo-50' : 'text-[#9CA3AF] hover:text-gray-700'}`}
+                    className={`p-2 rounded-full transition-colors ${showArchived ? 'text-emerald-600 bg-emerald-50' : 'text-slate-400 hover:text-slate-700'}`}
                     title={showArchived ? "Show Active" : "Show Archived"}
                 >
                     <Icon name="folder" size="md" />
                 </button>
                 <button 
                     onClick={toggleMergeMode}
-                    className={`border-[1.5px] rounded-[12px] px-4 py-2 text-[13px] font-medium transition-all active:scale-95 flex items-center justify-center ${
+                    className={`border-[1.5px] rounded-xl px-4 py-2 text-[13px] font-medium transition-all active:scale-95 flex items-center justify-center ${
                         isMergeMode 
-                        ? 'bg-[#6366F1] border-[#6366F1] text-white shadow-sm' 
-                        : 'bg-transparent border-[#E5E7EB] text-[#374151] hover:bg-gray-50'
+                        ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm' 
+                        : 'bg-transparent border-slate-200 text-slate-700 hover:bg-slate-50'
                     }`}
                 >
                     {isMergeMode ? 'Cancel' : 'Merge'}
@@ -183,7 +183,7 @@ const RecentDocsPage: React.FC = () => {
       {isMergeMode && (
           <div className="sticky top-[60px] z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200 px-5 py-3 flex justify-between items-center animate-slide-up shadow-sm">
               <div className="text-sm font-semibold text-slate-700">
-                  <span className="bg-[#EEF2FF] text-[#6366F1] px-2 py-0.5 rounded-full mr-2">{selectedForMerge.length}</span>
+                  <span className="bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full mr-2">{selectedForMerge.length}</span>
                   Selected
               </div>
               <PremiumButton 
@@ -204,32 +204,32 @@ const RecentDocsPage: React.FC = () => {
                     placeholder={showArchived ? "Search archived history..." : "Search history..."}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-[46px] pr-4 py-[14px] bg-[#F9FAFB] border border-[#F3F4F6] rounded-[14px] text-[#111827] placeholder-[#9CA3AF] text-sm focus:outline-none focus:border-[#6366F1] focus:bg-white transition-all shadow-sm"
+                    className="w-full pl-[46px] pr-4 py-[14px] bg-white border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-all shadow-sm"
                 />
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] group-focus-within:text-[#6366F1] transition-colors">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors">
                     <Icon name="search" size="md" />
                 </div>
             </div>
           )}
           
           {showArchived && (
-              <div className="text-[13px] font-medium text-orange-700 bg-orange-50 py-3 px-4 rounded-[14px] border border-orange-100 flex items-center justify-center gap-2 mb-4 flex-shrink-0">
+              <div className="text-[13px] font-medium text-orange-700 bg-orange-50 py-3 px-4 rounded-2xl border border-orange-100 flex items-center justify-center gap-2 mb-4 flex-shrink-0">
                   <Icon name="folder" size="sm" /> Viewing Archived Documents
               </div>
           )}
 
           {isLoading ? (
              <div className="flex-1 flex flex-col items-center justify-center py-12 gap-3">
-                 <div className="w-8 h-8 border-4 border-[#EEF2FF] border-t-[#6366F1] rounded-full animate-spin"></div>
-                 <p className="text-sm text-gray-400">Loading library...</p>
+                 <div className="w-8 h-8 border-4 border-emerald-50 border-t-emerald-500 rounded-full animate-spin"></div>
+                 <p className="text-sm text-slate-400">Loading library...</p>
              </div>
           ) : filteredDocs.length === 0 ? (
              <div className="flex-1 flex flex-col items-center justify-center text-center -mt-10">
-                <div className="text-[#D1D5DB] mb-4 opacity-70">
+                <div className="text-slate-300 mb-4 opacity-70">
                     <Icon name="file-text" size="2xl" />
                 </div>
-                <h3 className="text-[17px] font-semibold text-[#374151]">No documents found</h3>
-                <p className="text-[14px] font-normal text-[#9CA3AF] mt-1.5">Try creating a new one or adjust filters</p>
+                <h3 className="text-[17px] font-semibold text-slate-700">No documents found</h3>
+                <p className="text-[14px] font-normal text-slate-400 mt-1.5">Try creating a new one or adjust filters</p>
              </div>
           ) : (
              <div className="flex flex-col gap-[14px] pb-10">
@@ -241,8 +241,8 @@ const RecentDocsPage: React.FC = () => {
                      <div
                         key={doc.id} 
                         className={`
-                            relative bg-white border rounded-[20px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-150
-                            ${isMergeMode && isSelected ? 'border-[#6366F1] bg-indigo-50/10' : 'border-[#F3F4F6]'}
+                            relative bg-white border rounded-2xl p-4 shadow-sm transition-all duration-150
+                            ${isMergeMode && isSelected ? 'border-emerald-500 bg-emerald-50/10' : 'border-slate-100 hover:border-slate-200 hover:shadow-md'}
                             ${!isMergeMode ? 'active:scale-[0.99]' : ''}
                         `}
                         onClick={isMergeMode ? () => handleSelectForMerge(doc.id) : undefined}
@@ -253,26 +253,26 @@ const RecentDocsPage: React.FC = () => {
                                 onClick={!isMergeMode ? () => navigate(`/create/${doc.id}`) : undefined}
                              >
                                  {isMergeMode ? (
-                                     <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center border transition-all ${isSelected ? 'bg-[#6366F1] border-[#6366F1] text-white shadow-md' : 'bg-white border-gray-200'}`}>
+                                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-all ${isSelected ? 'bg-emerald-600 border-emerald-600 text-white shadow-md' : 'bg-white border-slate-200'}`}>
                                          {isSelected ? (
                                              <span className="font-bold text-lg">{selectionIndex + 1}</span>
                                          ) : (
-                                             <div className="w-5 h-5 rounded-full border-2 border-gray-300"></div>
+                                             <div className="w-5 h-5 rounded-full border-2 border-slate-300"></div>
                                          )}
                                      </div>
                                  ) : (
-                                     <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center shadow-sm ${doc.isArchived ? 'bg-gray-100 text-gray-400' : 'bg-[#EEF2FF] text-[#6366F1]'}`}>
+                                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm ${doc.isArchived ? 'bg-slate-100 text-slate-400' : 'bg-emerald-50 text-emerald-600'}`}>
                                          <Icon name="file-text" size="lg" />
                                      </div>
                                  )}
 
                                  <div className="min-w-0">
-                                     <h3 className="text-[16px] font-semibold text-[#111827] truncate pr-2">{doc.title}</h3>
+                                     <h3 className="text-[16px] font-semibold text-slate-900 truncate pr-2">{doc.title}</h3>
                                      <div className="flex items-center gap-2 mt-1">
-                                         <span className="text-[12px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
+                                         <span className="text-[12px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
                                              {doc.mcqs.length} MCQs
                                          </span>
-                                         <span className="text-[12px] text-[#9CA3AF]">• {getTimeAgo(doc.updatedAt)}</span>
+                                         <span className="text-[12px] text-slate-400">• {getTimeAgo(doc.updatedAt)}</span>
                                          {doc.isMerged && <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded uppercase tracking-wide border border-purple-100">Merged</span>}
                                      </div>
                                  </div>
@@ -282,21 +282,21 @@ const RecentDocsPage: React.FC = () => {
                                  <div className="flex items-center gap-1">
                                      <button
                                          onClick={(e) => toggleArchive(doc, e)}
-                                         className="p-2 text-[#9CA3AF] hover:text-[#6366F1] rounded-full transition-colors"
+                                         className="p-2 text-slate-400 hover:text-emerald-600 rounded-full transition-colors"
                                          title={doc.isArchived ? "Unarchive" : "Archive"}
                                      >
                                          <Icon name="folder" size="sm" />
                                      </button>
                                      <button 
                                          onClick={() => { setDocToRename(doc); setRenameValue(doc.title); }}
-                                         className="p-2 text-[#9CA3AF] hover:text-[#111827] rounded-full transition-colors"
+                                         className="p-2 text-slate-400 hover:text-slate-900 rounded-full transition-colors"
                                          title="Rename"
                                      >
                                          <Icon name="pencil" size="sm" />
                                      </button>
                                      <button 
                                          onClick={() => setDocToDelete(doc.id)}
-                                         className="p-2 text-[#9CA3AF] hover:text-red-500 rounded-full transition-colors"
+                                         className="p-2 text-slate-400 hover:text-red-500 rounded-full transition-colors"
                                          title="Delete"
                                      >
                                          <Icon name="trash-2" size="sm" />

@@ -193,30 +193,30 @@ const SubtopicDetailPage: React.FC = () => {
   if (!subtopic || !topic) return null;
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] pb-20 pt-[60px]">
+    <div className="min-h-screen bg-[#F8FAFC] pb-20 pt-[60px]">
         {/* Custom Header */}
-        <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/90 backdrop-blur-md border-b border-gray-100 z-50 px-5 flex items-center justify-between transition-all">
+        <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 z-50 px-5 flex items-center justify-between transition-all">
             <div className="flex items-center gap-3">
                 <button 
                     onClick={() => navigate(`/live-mcq/topic/${topicId}`)} 
-                    className="p-2 -ml-2 text-[#6B7280] hover:text-gray-900 rounded-full transition-colors active:scale-95"
+                    className="p-2 -ml-2 text-slate-500 hover:text-slate-900 rounded-full transition-colors active:scale-95"
                 >
                     <Icon name="arrow-left" size="md" />
                 </button>
             </div>
-            <h1 className="text-[18px] font-semibold text-[#111827] absolute left-1/2 -translate-x-1/2 tracking-tight">
+            <h1 className="text-[18px] font-semibold text-slate-900 absolute left-1/2 -translate-x-1/2 tracking-tight">
                 {subtopic.name}
             </h1>
             <div className="flex items-center gap-1">
                  <button 
                     onClick={(e) => initiateRename('subtopic', subtopic, e)}
-                    className="p-2 text-[#9CA3AF] hover:text-gray-900 transition-colors rounded-full"
+                    className="p-2 text-slate-400 hover:text-slate-900 transition-colors rounded-full"
                 >
                     <Icon name="edit-3" size="sm" />
                 </button>
                 <button 
                     onClick={handleDeleteSubtopic}
-                    className="p-2 text-[#9CA3AF] hover:text-red-600 transition-colors rounded-full"
+                    className="p-2 text-slate-400 hover:text-red-600 transition-colors rounded-full"
                 >
                     <Icon name="trash-2" size="sm" />
                 </button>
@@ -229,34 +229,34 @@ const SubtopicDetailPage: React.FC = () => {
             <div className="flex items-center text-[13px] font-medium mb-4">
                 <span 
                     onClick={() => navigate(`/live-mcq/topic/${topicId}`)}
-                    className="text-[#6366F1] cursor-pointer hover:underline"
+                    className="text-emerald-600 cursor-pointer hover:underline"
                 >
                     {topic.name}
                 </span>
-                <span className="text-[#D1D5DB] mx-1.5">/</span>
-                <span className="text-[#9CA3AF]">
+                <span className="text-slate-300 mx-1.5">/</span>
+                <span className="text-slate-500">
                     {subtopic.name}
                 </span>
             </div>
 
             {/* Info Card */}
-            <div className="bg-white border border-[#F3F4F6] rounded-[20px] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+            <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
                 <div>
-                    <h2 className="text-[20px] font-bold text-[#111827]">{subtopic.name}</h2>
-                    <p className="text-[14px] font-normal text-[#9CA3AF] mt-1">
+                    <h2 className="text-[20px] font-bold text-slate-900">{subtopic.name}</h2>
+                    <p className="text-[14px] font-normal text-slate-500 mt-1">
                         {sets.length} Sets • {sets.reduce((acc, s) => acc + s.mcqs.length, 0)} MCQs
                     </p>
                 </div>
                 <div className="flex gap-3 mt-4">
                     <button 
                         onClick={handlePracticeAll}
-                        className="flex-1 bg-[#6366F1] text-white font-semibold py-3.5 px-4 rounded-[14px] text-[15px] active:scale-[0.98] transition-transform flex justify-center items-center gap-2 shadow-sm"
+                        className="flex-1 bg-emerald-600 text-white font-semibold py-3.5 px-4 rounded-xl text-[15px] active:scale-[0.98] transition-transform flex justify-center items-center gap-2 shadow-sm hover:bg-emerald-500"
                     >
                         <Icon name="play" size="sm" /> Practice All
                     </button>
                     <button 
                         onClick={handleExport}
-                        className="flex-1 bg-transparent border-[1.5px] border-[#E5E7EB] text-[#374151] font-medium py-3.5 px-4 rounded-[14px] text-[15px] active:scale-[0.98] transition-transform flex justify-center items-center gap-2 hover:bg-gray-50"
+                        className="flex-1 bg-white border border-slate-200 text-slate-700 font-medium py-3.5 px-4 rounded-xl text-[15px] active:scale-[0.98] transition-transform flex justify-center items-center gap-2 hover:bg-slate-50"
                     >
                         <Icon name="share" size="sm" /> Export PDF
                     </button>
@@ -266,28 +266,28 @@ const SubtopicDetailPage: React.FC = () => {
             {/* Sets Header */}
             <div className="flex items-center justify-between mt-7 mb-3.5">
                 <div className="flex items-center gap-2">
-                    <h3 className="text-[13px] font-semibold text-[#9CA3AF] tracking-wide">MCQ Sets</h3>
+                    <h3 className="text-[13px] font-semibold text-slate-400 tracking-wide uppercase px-1">MCQ Sets</h3>
                     <button 
                         onClick={() => setShowArchived(!showArchived)} 
-                        className={`text-[#9CA3AF] hover:text-[#6366F1] transition-colors ${showArchived ? 'text-[#6366F1]' : ''}`}
+                        className={`text-slate-400 hover:text-emerald-600 transition-colors ${showArchived ? 'text-emerald-600' : ''}`}
                     >
                         <Icon name="folder" size="sm" />
                     </button>
                 </div>
                 <button 
                     onClick={() => setShowCreateSet(true)}
-                    className="bg-transparent border-[1.5px] border-[#6366F1] text-[#6366F1] px-4 py-2 rounded-[12px] text-[13px] font-medium active:scale-95 transition-all hover:bg-indigo-50"
+                    className="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[13px] font-bold active:scale-95 transition-all hover:bg-slate-50 shadow-sm"
                 >
                     + New Set
                 </button>
             </div>
 
-            {showArchived && <div className="text-xs text-center text-orange-600 bg-orange-50 p-2 rounded border border-orange-100 mb-2">Viewing Archived Sets</div>}
+            {showArchived && <div className="text-xs text-center text-orange-600 bg-orange-50 p-2 rounded-xl border border-orange-100 mb-2">Viewing Archived Sets</div>}
 
             {filteredSets.length === 0 ? (
-                <div className="text-center py-12 border-2 border-dashed border-[#E5E7EB] rounded-[20px]">
-                    <p className="text-[14px] text-[#9CA3AF] mb-2">No sets found</p>
-                    <button onClick={() => setShowCreateSet(true)} className="text-[#6366F1] font-medium text-sm hover:underline">Create First Set</button>
+                <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-[24px] bg-slate-50/50">
+                    <p className="text-[14px] text-slate-400 mb-2">No sets found</p>
+                    <button onClick={() => setShowCreateSet(true)} className="text-emerald-600 font-medium text-sm hover:underline">Create First Set</button>
                 </div>
             ) : (
                 <div className="flex flex-col gap-[14px]">
@@ -295,16 +295,16 @@ const SubtopicDetailPage: React.FC = () => {
                         <div 
                             key={set.id}
                             onClick={() => navigate(`/live-mcq/set/${set.id}`)}
-                            className="relative group bg-white border border-[#F3F4F6] rounded-[20px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)] active:scale-[0.98] transition-all duration-150 cursor-pointer"
+                            className="relative group bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md hover:border-slate-200 active:scale-[0.98] transition-all duration-150 cursor-pointer"
                         >
                             <div className="flex items-center justify-between">
                                 {/* Left Content */}
                                 <div>
-                                    <h3 className={`text-[17px] font-semibold mb-1 ${set.isArchived ? 'text-gray-400' : 'text-[#111827]'}`}>
+                                    <h3 className={`text-[17px] font-semibold mb-1 ${set.isArchived ? 'text-slate-400' : 'text-slate-900'}`}>
                                         {set.name}
-                                        {set.isArchived && <span className="ml-2 text-[11px] bg-gray-100 px-2 py-0.5 rounded text-gray-500 font-normal align-middle">Archived</span>}
+                                        {set.isArchived && <span className="ml-2 text-[11px] bg-slate-100 px-2 py-0.5 rounded text-slate-500 font-normal align-middle">Archived</span>}
                                     </h3>
-                                    <div className="text-[13px] font-normal text-[#9CA3AF]">
+                                    <div className="text-[13px] font-normal text-slate-500">
                                         {set.mcqs.length} MCQs • Last updated: {new Date(set.updatedAt).toLocaleDateString()}
                                     </div>
                                 </div>
@@ -316,11 +316,11 @@ const SubtopicDetailPage: React.FC = () => {
                                             e.stopPropagation();
                                             setActiveMenuId(activeMenuId === set.id ? null : set.id);
                                         }}
-                                        className="p-2 text-[#9CA3AF] hover:text-[#111827] transition-colors rounded-full relative z-10"
+                                        className="p-2 text-slate-300 hover:text-slate-900 transition-colors rounded-full relative z-10"
                                     >
                                         <Icon name="more-vertical" size="sm" />
                                     </button>
-                                    <div className="text-[#D1D5DB]">
+                                    <div className="text-slate-300">
                                         <Icon name="chevron-right" size="md" />
                                     </div>
                                 </div>
@@ -328,38 +328,38 @@ const SubtopicDetailPage: React.FC = () => {
 
                             {/* Dropdown Menu */}
                             {activeMenuId === set.id && (
-                                <div className="absolute right-4 top-12 z-20 bg-white border border-[#F3F4F6] rounded-[12px] shadow-[0_4px_12px_rgba(0,0,0,0.08)] overflow-hidden min-w-[180px] animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+                                <div className="absolute right-4 top-12 z-20 bg-white border border-slate-100 rounded-xl shadow-xl overflow-hidden min-w-[180px] animate-in fade-in zoom-in-95 duration-100 origin-top-right">
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); navigate(`/live-mcq/practice/${set.id}`); setActiveMenuId(null); }}
                                         disabled={set.mcqs.length === 0}
-                                        className="w-full text-left px-4 py-3 text-[14px] font-medium text-gray-700 hover:bg-[#F9FAFB] flex items-center gap-3 border-b border-gray-50 disabled:opacity-50"
+                                        className="w-full text-left px-4 py-3 text-[14px] font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 border-b border-slate-50 disabled:opacity-50"
                                     >
-                                        <Icon name="play" size="sm" className="text-[#6366F1]" /> Practice
+                                        <Icon name="play" size="sm" className="text-emerald-500" /> Practice
                                     </button>
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); navigate(`/live-mcq/exam/${set.id}`); setActiveMenuId(null); }}
                                         disabled={set.mcqs.length === 0}
-                                        className="w-full text-left px-4 py-3 text-[14px] font-medium text-gray-700 hover:bg-[#F9FAFB] flex items-center gap-3 border-b border-gray-50 disabled:opacity-50"
+                                        className="w-full text-left px-4 py-3 text-[14px] font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 border-b border-slate-50 disabled:opacity-50"
                                     >
-                                        <Icon name="clock" size="sm" className="text-orange-500" /> Exam
+                                        <Icon name="clock" size="sm" className="text-indigo-500" /> Exam
                                     </button>
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); navigate(`/create?mode=export&source=set&sourceId=${set.id}`); setActiveMenuId(null); }}
-                                        className="w-full text-left px-4 py-3 text-[14px] font-medium text-gray-700 hover:bg-[#F9FAFB] flex items-center gap-3 border-b border-gray-50"
+                                        className="w-full text-left px-4 py-3 text-[14px] font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 border-b border-slate-50"
                                     >
-                                        <Icon name="share" size="sm" className="text-gray-500" /> Export PDF
+                                        <Icon name="share" size="sm" className="text-slate-400" /> Export PDF
                                     </button>
                                     <button 
                                         onClick={(e) => initiateRename('set', set, e)}
-                                        className="w-full text-left px-4 py-3 text-[14px] font-medium text-gray-700 hover:bg-[#F9FAFB] flex items-center gap-3 border-b border-gray-50"
+                                        className="w-full text-left px-4 py-3 text-[14px] font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 border-b border-slate-50"
                                     >
-                                        <Icon name="edit-3" size="sm" className="text-gray-500" /> Edit
+                                        <Icon name="edit-3" size="sm" className="text-slate-400" /> Edit
                                     </button>
                                     <button 
                                         onClick={(e) => toggleArchiveSet(set, e)}
-                                        className="w-full text-left px-4 py-3 text-[14px] font-medium text-gray-700 hover:bg-[#F9FAFB] flex items-center gap-3 border-b border-gray-50"
+                                        className="w-full text-left px-4 py-3 text-[14px] font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-3 border-b border-slate-50"
                                     >
-                                        <Icon name="folder" size="sm" className="text-gray-500" /> {set.isArchived ? "Unarchive" : "Archive"}
+                                        <Icon name="folder" size="sm" className="text-slate-400" /> {set.isArchived ? "Unarchive" : "Archive"}
                                     </button>
                                     <button 
                                         onClick={(e) => handleDeleteSet(set, e)}

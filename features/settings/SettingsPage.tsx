@@ -59,7 +59,7 @@ const SettingsPage: React.FC = () => {
   };
 
   if (isLoading) {
-     return <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]"><p className="text-sm text-gray-500">Loading settings...</p></div>;
+     return <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]"><p className="text-sm text-slate-400">Loading settings...</p></div>;
   }
 
   const handleClearData = async () => {
@@ -270,78 +270,78 @@ const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] pb-20 pt-[60px]">
-      <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/90 backdrop-blur-md border-b border-gray-100 z-50 px-5 flex items-center justify-between transition-all">
+    <div className="min-h-screen bg-[#F8FAFC] pb-20 pt-[60px]">
+      <header className="fixed top-0 left-0 right-0 h-[60px] bg-[#F8FAFC]/80 backdrop-blur-xl border-b border-slate-100 z-50 px-6 flex items-center justify-between transition-all">
           <div className="flex items-center gap-3">
               <button 
                   onClick={() => navigate('/')} 
-                  className="p-2 -ml-2 text-[#6B7280] hover:text-gray-900 rounded-full transition-colors active:scale-95"
+                  className="p-2 -ml-2 text-slate-400 hover:text-slate-700 rounded-full transition-colors active:scale-95"
               >
                   <Icon name="arrow-left" size="md" />
               </button>
           </div>
-          <h1 className="text-[18px] font-semibold text-[#111827] absolute left-1/2 -translate-x-1/2 tracking-tight">
+          <h1 className="text-lg font-bold text-slate-700 absolute left-1/2 -translate-x-1/2 tracking-tight">
               Settings
           </h1>
           <button 
               onClick={() => navigate('/')}
-              className="p-2 -mr-2 text-[#6B7280] hover:text-gray-900 rounded-full transition-colors active:scale-95"
+              className="p-2 -mr-2 text-slate-400 hover:text-slate-700 rounded-full transition-colors active:scale-95"
           >
               <Icon name="home" size="md" />
           </button>
       </header>
 
-      <main className="max-w-3xl mx-auto px-5 mt-4">
-        <div className="bg-white border border-[#F3F4F6] rounded-[18px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
-            <div className="flex items-center justify-between p-[18px] border-b border-[#F3F4F6]">
-                <span className="text-[16px] font-medium text-[#111827]">Sound Effects</span>
+      <main className="max-w-3xl mx-auto px-6 mt-6">
+        <div className="bg-white border border-slate-100 rounded-[20px] shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between p-5 border-b border-slate-100">
+                <span className="text-base font-medium text-slate-700">Sound Effects</span>
                 <button 
                     onClick={() => updateSettings({ soundEnabled: !settings.soundEnabled })}
-                    className={`w-[50px] h-[28px] rounded-full transition-colors relative ${settings.soundEnabled ? 'bg-[#6366F1]' : 'bg-[#E5E7EB]'}`}
+                    className={`w-[50px] h-[28px] rounded-full transition-colors relative ${settings.soundEnabled ? 'bg-slate-700' : 'bg-slate-200'}`}
                 >
                     <div className={`absolute top-[3px] w-[22px] h-[22px] bg-white rounded-full shadow-sm transition-all ${settings.soundEnabled ? 'left-[25px]' : 'left-[3px]'}`} />
                 </button>
             </div>
-            <div className="flex items-center justify-between p-[18px]">
-                <span className="text-[16px] font-medium text-[#111827]">Vibration</span>
+            <div className="flex items-center justify-between p-5">
+                <span className="text-base font-medium text-slate-700">Vibration</span>
                 <button 
                     onClick={() => updateSettings({ vibrationEnabled: !settings.vibrationEnabled })}
-                    className={`w-[50px] h-[28px] rounded-full transition-colors relative ${settings.vibrationEnabled ? 'bg-[#6366F1]' : 'bg-[#E5E7EB]'}`}
+                    className={`w-[50px] h-[28px] rounded-full transition-colors relative ${settings.vibrationEnabled ? 'bg-slate-700' : 'bg-slate-200'}`}
                 >
                     <div className={`absolute top-[3px] w-[22px] h-[22px] bg-white rounded-full shadow-sm transition-all ${settings.vibrationEnabled ? 'left-[25px]' : 'left-[3px]'}`} />
                 </button>
             </div>
         </div>
 
-        <h3 className="text-[13px] font-semibold text-[#9CA3AF] tracking-[0.5px] mt-[28px] mb-[14px]">Gemini AI Configuration</h3>
-        <div className="bg-white border border-[#F3F4F6] rounded-[18px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-[20px]">
+        <h3 className="text-xs font-bold text-slate-400 tracking-wider uppercase mt-8 mb-3 ml-1">Gemini AI Configuration</h3>
+        <div className="bg-white border border-slate-100 rounded-[20px] shadow-sm p-5">
             
             {/* Model Selection */}
-            <div className="mb-5 pb-5 border-b border-[#F3F4F6]">
-                <label className="block text-[15px] font-medium text-[#111827] mb-2">Preferred AI Model</label>
+            <div className="mb-5 pb-5 border-b border-slate-100">
+                <label className="block text-sm font-medium text-slate-700 mb-2">Preferred AI Model</label>
                 <div className="relative">
                     <select
                         value={settings.preferredModel || 'gemini-3-flash-preview'}
                         onChange={(e) => updateSettings({ preferredModel: e.target.value })}
-                        className="w-full bg-[#F9FAFB] border border-[#F3F4F6] text-[#374151] text-[14px] rounded-[12px] p-[12px] appearance-none focus:outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/10 font-medium"
+                        className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl p-3 appearance-none focus:outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 font-medium"
                     >
                         <option value="gemini-3-flash-preview">Gemini 3.0 Flash (Recommended)</option>
                         <option value="gemini-2.5-flash">Gemini 2.5 Flash (Fast)</option>
                     </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#6B7280]">
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                         <Icon name="chevron-left" size="sm" className="-rotate-90" />
                     </div>
                 </div>
-                <p className="text-[11px] text-gray-400 mt-2">This model will be used across all AI features in the app.</p>
+                <p className="text-xs text-slate-400 mt-2">This model will be used across all AI features in the app.</p>
             </div>
 
             <div className="flex justify-between items-center mb-3">
-                <span className="text-[15px] font-medium text-[#111827]">Gemini API Keys</span>
+                <span className="text-sm font-medium text-slate-700">Gemini API Keys</span>
                 <button 
                     onClick={() => {
                         setIsEditingAi(!isEditingAi);
                     }}
-                    className="text-[13px] font-medium text-[#6366F1]"
+                    className="text-xs font-bold text-slate-600 hover:text-slate-800"
                 >
                     {isEditingAi ? 'Cancel' : 'Edit Keys'}
                 </button>
@@ -349,19 +349,19 @@ const SettingsPage: React.FC = () => {
             
             {isEditingAi ? (
                 <div className="animate-in fade-in slide-in-from-top-1">
-                    <p className="text-[11px] text-gray-400 mb-2">Enter multiple keys (one per line) for automatic rotation.</p>
+                    <p className="text-xs text-slate-400 mb-2">Enter multiple keys (one per line) for automatic rotation.</p>
                     <textarea 
                         value={apiKeysInput}
                         onChange={(e) => setApiKeysInput(e.target.value)}
                         rows={4}
-                        className="w-full bg-[#F9FAFB] border border-[#F3F4F6] rounded-[12px] p-[12px] text-[13px] text-[#111827] font-mono outline-none focus:border-[#6366F1] resize-none mb-3"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-700 font-mono outline-none focus:border-slate-400 resize-none mb-3"
                         placeholder="Paste your Gemini keys here..."
                     />
                     <div className="flex gap-2">
                         <button 
                             onClick={handleTestApiKeys} 
                             disabled={!apiKeysInput.trim() || isTestingKeys}
-                            className="flex-1 bg-white border border-[#E5E7EB] text-[#374151] rounded-[10px] py-2 text-[13px] font-medium hover:bg-[#F9FAFB] disabled:opacity-50 transition-colors"
+                            className="flex-1 bg-white border border-slate-200 text-slate-600 rounded-xl py-2 text-xs font-bold hover:bg-slate-50 disabled:opacity-50 transition-colors"
                         >
                             {isTestingKeys ? (testProgress || 'Testing...') : 'Test Keys'}
                         </button>
@@ -369,70 +369,70 @@ const SettingsPage: React.FC = () => {
                     </div>
                 </div>
             ) : (
-                <div className="bg-[#F9FAFB] border border-[#F3F4F6] rounded-[12px] p-[16px] flex items-center justify-between">
+                <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600">
+                        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-slate-600 shadow-sm border border-slate-100">
                             <Icon name="sparkles" size="sm" />
                         </div>
                         <div>
-                            <span className="text-[14px] font-semibold text-[#111827]">{settings.geminiApiKeys?.length || 0} Keys Active</span>
-                            <p className="text-[11px] text-gray-400">Rotation enabled for stability</p>
+                            <span className="text-sm font-semibold text-slate-700">{settings.geminiApiKeys?.length || 0} Keys Active</span>
+                            <p className="text-xs text-slate-400">Rotation enabled for stability</p>
                         </div>
                     </div>
                 </div>
             )}
         </div>
 
-        <h3 className="text-[13px] font-semibold text-[#9CA3AF] tracking-[0.5px] mt-[28px] mb-[14px]">Data Management</h3>
-        <div className="bg-white border border-[#F3F4F6] rounded-[18px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-[20px]">
+        <h3 className="text-xs font-bold text-slate-400 tracking-wider uppercase mt-8 mb-3 ml-1">Data Management</h3>
+        <div className="bg-white border border-slate-100 rounded-[20px] shadow-sm p-5">
             <div className="flex justify-between items-center mb-3">
-                <span className="text-[15px] font-medium text-[#111827]">Storage Usage</span>
-                <span className="text-[14px] font-medium text-[#9CA3AF]">
+                <span className="text-sm font-medium text-slate-700">Storage Usage</span>
+                <span className="text-xs font-medium text-slate-400">
                     {storageUsage ? `${formatBytes(storageUsage.usage)} / ${formatBytes(storageUsage.quota)}` : '...'}
                 </span>
             </div>
-            <div className="h-[6px] bg-[#F3F4F6] rounded-[8px] overflow-hidden mb-6">
+            <div className="h-2 bg-slate-100 rounded-full overflow-hidden mb-6">
                 <div 
-                    className="h-full bg-[#6366F1] rounded-[8px] transition-all duration-500" 
+                    className="h-full bg-slate-700 rounded-full transition-all duration-500" 
                     style={{ width: `${Math.min(100, (storageUsage?.usage || 0) / (storageUsage?.quota || 1) * 100)}%` }}
                 />
             </div>
             
-            <div className="grid grid-cols-2 gap-[12px]">
+            <div className="grid grid-cols-2 gap-3">
                 <button 
                     onClick={handleExport}
-                    className="flex items-center justify-center gap-2 bg-transparent border-[1.5px] border-[#E5E7EB] text-[#374151] rounded-[12px] px-5 py-2.5 text-[14px] font-medium active:scale-95 transition-transform hover:bg-gray-50"
+                    className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-600 rounded-xl px-4 py-3 text-sm font-bold active:scale-95 transition-transform hover:bg-slate-50 shadow-sm"
                 >
-                    <Icon name="download" size="sm" className="text-[#6B7280]" /> 
+                    <Icon name="download" size="sm" className="text-slate-400" /> 
                     Export Backup
                 </button>
-                <label className="flex items-center justify-center gap-2 bg-transparent border-[1.5px] border-[#E5E7EB] text-[#374151] rounded-[12px] px-5 py-2.5 text-[14px] font-medium active:scale-95 transition-transform hover:bg-gray-50 cursor-pointer">
+                <label className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-600 rounded-xl px-4 py-3 text-sm font-bold active:scale-95 transition-transform hover:bg-slate-50 shadow-sm cursor-pointer">
                     <input type="file" accept=".json" onChange={handleFileSelect} className="hidden" />
-                    <Icon name="upload" size="sm" className="text-[#6B7280]" /> 
+                    <Icon name="upload" size="sm" className="text-slate-400" /> 
                     Import
                 </label>
             </div>
 
-            <div className="flex justify-between items-center mt-[14px]">
-                <span className="text-[12px] text-[#D1D5DB]">
+            <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-50">
+                <span className="text-xs text-slate-400">
                     Last backup: {settings.lastBackupTimestamp ? new Date(settings.lastBackupTimestamp).toLocaleDateString() : 'Never'}
                 </span>
-                <button onClick={loadAuditLogs} className="text-[13px] font-medium text-[#6366F1] hover:underline">
+                <button onClick={loadAuditLogs} className="text-xs font-bold text-slate-600 hover:text-slate-800 hover:underline">
                     View Logs
                 </button>
             </div>
         </div>
 
-        <h3 className="text-[13px] font-semibold text-[#9CA3AF] tracking-[0.5px] mt-[28px] mb-[14px]">Advanced</h3>
-        <div className="bg-white border border-[#F3F4F6] rounded-[18px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-[20px]">
+        <h3 className="text-xs font-bold text-slate-400 tracking-wider uppercase mt-8 mb-3 ml-1">Advanced</h3>
+        <div className="bg-white border border-slate-100 rounded-[20px] shadow-sm p-5">
             <div className="flex justify-between items-center mb-3">
-                <span className="text-[15px] font-medium text-[#111827]">PDF Server URL</span>
+                <span className="text-sm font-medium text-slate-700">PDF Server URL</span>
                 <button 
                     onClick={() => {
                         setServerUrl(settings.railwayBaseUrl || '');
                         setIsEditingUrl(!isEditingUrl);
                     }}
-                    className="text-[13px] font-medium text-[#6366F1]"
+                    className="text-xs font-bold text-slate-600 hover:text-slate-800"
                 >
                     {isEditingUrl ? 'Cancel' : 'Edit'}
                 </button>
@@ -444,34 +444,34 @@ const SettingsPage: React.FC = () => {
                         <input 
                             value={serverUrl}
                             onChange={(e) => setServerUrl(e.target.value)}
-                            className="flex-1 bg-[#F9FAFB] border border-[#F3F4F6] rounded-[10px] p-[12px] text-[13px] text-[#111827] font-mono outline-none focus:border-[#6366F1]"
+                            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-700 font-mono outline-none focus:border-slate-400"
                             placeholder="https://..."
                         />
-                        <button onClick={saveUrl} className="bg-[#6366F1] text-white px-4 rounded-[10px] text-[13px] font-medium">Save</button>
+                        <button onClick={saveUrl} className="bg-slate-700 text-white px-4 rounded-xl text-xs font-bold">Save</button>
                     </div>
                 </div>
             ) : (
-                <div className="bg-[#F9FAFB] border border-[#F3F4F6] rounded-[10px] p-[12px] text-[13px] text-[#6B7280] font-mono mb-4 truncate select-all">
+                <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 text-xs text-slate-500 font-mono mb-4 truncate select-all">
                     {settings.railwayBaseUrl || 'Not configured'}
                 </div>
             )}
             
             <button 
                 onClick={handleTestConnection} 
-                className="w-full bg-transparent border-[1.5px] border-[#E5E7EB] text-[#374151] rounded-[12px] px-5 py-2.5 text-[14px] font-medium active:scale-95 transition-transform hover:bg-gray-50 flex items-center justify-center gap-2"
+                className="w-full bg-white border border-slate-200 text-slate-600 rounded-xl px-4 py-3 text-sm font-bold active:scale-95 transition-transform hover:bg-slate-50 shadow-sm flex items-center justify-center gap-2"
             >
                 {isTestingConnection ? 'Testing...' : 'Test Connection'}
             </button>
         </div>
 
-        <h3 className="text-[13px] font-semibold text-[#EF4444] tracking-[0.5px] mt-[28px] mb-[14px]">Danger Zone</h3>
-        <div className="bg-[#FEF2F2] border border-[#FEE2E2] rounded-[18px] p-[18px]">
+        <h3 className="text-xs font-bold text-red-400 tracking-wider uppercase mt-8 mb-3 ml-1">Danger Zone</h3>
+        <div className="bg-red-50/50 border border-red-100 rounded-[20px] p-5">
             <button 
                 onClick={() => setShowClearConfirm(true)}
                 className="w-full flex items-center justify-between group"
             >
-               <span className="text-[15px] font-medium text-[#EF4444]">Reset Application</span>
-               <Icon name="trash-2" size="md" className="text-[#EF4444]" />
+               <span className="text-sm font-bold text-red-600">Reset Application</span>
+               <Icon name="trash-2" size="md" className="text-red-400 group-hover:text-red-600 transition-colors" />
             </button>
         </div>
       </main>

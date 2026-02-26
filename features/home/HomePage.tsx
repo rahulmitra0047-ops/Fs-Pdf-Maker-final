@@ -233,87 +233,87 @@ const HomePage: React.FC = () => {
     <div className="min-h-screen bg-[#F8FAFC] font-sans pb-24 overflow-hidden flex flex-col">
       
       {/* 1. Compact Header */}
-      <header className="sticky top-0 z-40 bg-[#F8FAFC]/80 backdrop-blur-xl px-6 pt-12 pb-6 flex items-center justify-between flex-none">
+      <header className="sticky top-0 z-40 bg-[#F8FAFC]/80 backdrop-blur-xl px-6 pt-8 pb-4 flex items-center justify-between flex-none">
         <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center transform rotate-45 shadow-lg">
-                <span className="text-white transform -rotate-45 text-lg">✦</span>
+            <div className="w-7 h-7 bg-slate-700 rounded-lg flex items-center justify-center transform rotate-45 shadow-lg">
+                <span className="text-white transform -rotate-45 text-base">✦</span>
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-700">Edunex</h1>
+            <h1 className="text-xl font-bold tracking-tight text-slate-700">Edunex</h1>
         </div>
-        <div className="text-sm font-medium text-slate-400">
+        <div className="text-xs font-medium text-slate-400">
             {greeting}
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col justify-start gap-8 max-w-md mx-auto px-6 w-full py-2 overflow-y-auto">
+      <main className="flex-1 flex flex-col justify-start gap-5 max-w-md mx-auto px-6 w-full py-2 overflow-y-auto">
         
         {/* 2. Motivational Quote Section */}
         <MotivationalQuote />
 
         {/* 3. Action Grid (2x2) */}
-        <div className="grid grid-cols-2 gap-4 w-full">
+        <div className="grid grid-cols-2 gap-3 w-full">
             {/* Quick Practice */}
             <div 
                 onClick={handleQuickPractice}
-                className="col-span-1 bg-slate-700 text-white rounded-[24px] p-6 relative overflow-hidden shadow-xl shadow-slate-900/10 group cursor-pointer hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 h-44 flex flex-col justify-between"
+                className="col-span-1 bg-slate-700 text-white rounded-[20px] p-4 relative overflow-hidden shadow-xl shadow-slate-900/10 group cursor-pointer hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 h-36 flex flex-col justify-between"
             >
-                <div className="absolute top-0 right-0 p-4 opacity-10 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform duration-500">
-                    <Icon name="clock" size="xl" className="w-16 h-16" />
+                <div className="absolute top-0 right-0 p-3 opacity-10 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform duration-500">
+                    <Icon name="clock" size="lg" className="w-12 h-12" />
                 </div>
-                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/10 shadow-inner">
-                    <Icon name="play" size="md" className="text-white" />
+                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/10 shadow-inner">
+                    <Icon name="play" size="sm" className="text-white" />
                 </div>
                 <div>
-                    <h3 className="font-bold text-lg leading-tight">Quick<br/>Practice</h3>
+                    <h3 className="font-bold text-base leading-tight">Quick<br/>Practice</h3>
                 </div>
             </div>
 
             {/* Exam Center */}
             <div 
                 onClick={() => navigate('/live-mcq/exam-center')}
-                className="col-span-1 bg-white rounded-[24px] p-6 relative overflow-hidden shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-slate-100 hover:border-purple-200 transition-all duration-300 h-44 flex flex-col justify-between group cursor-pointer"
+                className="col-span-1 bg-white rounded-[20px] p-4 relative overflow-hidden shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-slate-100 hover:border-purple-200 transition-all duration-300 h-36 flex flex-col justify-between group cursor-pointer"
             >
-                <div className="absolute top-0 right-0 p-4 opacity-5 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform duration-500">
-                    <Icon name="target" size="xl" className="w-16 h-16 text-slate-700" />
+                <div className="absolute top-0 right-0 p-3 opacity-5 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform duration-500">
+                    <Icon name="target" size="lg" className="w-12 h-12 text-slate-700" />
                 </div>
-                <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center">
-                    <Icon name="target" size="md" className="text-purple-500" />
+                <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center">
+                    <Icon name="target" size="sm" className="text-purple-500" />
                 </div>
                 <div>
-                    <h3 className="font-bold text-lg leading-tight text-slate-700">Exam<br/>Center</h3>
+                    <h3 className="font-bold text-base leading-tight text-slate-700">Exam<br/>Center</h3>
                 </div>
             </div>
 
             {/* Flashcards */}
             <div 
                 onClick={() => navigate('/flashcards')}
-                className="col-span-1 bg-white rounded-[24px] p-6 relative overflow-hidden shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-slate-100 hover:border-orange-200 transition-all duration-300 h-44 flex flex-col justify-between group cursor-pointer"
+                className="col-span-1 bg-white rounded-[20px] p-4 relative overflow-hidden shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-slate-100 hover:border-orange-200 transition-all duration-300 h-36 flex flex-col justify-between group cursor-pointer"
             >
-                <div className="absolute top-0 right-0 p-4 opacity-5 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform duration-500">
-                    <Icon name="file-text" size="xl" className="w-16 h-16 text-slate-700" />
+                <div className="absolute top-0 right-0 p-3 opacity-5 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform duration-500">
+                    <Icon name="file-text" size="lg" className="w-12 h-12 text-slate-700" />
                 </div>
-                <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center">
-                    <Icon name="layers" size="md" className="text-orange-500" />
+                <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center">
+                    <Icon name="layers" size="sm" className="text-orange-500" />
                 </div>
                 <div>
-                    <h3 className="font-bold text-lg leading-tight text-slate-700">Flash<br/>Cards</h3>
+                    <h3 className="font-bold text-base leading-tight text-slate-700">Flash<br/>Cards</h3>
                 </div>
             </div>
 
             {/* Synonym Finder */}
             <div 
                 onClick={() => toast.info("Synonym Finder coming soon!")}
-                className="col-span-1 bg-white rounded-[24px] p-6 relative overflow-hidden shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-slate-100 hover:border-emerald-200 transition-all duration-300 h-44 flex flex-col justify-between group cursor-pointer"
+                className="col-span-1 bg-white rounded-[20px] p-4 relative overflow-hidden shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-slate-100 hover:border-emerald-200 transition-all duration-300 h-36 flex flex-col justify-between group cursor-pointer"
             >
-                <div className="absolute top-0 right-0 p-4 opacity-5 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform duration-500">
-                    <Icon name="search" size="xl" className="w-16 h-16 text-slate-700" />
+                <div className="absolute top-0 right-0 p-3 opacity-5 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform duration-500">
+                    <Icon name="search" size="lg" className="w-12 h-12 text-slate-700" />
                 </div>
-                <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center">
-                    <Icon name="search" size="md" className="text-emerald-500" />
+                <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
+                    <Icon name="search" size="sm" className="text-emerald-500" />
                 </div>
                 <div>
-                    <h3 className="font-bold text-lg leading-tight text-slate-700">Synonym<br/>Finder</h3>
+                    <h3 className="font-bold text-base leading-tight text-slate-700">Synonym<br/>Finder</h3>
                 </div>
             </div>
         </div>

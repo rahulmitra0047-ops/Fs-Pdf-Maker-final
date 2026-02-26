@@ -223,49 +223,51 @@ const PracticeSession: React.FC = () => {
   const aiExplanation = aiExplanations[currentMCQ?.id];
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
         {/* Header */}
-        <div className="h-[60px] bg-white border-b border-gray-100 flex items-center justify-between px-5 sticky top-0 z-20">
-            <button onClick={() => setShowExitConfirm(true)} className="text-[#6B7280] p-2 -ml-2 hover:bg-gray-50 rounded-full transition-colors active:scale-95">
+        <div className="h-[60px] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 flex items-center justify-between px-5 sticky top-0 z-20">
+            <button onClick={() => setShowExitConfirm(true)} className="text-slate-400 p-2 -ml-2 hover:bg-slate-50 hover:text-slate-700 rounded-full transition-colors active:scale-95">
                 <Icon name="x" size="md" />
             </button>
-            <div className="font-semibold text-[16px] text-[#111827]">
-                Practice <span className="text-[#6366F1]">{currentIndex + 1}</span><span className="text-[#9CA3AF]">/{sessionMCQs.length}</span>
+            <div className="font-semibold text-[16px] text-slate-900">
+                Practice <span className="text-emerald-600">{currentIndex + 1}</span><span className="text-slate-400">/{sessionMCQs.length}</span>
             </div>
             <div className="w-[22px]"></div>
         </div>
 
         {/* Progress Bar */}
-        <div className="h-[3px] bg-[#F3F4F6] w-full">
-            <div className="h-full bg-[#6366F1] rounded-r-[4px] transition-all duration-300 ease-out" style={{ width: `${((currentIndex + 1) / sessionMCQs.length) * 100}%` }}></div>
+        <div className="h-[3px] bg-slate-100 w-full">
+            <div className="h-full bg-emerald-500 rounded-r-[4px] transition-all duration-300 ease-out" style={{ width: `${((currentIndex + 1) / sessionMCQs.length) * 100}%` }}></div>
         </div>
 
         {/* Question Area */}
         <div className="flex-1 p-5 pb-32 overflow-y-auto">
             {currentMCQ && (
                 <div className="max-w-xl mx-auto animate-in fade-in slide-in-from-bottom-2 duration-300" key={currentMCQ.id}>
-                    <div className="bg-[#F9FAFB] rounded-[18px] p-[22px] mb-6">
-                        <h2 className="text-[17px] font-semibold text-[#111827] leading-[1.6]">
+                    <div className="bg-white rounded-[24px] p-6 mb-6 shadow-sm border border-slate-100">
+                        <h2 className="text-[18px] font-semibold text-slate-800 leading-[1.6]">
                             {currentMCQ.question}
                         </h2>
                     </div>
 
-                    <div className="flex flex-col gap-[10px]">
+                    <div className="flex flex-col gap-[12px]">
                         {['A', 'B', 'C', 'D'].map((opt) => {
                             const text = currentMCQ[`option${opt}` as keyof MCQ] as string;
-                            let containerClass = "bg-white border-[1.5px] border-[#F3F4F6]";
-                            let circleClass = "bg-[#F3F4F6] text-[#6B7280]";
-                            let textClass = "text-[#374151]";
+                            let containerClass = "bg-white border-[1.5px] border-slate-100";
+                            let circleClass = "bg-slate-50 text-slate-500";
+                            let textClass = "text-slate-600";
 
                             if (hasAnswered) {
                                 if (opt === currentMCQ.answer) {
-                                    containerClass = "bg-[#ECFDF5] border-[#059669]";
-                                    circleClass = "bg-[#059669] text-white";
+                                    containerClass = "bg-emerald-50 border-emerald-500 ring-1 ring-emerald-500";
+                                    circleClass = "bg-emerald-500 text-white";
+                                    textClass = "text-emerald-900 font-medium";
                                 } else if (opt === selectedOption) {
-                                    containerClass = "bg-[#FEF2F2] border-[#EF4444]";
-                                    circleClass = "bg-[#EF4444] text-white";
+                                    containerClass = "bg-red-50 border-red-400 ring-1 ring-red-400";
+                                    circleClass = "bg-red-500 text-white";
+                                    textClass = "text-red-900";
                                 } else {
-                                    containerClass = "bg-white border-[#F3F4F6] opacity-60";
+                                    containerClass = "bg-white border-slate-100 opacity-50 grayscale";
                                 }
                             }
 
@@ -274,12 +276,12 @@ const PracticeSession: React.FC = () => {
                                     key={opt}
                                     onClick={() => handleAnswer(opt)}
                                     disabled={hasAnswered}
-                                    className={`w-full rounded-[16px] p-[16px] px-[18px] flex items-center text-left transition-all duration-150 ease-out ${containerClass} ${!hasAnswered ? 'active:scale-[0.98]' : ''}`}
+                                    className={`w-full rounded-[20px] p-4 px-5 flex items-center text-left transition-all duration-200 ease-out ${containerClass} ${!hasAnswered ? 'hover:border-emerald-200 hover:bg-emerald-50/30 active:scale-[0.98]' : ''}`}
                                 >
-                                    <div className={`w-[32px] h-[32px] rounded-full flex items-center justify-center text-[14px] font-semibold flex-shrink-0 ${circleClass}`}>
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[14px] font-bold flex-shrink-0 transition-colors ${circleClass}`}>
                                         {hasAnswered && opt === currentMCQ.answer ? <CheckmarkIcon size={16} color="white" className="ml-0" /> : hasAnswered && opt === selectedOption ? <span className="text-[14px]">✕</span> : opt}
                                     </div>
-                                    <span className={`text-[16px] font-normal ml-[14px] leading-snug ${textClass}`}>{text}</span>
+                                    <span className={`text-[16px] font-normal ml-4 leading-snug ${textClass}`}>{text}</span>
                                 </button>
                             );
                         })}
@@ -290,12 +292,12 @@ const PracticeSession: React.FC = () => {
                         <div className="mt-8 space-y-4">
                             {/* AI Action Row */}
                             <div className="flex items-center justify-between px-1">
-                                <span className="text-[13px] font-bold text-[#9CA3AF] uppercase tracking-wider">Solution</span>
+                                <span className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Solution</span>
                                 {!aiExplanation && (
                                     <button 
                                         onClick={handleAiExplain}
                                         disabled={isAiLoading}
-                                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full text-xs font-bold shadow-lg shadow-indigo-200 active:scale-95 transition-all disabled:opacity-50"
+                                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-full text-xs font-bold shadow-lg shadow-emerald-200 active:scale-95 transition-all disabled:opacity-50 hover:shadow-emerald-300"
                                     >
                                         <Icon name="sparkles" size="sm" className={isAiLoading ? 'animate-spin' : ''} />
                                         {isAiLoading ? 'Analyzing...' : 'Explain with AI'}
@@ -305,31 +307,31 @@ const PracticeSession: React.FC = () => {
 
                             {/* Standard Explanation */}
                             {options.showExplanation && currentMCQ.explanation && (
-                                <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-5 rounded-[20px]">
-                                    <p className="text-[15px] text-[#475569] leading-relaxed italic">{currentMCQ.explanation}</p>
+                                <div className="bg-slate-50 border border-slate-100 p-6 rounded-[24px]">
+                                    <p className="text-[15px] text-slate-600 leading-relaxed italic">{currentMCQ.explanation}</p>
                                 </div>
                             )}
 
                             {/* AI Premium Explanation Box */}
                             {(isAiLoading || aiExplanation) && (
                                 <div className={`relative overflow-hidden rounded-[24px] p-[2px] transition-all duration-500 animate-in fade-in slide-in-from-top-4`}>
-                                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 opacity-20 animate-pulse"></div>
-                                    <div className="relative bg-white/70 backdrop-blur-xl border border-white/50 rounded-[22px] p-6 shadow-xl">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 via-teal-400 to-cyan-400 opacity-20 animate-pulse"></div>
+                                    <div className="relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-[22px] p-6 shadow-sm">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
+                                            <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
                                                 <Icon name="sparkles" size="sm" />
                                             </div>
-                                            <h4 className="font-bold text-[16px] text-gray-900">Detailed AI Analysis</h4>
+                                            <h4 className="font-bold text-[16px] text-slate-800">Detailed AI Analysis</h4>
                                         </div>
                                         
                                         {isAiLoading ? (
                                             <div className="space-y-3">
-                                                <div className="h-4 bg-gray-200/50 rounded w-3/4 animate-pulse"></div>
-                                                <div className="h-4 bg-gray-200/50 rounded w-full animate-pulse"></div>
-                                                <div className="h-4 bg-gray-200/50 rounded w-5/6 animate-pulse"></div>
+                                                <div className="h-4 bg-slate-100 rounded w-3/4 animate-pulse"></div>
+                                                <div className="h-4 bg-slate-100 rounded w-full animate-pulse"></div>
+                                                <div className="h-4 bg-slate-100 rounded w-5/6 animate-pulse"></div>
                                             </div>
                                         ) : (
-                                            <div className="text-[15px] text-gray-700 leading-relaxed space-y-4 whitespace-pre-wrap ai-content">
+                                            <div className="text-[15px] text-slate-700 leading-relaxed space-y-4 whitespace-pre-wrap ai-content">
                                                 {aiExplanation}
                                             </div>
                                         )}
@@ -343,14 +345,14 @@ const PracticeSession: React.FC = () => {
         </div>
 
         {/* Footer Controls */}
-        <div className="fixed bottom-0 left-0 right-0 px-5 py-4 bg-white z-20 border-t border-gray-50">
+        <div className="fixed bottom-0 left-0 right-0 px-5 py-4 bg-white/80 backdrop-blur-md z-20 border-t border-slate-100">
             <div className="max-w-xl mx-auto">
                 {hasAnswered ? (
-                    <PremiumButton fullWidth onClick={nextQuestion} disabled={isFinished} size="lg">
+                    <PremiumButton fullWidth onClick={nextQuestion} disabled={isFinished} size="lg" className="shadow-lg shadow-emerald-900/10">
                         {isFinished ? 'Saving...' : (currentIndex === sessionMCQs.length - 1 ? 'Finish Practice' : 'Next Question →')}
                     </PremiumButton>
                 ) : (
-                    <div className="text-center text-[14px] font-normal text-[#D1D5DB] pb-[20px]">
+                    <div className="text-center text-[14px] font-medium text-slate-400 pb-[20px]">
                         Select an answer to continue
                     </div>
                 )}
@@ -360,40 +362,40 @@ const PracticeSession: React.FC = () => {
         {/* Settings Modal */}
         {showSettings && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                <div className="absolute inset-0 bg-black/40 backdrop-blur-[4px] transition-opacity" onClick={() => setShowSettings(false)} />
-                <div className="relative w-full max-w-[360px] bg-white rounded-[24px] p-[28px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200">
-                    <div className="flex justify-between items-center mb-[24px]">
-                        <h3 className="text-[20px] font-bold text-[#111827]">Practice Settings</h3>
-                        <button onClick={() => setShowSettings(false)} className="text-[#9CA3AF] hover:text-[#6B7280] p-1"><Icon name="x" size="md" /></button>
+                <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity" onClick={() => setShowSettings(false)} />
+                <div className="relative w-full max-w-[360px] bg-white rounded-[28px] p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-[20px] font-bold text-slate-800">Practice Settings</h3>
+                        <button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-slate-600 p-1"><Icon name="x" size="md" /></button>
                     </div>
-                    <div className="space-y-[10px]">
-                        <label className="flex items-center justify-between p-[16px] bg-[#F9FAFB] border border-[#F3F4F6] rounded-[14px] cursor-pointer group select-none transition-colors">
-                            <span className="text-[15px] font-medium text-[#374151]">Shuffle Questions</span>
+                    <div className="space-y-3">
+                        <label className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-[20px] cursor-pointer group select-none transition-colors hover:border-emerald-200 hover:bg-emerald-50/30">
+                            <span className="text-[15px] font-medium text-slate-700">Shuffle Questions</span>
                             <div className="relative flex items-center">
                                 <input type="checkbox" checked={options.shuffleQuestions} onChange={e => setOptions({...options, shuffleQuestions: e.target.checked})} className="peer sr-only" />
-                                <div className="w-[22px] h-[22px] bg-white border-2 border-[#D1D5DB] rounded-[6px] transition-all peer-checked:bg-[#6366F1] peer-checked:border-[#6366F1] flex items-center justify-center">
+                                <div className="w-[24px] h-[24px] bg-white border-2 border-slate-300 rounded-[8px] transition-all peer-checked:bg-emerald-500 peer-checked:border-emerald-500 flex items-center justify-center">
                                     <svg className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                 </div>
                             </div>
                         </label>
-                        <label className="flex items-center justify-between p-[16px] bg-[#F9FAFB] border border-[#F3F4F6] rounded-[14px] cursor-pointer group select-none transition-colors">
-                            <span className="text-[15px] font-medium text-[#374151]">Show Solution</span>
+                        <label className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-[20px] cursor-pointer group select-none transition-colors hover:border-emerald-200 hover:bg-emerald-50/30">
+                            <span className="text-[15px] font-medium text-slate-700">Show Solution</span>
                             <div className="relative flex items-center">
                                 <input type="checkbox" checked={options.showExplanation} onChange={e => setOptions({...options, showExplanation: e.target.checked})} className="peer sr-only" />
-                                <div className="w-[22px] h-[22px] bg-white border-2 border-[#D1D5DB] rounded-[6px] transition-all peer-checked:bg-[#6366F1] peer-checked:border-[#6366F1] flex items-center justify-center">
+                                <div className="w-[24px] h-[24px] bg-white border-2 border-slate-300 rounded-[8px] transition-all peer-checked:bg-emerald-500 peer-checked:border-emerald-500 flex items-center justify-center">
                                     <svg className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                 </div>
                             </div>
                         </label>
                     </div>
-                    <button onClick={startSession} className="w-full mt-[20px] bg-[#6366F1] text-white font-semibold text-[16px] py-[16px] rounded-[16px] active:scale-[0.98] transition-transform shadow-[0_4px_12px_rgba(99,102,241,0.2)]">Start Practice</button>
+                    <button onClick={startSession} className="w-full mt-6 bg-emerald-600 text-white font-semibold text-[16px] py-4 rounded-[20px] active:scale-[0.98] transition-transform shadow-lg shadow-emerald-900/20 hover:bg-emerald-500">Start Practice</button>
                 </div>
             </div>
         )}
 
         <PremiumModal isOpen={showExitConfirm} onClose={() => setShowExitConfirm(false)} title="Exit Practice?" size="sm">
             <div className="space-y-4">
-                <p className="text-sm text-gray-500">Your progress will not be saved.</p>
+                <p className="text-sm text-slate-500">Your progress will not be saved.</p>
                 <div className="flex justify-end gap-3 pt-2">
                     <PremiumButton variant="ghost" onClick={() => setShowExitConfirm(false)}>Cancel</PremiumButton>
                     <PremiumButton variant="danger" onClick={handleExit}>Exit</PremiumButton>
@@ -402,11 +404,11 @@ const PracticeSession: React.FC = () => {
         </PremiumModal>
         
         <style>{`
-            .ai-content h3 { font-size: 1.1rem; font-weight: 800; color: #1E1B4B; margin-top: 1.5rem; margin-bottom: 0.75rem; border-left: 4px solid #6366F1; padding-left: 0.75rem; }
-            .ai-content b, .ai-content strong { color: #4338CA; font-weight: 700; }
+            .ai-content h3 { font-size: 1.1rem; font-weight: 800; color: #0F172A; margin-top: 1.5rem; margin-bottom: 0.75rem; border-left: 4px solid #10B981; padding-left: 0.75rem; }
+            .ai-content b, .ai-content strong { color: #059669; font-weight: 700; }
             .ai-content ul { list-style: type: none; padding-left: 0; margin-top: 0.5rem; }
             .ai-content li { margin-bottom: 10px; position: relative; padding-left: 22px; line-height: 1.5; }
-            .ai-content li::before { content: '•'; position: absolute; left: 0; color: #818CF8; font-weight: bold; font-size: 1.2rem; top: -2px; }
+            .ai-content li::before { content: '•'; position: absolute; left: 0; color: #34D399; font-weight: bold; font-size: 1.2rem; top: -2px; }
             .ai-content p { margin-bottom: 1rem; }
         `}</style>
     </div>

@@ -42,101 +42,98 @@ const FlashcardHomeContent: React.FC = () => {
     >
       {/* Top Bar */}
       <div 
-        className="px-4 py-3 flex items-center sticky top-0 z-10 backdrop-blur-md bg-opacity-80"
+        className="px-6 py-4 flex items-center justify-between sticky top-0 z-10 backdrop-blur-xl bg-opacity-80 transition-all"
         style={{ 
-          backgroundColor: currentTheme.cardBg,
+          backgroundColor: currentTheme.background === '#F8FAFC' ? 'rgba(248, 250, 252, 0.8)' : currentTheme.cardBg,
           borderBottom: `1px solid ${currentTheme.borderColor}`
         }}
       >
-        <button 
-          onClick={() => navigate('/')} 
-          className="p-2 -ml-2 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
-          style={{ color: currentTheme.textColor }}
-        >
-          <ArrowLeft className="w-6 h-6" />
-        </button>
-        <h1 
-          className="text-[18px] font-bold ml-2"
-          style={{ color: currentTheme.textColor }}
-        >
-          Flashcard
-        </h1>
+        <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center transform rotate-45 shadow-lg" style={{ backgroundColor: currentTheme.buttonBg }}>
+                <Target className="w-4 h-4 text-white transform -rotate-45" />
+            </div>
+            <h1 className="text-xl font-bold tracking-tight" style={{ color: currentTheme.textColor }}>Flashcards</h1>
+        </div>
+        
+        <div className="flex items-center gap-2">
+            {/* Theme Icon or Settings could go here */}
+        </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 p-4 overflow-y-auto">
+      <div className="flex-1 p-6 overflow-y-auto">
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: currentTheme.accentColor }}></div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+          <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
             {/* New Words */}
             <div 
               onClick={() => navigate('/flashcards/new')}
-              className="rounded-[24px] p-5 active:scale-95 transition-transform cursor-pointer flex flex-col items-center justify-center aspect-square"
+              className="rounded-[20px] p-4 active:scale-95 transition-transform cursor-pointer flex flex-col items-center justify-center aspect-square group hover:shadow-md"
               style={{ 
                 backgroundColor: currentTheme.cardBg,
                 boxShadow: currentTheme.shadow,
                 border: `1px solid ${currentTheme.borderColor}`
               }}
             >
-              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-3" style={{ backgroundColor: `${currentTheme.accentColor}15` }}>
-                <Plus className="w-6 h-6" style={{ color: currentTheme.accentColor }} />
+              <div className="w-10 h-10 rounded-full flex items-center justify-center mb-2" style={{ backgroundColor: `${currentTheme.accentColor}15` }}>
+                <Plus className="w-5 h-5" style={{ color: currentTheme.accentColor }} />
               </div>
-              <span className="text-[28px] font-bold leading-none mb-1" style={{ color: currentTheme.textColor }}>{counts.new}</span>
-              <span className="text-[13px] font-medium" style={{ color: currentTheme.subTextColor }}>New Words</span>
+              <span className="text-2xl font-bold leading-none mb-1" style={{ color: currentTheme.textColor }}>{counts.new}</span>
+              <span className="text-xs font-medium" style={{ color: currentTheme.subTextColor }}>New Words</span>
             </div>
 
             {/* Daily Words */}
             <div 
               onClick={() => navigate('/flashcards/daily')}
-              className="rounded-[24px] p-5 active:scale-95 transition-transform cursor-pointer flex flex-col items-center justify-center aspect-square"
+              className="rounded-[20px] p-4 active:scale-95 transition-transform cursor-pointer flex flex-col items-center justify-center aspect-square group hover:shadow-md"
               style={{ 
                 backgroundColor: currentTheme.cardBg,
                 boxShadow: currentTheme.shadow,
                 border: `1px solid ${currentTheme.borderColor}`
               }}
             >
-              <div className="w-12 h-12 rounded-full bg-[#FF6B6B]/10 flex items-center justify-center mb-3">
-                <Calendar className="w-6 h-6 text-[#FF6B6B]" />
+              <div className="w-10 h-10 rounded-full bg-[#FF6B6B]/10 flex items-center justify-center mb-2">
+                <Calendar className="w-5 h-5 text-[#FF6B6B]" />
               </div>
-              <span className="text-[28px] font-bold leading-none mb-1" style={{ color: currentTheme.textColor }}>{counts.daily}</span>
-              <span className="text-[13px] font-medium" style={{ color: currentTheme.subTextColor }}>Daily Words</span>
+              <span className="text-2xl font-bold leading-none mb-1" style={{ color: currentTheme.textColor }}>{counts.daily}</span>
+              <span className="text-xs font-medium" style={{ color: currentTheme.subTextColor }}>Daily Words</span>
             </div>
 
             {/* Mastered */}
             <div 
               onClick={() => navigate('/flashcards/mastered')}
-              className="rounded-[24px] p-5 active:scale-95 transition-transform cursor-pointer flex flex-col items-center justify-center aspect-square"
+              className="rounded-[20px] p-4 active:scale-95 transition-transform cursor-pointer flex flex-col items-center justify-center aspect-square group hover:shadow-md"
               style={{ 
                 backgroundColor: currentTheme.cardBg,
                 boxShadow: currentTheme.shadow,
                 border: `1px solid ${currentTheme.borderColor}`
               }}
             >
-              <div className="w-12 h-12 rounded-full bg-[#4CAF50]/10 flex items-center justify-center mb-3">
-                <CheckCircle className="w-6 h-6 text-[#4CAF50]" />
+              <div className="w-10 h-10 rounded-full bg-[#4CAF50]/10 flex items-center justify-center mb-2">
+                <CheckCircle className="w-5 h-5 text-[#4CAF50]" />
               </div>
-              <span className="text-[28px] font-bold leading-none mb-1" style={{ color: currentTheme.textColor }}>{counts.mastered}</span>
-              <span className="text-[13px] font-medium" style={{ color: currentTheme.subTextColor }}>Mastered</span>
+              <span className="text-2xl font-bold leading-none mb-1" style={{ color: currentTheme.textColor }}>{counts.mastered}</span>
+              <span className="text-xs font-medium" style={{ color: currentTheme.subTextColor }}>Mastered</span>
             </div>
 
             {/* Quiz Mode */}
             <div 
               onClick={() => navigate('/flashcards/quiz')}
-              className="rounded-[24px] p-5 active:scale-95 transition-transform cursor-pointer flex flex-col items-center justify-center aspect-square"
+              className="rounded-[20px] p-4 active:scale-95 transition-transform cursor-pointer flex flex-col items-center justify-center aspect-square group hover:shadow-md"
               style={{ 
                 backgroundColor: currentTheme.cardBg,
                 boxShadow: currentTheme.shadow,
                 border: `1px solid ${currentTheme.borderColor}`
               }}
             >
-              <div className="w-12 h-12 rounded-full bg-[#FFA726]/10 flex items-center justify-center mb-3">
-                <Target className="w-6 h-6 text-[#FFA726]" />
+              <div className="w-10 h-10 rounded-full bg-[#FFA726]/10 flex items-center justify-center mb-2">
+                <Target className="w-5 h-5 text-[#FFA726]" />
               </div>
-              <span className="text-[28px] font-bold leading-none mb-1" style={{ color: currentTheme.textColor }}>Quiz</span>
-              <span className="text-[13px] font-medium" style={{ color: currentTheme.subTextColor }}>Practice</span>
+              <span className="text-2xl font-bold leading-none mb-1" style={{ color: currentTheme.textColor }}>Quiz</span>
+              <span className="text-xs font-medium" style={{ color: currentTheme.subTextColor }}>Practice</span>
             </div>
           </div>
         )}

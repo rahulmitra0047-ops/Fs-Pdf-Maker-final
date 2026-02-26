@@ -64,21 +64,21 @@ const MotivationalQuote: React.FC = () => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="w-full bg-white rounded-[32px] p-8 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] relative overflow-hidden mb-6"
+      className="w-full bg-white rounded-[24px] p-5 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] relative overflow-hidden mb-4"
     >
       {/* Quote Icons */}
-      <div className="absolute top-6 left-6 text-emerald-100">
-        <Icon name="quote" size="xl" className="w-10 h-10 transform -scale-x-100" />
+      <div className="absolute top-4 left-4 text-emerald-100">
+        <Icon name="quote" size="lg" className="w-8 h-8 transform -scale-x-100" />
       </div>
-      <div className="absolute bottom-16 right-6 text-emerald-100">
-        <Icon name="quote" size="xl" className="w-10 h-10 transform rotate-180" />
+      <div className="absolute bottom-12 right-4 text-emerald-100">
+        <Icon name="quote" size="lg" className="w-8 h-8 transform rotate-180" />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center text-center space-y-6 py-4">
+      <div className="relative z-10 flex flex-col items-center text-center space-y-4 py-2">
         {/* Decorative Line */}
-        <div className="w-1 h-16 bg-gradient-to-b from-emerald-500/0 via-emerald-500/50 to-emerald-500/0 absolute left-0 top-1/2 -translate-y-1/2 rounded-full opacity-50 hidden sm:block"></div>
+        <div className="w-1 h-12 bg-gradient-to-b from-emerald-500/0 via-emerald-500/50 to-emerald-500/0 absolute left-0 top-1/2 -translate-y-1/2 rounded-full opacity-50 hidden sm:block"></div>
         
-        <p className={`font-serif italic text-2xl leading-relaxed text-slate-700 max-w-xs mx-auto ${quote.lang === 'bn' ? 'font-bengali' : ''}`}>
+        <p className={`font-serif italic text-xl leading-relaxed text-slate-700 max-w-xs mx-auto ${quote.lang === 'bn' ? 'font-bengali' : ''}`}>
           {displayedText}
           <motion.span 
             animate={{ opacity: [1, 0] }}
@@ -93,10 +93,10 @@ const MotivationalQuote: React.FC = () => {
               initial={{ opacity: 0, x: 10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
-              className="flex items-center gap-3 w-full justify-end pt-2"
+              className="flex items-center gap-2 w-full justify-end pt-1"
             >
-              <div className="h-[1px] w-12 bg-emerald-500/30"></div>
-              <span className={`text-xs font-bold tracking-widest text-emerald-500 uppercase ${quote.lang === 'bn' ? 'font-bengali' : ''}`}>
+              <div className="h-[1px] w-8 bg-emerald-500/30"></div>
+              <span className={`text-[10px] font-bold tracking-widest text-emerald-500 uppercase ${quote.lang === 'bn' ? 'font-bengali' : ''}`}>
                 {quote.author}
               </span>
             </motion.div>

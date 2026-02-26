@@ -193,58 +193,55 @@ const TopicListPage: React.FC = () => {
   if (initialLoading && topics.length === 0) return <div className="p-10 text-center text-gray-500">Loading Topics...</div>;
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] pb-20 pt-[60px]">
+    <div className="min-h-screen bg-[#F8FAFC] pb-24 pt-[60px] font-sans">
         {/* Custom Header */}
-        <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/90 backdrop-blur-md border-b border-gray-100 z-50 px-5 flex items-center justify-between transition-all">
-            {/* Left: Empty placeholder for alignment since Back button is removed */}
-            <div className="w-10"></div>
-            
-            <h1 className="text-[18px] font-semibold text-[#111827] absolute left-1/2 -translate-x-1/2 tracking-tight">Topics</h1>
+        <header className="fixed top-0 left-0 right-0 h-[60px] bg-[#F8FAFC]/80 backdrop-blur-xl z-50 px-6 flex items-center justify-between transition-all">
+            <div className="flex items-center gap-2">
+                <div className="w-7 h-7 bg-slate-700 rounded-lg flex items-center justify-center transform rotate-45 shadow-lg">
+                    <Icon name="book-open" size="sm" className="text-white transform -rotate-45" />
+                </div>
+                <h1 className="text-xl font-bold tracking-tight text-slate-700">Live MCQ</h1>
+            </div>
             
             <div className="flex items-center gap-2">
-                <button 
-                    onClick={() => navigate('/settings')}
-                    className="p-2 -mr-2 text-[#6B7280] hover:text-gray-900 rounded-full transition-colors active:scale-95"
-                >
-                    <Icon name="settings" size="md" />
-                </button>
+                {/* Settings button removed or moved if needed, keeping layout consistent */}
             </div>
         </header>
 
-        <div className="max-w-3xl mx-auto px-5">
+        <div className="max-w-md mx-auto px-6">
             {!initialLoading && enhancedTopics.length === 0 ? (
-                <div className="text-center py-16 bg-white rounded-3xl border-2 border-dashed border-slate-200 mt-4">
-                    <div className="text-4xl mb-4 opacity-20">📚</div>
-                    <h3 className="text-lg font-bold text-slate-800 mb-1">No Topics Found</h3>
+                <div className="text-center py-12 bg-white rounded-[24px] shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-slate-100 mt-4">
+                    <div className="text-4xl mb-4 opacity-20 grayscale">📚</div>
+                    <h3 className="text-lg font-bold text-slate-700 mb-1">No Topics Found</h3>
                     <p className="text-sm text-slate-400 mb-6">Create a topic to start organizing MCQs</p>
                     <PremiumButton onClick={() => setShowCreateTopic(true)}>Create First Topic</PremiumButton>
                 </div>
             ) : (
                 <div className="mt-4">
-                    {/* Count Row (Removed inline + New Topic button) */}
-                    <div className="flex justify-between items-center mb-4">
-                        <span className="text-[13px] font-semibold text-[#9CA3AF] tracking-wide">{enhancedTopics.length} Topics</span>
+                    {/* Count Row */}
+                    <div className="flex justify-between items-center mb-4 px-1">
+                        <span className="text-xs font-bold text-slate-400 tracking-widest uppercase">{enhancedTopics.length} Topics</span>
                     </div>
                     
                     {/* List */}
-                    <div className="flex flex-col gap-[14px]">
+                    <div className="flex flex-col gap-3">
                         {visibleTopics.map(topic => (
                             <div 
                                 key={topic.id} 
                                 onClick={() => navigate(`/live-mcq/topic/${topic.id}`)}
-                                className="relative group bg-white border border-[#F3F4F6] rounded-[20px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)] active:scale-[0.98] transition-all duration-150 cursor-pointer"
+                                className="relative group bg-white rounded-[20px] p-4 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-slate-100 active:scale-[0.98] transition-all duration-150 cursor-pointer hover:border-slate-200"
                             >
                                 <div className="flex items-center justify-between">
                                     {/* Left Content */}
                                     <div className="flex items-center gap-4">
                                         {/* Avatar */}
-                                        <div className="w-[44px] h-[44px] rounded-[12px] bg-[#EEF2FF] text-[#6366F1] flex items-center justify-center text-[18px] font-bold shadow-sm">
+                                        <div className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-600 flex items-center justify-center text-lg font-bold shadow-sm border border-slate-100">
                                             {topic.name.charAt(0).toUpperCase()}
                                         </div>
                                         {/* Text */}
                                         <div>
-                                            <h3 className="text-[17px] font-semibold text-[#111827] leading-tight">{topic.name}</h3>
-                                            <p className="text-[13px] font-normal text-[#9CA3AF] mt-0.5">
+                                            <h3 className="text-base font-bold text-slate-700 leading-tight">{topic.name}</h3>
+                                            <p className="text-xs font-medium text-slate-400 mt-1">
                                                 {topic.subtopicCount} Subs • {topic.mcqCount} Qs
                                             </p>
                                         </div>
@@ -255,7 +252,7 @@ const TopicListPage: React.FC = () => {
                                         {/* Edit Icon */}
                                         <button 
                                             onClick={(e) => initiateRename(topic, e)}
-                                            className="p-2 text-[#D1D5DB] hover:text-[#6366F1] transition-colors rounded-full"
+                                            className="p-2 text-slate-300 hover:text-slate-600 transition-colors rounded-full"
                                         >
                                             <Icon name="edit-3" size="sm" />
                                         </button>
@@ -265,7 +262,7 @@ const TopicListPage: React.FC = () => {
                                                 e.stopPropagation();
                                                 setActiveMenuId(activeMenuId === topic.id ? null : topic.id);
                                             }}
-                                            className="p-2 text-[#9CA3AF] hover:text-[#111827] transition-colors rounded-full"
+                                            className="p-2 text-slate-300 hover:text-slate-600 transition-colors rounded-full"
                                         >
                                             <Icon name="more-vertical" size="sm" />
                                         </button>
@@ -274,22 +271,22 @@ const TopicListPage: React.FC = () => {
 
                                 {/* Menu Dropdown */}
                                 {activeMenuId === topic.id && (
-                                    <div className="absolute right-4 top-12 z-20 bg-white border border-[#F3F4F6] rounded-[12px] shadow-[0_4px_12px_rgba(0,0,0,0.08)] overflow-hidden min-w-[160px] animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+                                    <div className="absolute right-4 top-12 z-20 bg-white border border-slate-100 rounded-xl shadow-xl overflow-hidden min-w-[160px] animate-in fade-in zoom-in-95 duration-100 origin-top-right">
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); handlePracticeAll(topic.id); setActiveMenuId(null); }}
-                                            className="w-full text-left px-4 py-3 text-[14px] font-medium text-gray-700 hover:bg-[#F9FAFB] flex items-center gap-2 border-b border-gray-50"
+                                            className="w-full text-left px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-2 border-b border-slate-50"
                                         >
-                                            <Icon name="play" size="sm" className="text-gray-400" /> Practice
+                                            <Icon name="play" size="sm" className="text-slate-400" /> Practice
                                         </button>
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); handleExport(topic.id, e); setActiveMenuId(null); }}
-                                            className="w-full text-left px-4 py-3 text-[14px] font-medium text-gray-700 hover:bg-[#F9FAFB] flex items-center gap-2 border-b border-gray-50"
+                                            className="w-full text-left px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-2 border-b border-slate-50"
                                         >
-                                            <Icon name="share" size="sm" className="text-gray-400" /> Export
+                                            <Icon name="share" size="sm" className="text-slate-400" /> Export
                                         </button>
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); confirmDelete(topic, e); setActiveMenuId(null); }}
-                                            className="w-full text-left px-4 py-3 text-[14px] font-medium text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                            className="w-full text-left px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 flex items-center gap-2"
                                         >
                                             <Icon name="trash-2" size="sm" /> Delete
                                         </button>
@@ -303,7 +300,7 @@ const TopicListPage: React.FC = () => {
                     {visibleCount < enhancedTopics.length && (
                         <button 
                             onClick={() => setVisibleCount(prev => prev + PAGE_SIZE)}
-                            className="w-full py-3 mt-4 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+                            className="w-full py-3 mt-4 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
                         >
                             Load More ({enhancedTopics.length - visibleCount} remaining)
                         </button>
@@ -313,15 +310,15 @@ const TopicListPage: React.FC = () => {
         </div>
 
         {/* Floating Action Button (FAB) */}
-        <div className="fixed bottom-[84px] right-5 z-40 flex flex-col items-end gap-3">
+        <div className="fixed bottom-[100px] right-6 z-40 flex flex-col items-end gap-3">
             {isFabOpen && (
                 <div className="flex flex-col items-end gap-3 animate-in slide-in-from-bottom-2 duration-200">
                     <button 
                         onClick={() => handleFabAction('mcq')}
                         className="flex items-center gap-3 group"
                     >
-                        <span className="bg-white px-3 py-1.5 rounded-[10px] shadow-sm border border-[#F3F4F6] text-[13px] font-bold text-[#374151]">Add MCQ</span>
-                        <div className="w-11 h-11 bg-white text-[#6366F1] border border-[#E5E7EB] rounded-full shadow-md flex items-center justify-center active:scale-95 transition-transform">
+                        <span className="bg-white px-3 py-1.5 rounded-xl shadow-lg border border-slate-100 text-xs font-bold text-slate-600">Add MCQ</span>
+                        <div className="w-10 h-10 bg-white text-emerald-600 border border-slate-100 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform">
                             <Icon name="file-text" size="sm" />
                         </div>
                     </button>
@@ -329,8 +326,8 @@ const TopicListPage: React.FC = () => {
                         onClick={() => handleFabAction('topic')}
                         className="flex items-center gap-3 group"
                     >
-                        <span className="bg-white px-3 py-1.5 rounded-[10px] shadow-sm border border-[#F3F4F6] text-[13px] font-bold text-[#374151]">Add Topic</span>
-                        <div className="w-11 h-11 bg-white text-[#6366F1] border border-[#E5E7EB] rounded-full shadow-md flex items-center justify-center active:scale-95 transition-transform">
+                        <span className="bg-white px-3 py-1.5 rounded-xl shadow-lg border border-slate-100 text-xs font-bold text-slate-600">Add Topic</span>
+                        <div className="w-10 h-10 bg-white text-emerald-600 border border-slate-100 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform">
                             <Icon name="folder" size="sm" />
                         </div>
                     </button>
@@ -339,7 +336,7 @@ const TopicListPage: React.FC = () => {
             
             <button 
                 onClick={() => setIsFabOpen(!isFabOpen)}
-                className={`w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 active:scale-90 ${isFabOpen ? 'bg-gray-800 text-white rotate-45' : 'bg-[#6366F1] text-white'}`}
+                className={`w-14 h-14 rounded-2xl shadow-xl shadow-emerald-900/20 flex items-center justify-center transition-all duration-300 active:scale-90 ${isFabOpen ? 'bg-emerald-700 text-white rotate-45' : 'bg-emerald-600 text-white'}`}
             >
                 <Icon name="plus" size="lg" />
             </button>

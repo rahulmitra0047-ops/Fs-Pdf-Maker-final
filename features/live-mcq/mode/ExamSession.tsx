@@ -146,31 +146,31 @@ const ExamSession: React.FC = () => {
   const isMarked = marked.has(currentMCQ?.id);
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] flex flex-col">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
         {/* Exam Header */}
-        <div className="h-14 bg-gray-900 text-white flex items-center justify-between px-4 sticky top-0 z-20 shadow-md">
+        <div className="h-14 bg-slate-900 text-white flex items-center justify-between px-4 sticky top-0 z-20 shadow-md border-b border-slate-800">
             <div className="flex items-center gap-4">
-                <button onClick={() => setShowExitConfirm(true)} className="text-gray-400 hover:text-white p-2 -ml-2">✕</button>
-                <span className="font-bold">Exam</span>
+                <button onClick={() => setShowExitConfirm(true)} className="text-slate-400 hover:text-white p-2 -ml-2 transition-colors">✕</button>
+                <span className="font-bold tracking-tight">Exam Mode</span>
             </div>
-            <div className={`font-mono text-lg font-bold ${timeLeft < 60 ? 'text-red-400 animate-pulse' : ''}`}>
+            <div className={`font-mono text-lg font-bold ${timeLeft < 60 ? 'text-red-400 animate-pulse' : 'text-emerald-400'}`}>
                 ⏱️ {formatTime(timeLeft)}
             </div>
-            <button onClick={() => setShowSubmitConfirm(true)} disabled={isSubmitting} className="text-xs bg-green-600 px-3 py-1.5 rounded hover:bg-green-700 disabled:opacity-50">
+            <button onClick={() => setShowSubmitConfirm(true)} disabled={isSubmitting} className="text-xs bg-emerald-600 px-3 py-1.5 rounded-lg hover:bg-emerald-500 disabled:opacity-50 font-semibold shadow-lg shadow-emerald-900/20 transition-all active:scale-95">
                 {isSubmitting ? '...' : 'Submit'}
             </button>
         </div>
 
         {/* Question Area */}
-        <div className="flex-1 p-4 pb-32 overflow-y-auto">
+        <div className="flex-1 p-5 pb-40 overflow-y-auto">
             <div className="max-w-2xl mx-auto space-y-6">
-                <div className="flex justify-between items-center text-sm text-[var(--text-secondary)]">
+                <div className="flex justify-between items-center text-sm text-slate-500 font-medium">
                     <span>Question {currentIndex + 1} of {mcqs.length}</span>
-                    {isMarked && <span className="text-amber-600 font-medium flex items-center gap-1">🚩 Marked for review</span>}
+                    {isMarked && <span className="text-amber-600 font-bold flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-md border border-amber-100">🚩 Marked</span>}
                 </div>
 
-                <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                    <h2 className="text-lg font-medium text-[var(--text-primary)] leading-relaxed">
+                <div className="bg-white p-6 rounded-[24px] shadow-sm border border-slate-100">
+                    <h2 className="text-[18px] font-semibold text-slate-800 leading-[1.6]">
                         {currentMCQ.question}
                     </h2>
                 </div>
@@ -184,10 +184,10 @@ const ExamSession: React.FC = () => {
                             <button
                                 key={opt}
                                 onClick={() => handleAnswer(opt)}
-                                className={`w-full p-4 border rounded-xl flex items-start gap-4 text-left transition-all ${isSelected ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`}
+                                className={`w-full p-4 border rounded-[20px] flex items-start gap-4 text-left transition-all duration-200 ${isSelected ? 'bg-slate-800 border-slate-800 text-white shadow-lg shadow-slate-900/10' : 'bg-white border-slate-100 text-slate-600 hover:bg-slate-50 hover:border-slate-200'}`}
                             >
-                                <span className={`w-6 h-6 rounded-full border flex items-center justify-center text-xs font-bold ${isSelected ? 'border-white text-white' : 'border-gray-300 text-gray-500'}`}>{opt}</span>
-                                <span className="text-sm mt-0.5">{text}</span>
+                                <span className={`w-6 h-6 rounded-full border flex items-center justify-center text-xs font-bold flex-shrink-0 transition-colors ${isSelected ? 'border-white text-white bg-white/20' : 'border-slate-300 text-slate-400 bg-slate-50'}`}>{opt}</span>
+                                <span className="text-[15px] mt-0.5 leading-snug">{text}</span>
                             </button>
                         );
                     })}
@@ -196,22 +196,23 @@ const ExamSession: React.FC = () => {
         </div>
 
         {/* Navigator Footer */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[var(--border)] z-20">
+        <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200 z-20 pb-safe">
             {/* Quick Nav Strip */}
-            <div className="overflow-x-auto whitespace-nowrap p-2 border-b border-gray-100 scrollbar-hide flex gap-2">
+            <div className="overflow-x-auto whitespace-nowrap p-3 border-b border-slate-100 scrollbar-hide flex gap-2 px-4">
                 {mcqs.map((m, i) => {
                     const ans = answers[m.id];
                     const mk = marked.has(m.id);
-                    let statusClass = "bg-gray-100 text-gray-400 border-gray-200";
-                    if (i === currentIndex) statusClass = "bg-blue-600 text-white border-blue-600";
-                    else if (mk) statusClass = "bg-amber-100 text-amber-600 border-amber-300";
-                    else if (ans) statusClass = "bg-blue-50 text-blue-600 border-blue-200";
+                    let statusClass = "bg-slate-50 text-slate-400 border-slate-100";
+                    
+                    if (i === currentIndex) statusClass = "bg-slate-800 text-white border-slate-800 ring-2 ring-slate-200";
+                    else if (mk) statusClass = "bg-amber-100 text-amber-600 border-amber-200";
+                    else if (ans) statusClass = "bg-emerald-50 text-emerald-600 border-emerald-200";
 
                     return (
                         <button 
                             key={m.id}
                             onClick={() => setCurrentIndex(i)}
-                            className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-medium border ${statusClass}`}
+                            className={`w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center text-xs font-bold border transition-all ${statusClass}`}
                         >
                             {i + 1}
                         </button>
@@ -219,18 +220,18 @@ const ExamSession: React.FC = () => {
                 })}
             </div>
 
-            <div className="p-3 flex justify-between items-center max-w-2xl mx-auto">
+            <div className="p-4 flex justify-between items-center max-w-2xl mx-auto gap-4">
                 <button 
                     onClick={() => setCurrentIndex(p => Math.max(0, p - 1))}
                     disabled={currentIndex === 0}
-                    className="px-4 py-2 text-sm font-medium text-gray-600 disabled:opacity-30"
+                    className="flex-1 py-3 text-sm font-bold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                     ← Prev
                 </button>
                 
                 <button 
                     onClick={toggleMark}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg ${isMarked ? 'bg-amber-100 text-amber-700' : 'text-gray-500 hover:bg-gray-100'}`}
+                    className={`flex-1 py-3 text-sm font-bold rounded-xl border transition-colors ${isMarked ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}
                 >
                     {isMarked ? 'Unmark' : 'Mark'}
                 </button>
@@ -238,7 +239,7 @@ const ExamSession: React.FC = () => {
                 <button 
                     onClick={() => setCurrentIndex(p => Math.min(mcqs.length - 1, p + 1))}
                     disabled={currentIndex === mcqs.length - 1}
-                    className="px-4 py-2 text-sm font-medium text-gray-600 disabled:opacity-30"
+                    className="flex-1 py-3 text-sm font-bold text-white bg-slate-800 rounded-xl hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-slate-900/10"
                 >
                     Next →
                 </button>
@@ -247,15 +248,15 @@ const ExamSession: React.FC = () => {
 
         {/* Exam Settings Modal */}
         <PremiumModal isOpen={showSettings} onClose={() => navigate(`/live-mcq/set/${setId}`)} title="Exam Settings" size="sm">
-            <div className="space-y-4">
+            <div className="space-y-6">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Time Limit</label>
-                    <div className="grid grid-cols-4 gap-2">
+                    <label className="block text-sm font-bold text-slate-700 mb-3">Time Limit (Minutes)</label>
+                    <div className="grid grid-cols-4 gap-3">
                         {[10, 15, 20, 30].map(m => (
                             <button 
                                 key={m}
                                 onClick={() => setTimeLimit(m)}
-                                className={`py-2 rounded text-sm border ${timeLimit === m ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                                className={`py-3 rounded-xl text-sm font-bold border transition-all ${timeLimit === m ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
                             >
                                 {m}m
                             </button>
@@ -263,38 +264,41 @@ const ExamSession: React.FC = () => {
                     </div>
                 </div>
                 
-                <label className="flex items-center justify-between p-3 border rounded-lg cursor-pointer">
-                    <span className="text-sm font-medium">Shuffle Questions</span>
-                    <input type="checkbox" checked={options.shuffleQuestions} onChange={e => setOptions({...options, shuffleQuestions: e.target.checked})} className="w-5 h-5 text-blue-600" />
+                <label className="flex items-center justify-between p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                    <span className="text-sm font-bold text-slate-700">Shuffle Questions</span>
+                    <div className="relative flex items-center">
+                        <input type="checkbox" checked={options.shuffleQuestions} onChange={e => setOptions({...options, shuffleQuestions: e.target.checked})} className="peer sr-only" />
+                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                    </div>
                 </label>
 
-                <div className="pt-4">
-                    <PremiumButton fullWidth onClick={startExam}>Start Exam</PremiumButton>
+                <div className="pt-2">
+                    <PremiumButton fullWidth onClick={startExam} className="bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-900/20">Start Exam</PremiumButton>
                 </div>
             </div>
         </PremiumModal>
 
         {/* Submit Confirmation */}
         <PremiumModal isOpen={showSubmitConfirm} onClose={() => setShowSubmitConfirm(false)} title="Submit Exam?" size="sm">
-            <div className="space-y-4">
-                <div className="bg-gray-50 p-4 rounded-lg space-y-2 text-sm">
-                    <div className="flex justify-between">
-                        <span className="text-gray-600">Answered:</span>
-                        <span className="font-medium text-blue-600">{Object.keys(answers).length}</span>
+            <div className="space-y-5">
+                <div className="bg-slate-50 p-5 rounded-2xl space-y-3 text-sm border border-slate-100">
+                    <div className="flex justify-between items-center">
+                        <span className="text-slate-500 font-medium">Answered</span>
+                        <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">{Object.keys(answers).length}</span>
                     </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-600">Marked:</span>
-                        <span className="font-medium text-amber-600">{marked.size}</span>
+                    <div className="flex justify-between items-center">
+                        <span className="text-slate-500 font-medium">Marked</span>
+                        <span className="font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">{marked.size}</span>
                     </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-600">Remaining:</span>
-                        <span className="font-medium text-gray-900">{mcqs.length - Object.keys(answers).length}</span>
+                    <div className="flex justify-between items-center border-t border-slate-200 pt-2 mt-2">
+                        <span className="text-slate-500 font-medium">Remaining</span>
+                        <span className="font-bold text-slate-900">{mcqs.length - Object.keys(answers).length}</span>
                     </div>
                 </div>
-                <p className="text-xs text-gray-500 text-center">You cannot change answers after submitting.</p>
+                <p className="text-xs text-slate-400 text-center">You cannot change answers after submitting.</p>
                 <div className="flex gap-3">
-                    <PremiumButton variant="ghost" onClick={() => setShowSubmitConfirm(false)}>Continue Exam</PremiumButton>
-                    <PremiumButton variant="primary" onClick={() => finishExam()}>Submit Now</PremiumButton>
+                    <PremiumButton variant="ghost" onClick={() => setShowSubmitConfirm(false)}>Continue</PremiumButton>
+                    <PremiumButton onClick={() => finishExam()} className="bg-emerald-600 hover:bg-emerald-500">Submit Now</PremiumButton>
                 </div>
             </div>
         </PremiumModal>
@@ -302,7 +306,7 @@ const ExamSession: React.FC = () => {
         {/* Exit Confirmation */}
         <PremiumModal isOpen={showExitConfirm} onClose={() => setShowExitConfirm(false)} title="Exit Exam?" size="sm">
             <div className="space-y-4">
-                <p className="text-[var(--text-secondary)]">Are you sure? All progress will be lost.</p>
+                <p className="text-sm text-slate-500">Are you sure? All progress will be lost.</p>
                 <div className="flex justify-end gap-3 pt-2">
                     <PremiumButton variant="ghost" onClick={() => setShowExitConfirm(false)}>Cancel</PremiumButton>
                     <PremiumButton variant="danger" onClick={handleExit}>Exit</PremiumButton>

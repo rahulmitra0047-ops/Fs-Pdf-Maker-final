@@ -198,30 +198,30 @@ const TopicDetailPage: React.FC = () => {
   if (!topic) return null;
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] pb-20 pt-[60px]">
+    <div className="min-h-screen bg-[#F8FAFC] pb-20 pt-[60px]">
         {/* Custom Header replacing TopBar */}
-        <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/90 backdrop-blur-md border-b border-gray-100 z-50 px-5 flex items-center justify-between transition-all">
+        <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 z-50 px-5 flex items-center justify-between transition-all">
             <div className="flex items-center gap-3">
                 <button 
                     onClick={() => navigate('/live-mcq/topics')} 
-                    className="p-2 -ml-2 text-[#6B7280] hover:text-gray-900 rounded-full transition-colors active:scale-95"
+                    className="p-2 -ml-2 text-slate-500 hover:text-slate-900 rounded-full transition-colors active:scale-95"
                 >
                     <Icon name="arrow-left" size="md" />
                 </button>
             </div>
-            <h1 className="text-[18px] font-semibold text-[#111827] absolute left-1/2 -translate-x-1/2 tracking-tight">
+            <h1 className="text-[18px] font-semibold text-slate-900 absolute left-1/2 -translate-x-1/2 tracking-tight">
                 {topic.name}
             </h1>
             <div className="flex items-center gap-1">
                  <button 
                     onClick={(e) => initiateRename('topic', topic, e)}
-                    className="p-2 text-[#9CA3AF] hover:text-gray-900 transition-colors rounded-full"
+                    className="p-2 text-slate-400 hover:text-slate-900 transition-colors rounded-full"
                 >
                     <Icon name="edit-3" size="sm" />
                 </button>
                 <button 
                     onClick={handleDeleteTopic}
-                    className="p-2 text-[#9CA3AF] hover:text-red-600 transition-colors rounded-full"
+                    className="p-2 text-slate-400 hover:text-red-600 transition-colors rounded-full"
                 >
                     <Icon name="trash-2" size="sm" />
                 </button>
@@ -230,18 +230,18 @@ const TopicDetailPage: React.FC = () => {
 
         <div className="max-w-3xl mx-auto px-5 mt-4 space-y-8">
             {/* Hero Card */}
-            <div className="relative overflow-hidden rounded-[24px] p-6 shadow-xl" style={{ background: 'linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)' }}>
+            <div className="relative overflow-hidden rounded-[24px] p-6 shadow-xl" style={{ background: 'linear-gradient(135deg, #0F172A 0%, #334155 100%)' }}>
                 
                 <div className="flex items-start gap-5 mb-6">
                     {/* Letter Avatar */}
-                    <div className="w-12 h-12 rounded-[14px] bg-white/15 flex items-center justify-center text-[22px] font-bold text-white shadow-inner flex-shrink-0">
+                    <div className="w-12 h-12 rounded-[14px] bg-white/10 flex items-center justify-center text-[22px] font-bold text-white shadow-inner flex-shrink-0 border border-white/10">
                         {topic.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
                         <h2 className="text-[24px] font-bold text-white leading-tight">{topic.name}</h2>
                         <div className="flex items-center gap-2 mt-1">
-                            <span className="w-2 h-2 rounded-full bg-[#34D399]"></span>
-                            <p className="text-[13px] font-normal text-white/60">Ready to Practice</p>
+                            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            <p className="text-[13px] font-normal text-slate-300">Ready to Practice</p>
                         </div>
                     </div>
                 </div>
@@ -253,9 +253,9 @@ const TopicDetailPage: React.FC = () => {
                         { label: 'Sets', value: topicStats.sets },
                         { label: 'Questions', value: topicStats.mcqs }
                     ].map((stat, i) => (
-                        <div key={i} className="bg-white/10 border border-white/10 rounded-[14px] p-3.5 text-center backdrop-blur-sm">
+                        <div key={i} className="bg-white/5 border border-white/10 rounded-[14px] p-3.5 text-center backdrop-blur-sm">
                             <div className="text-[22px] font-bold text-white leading-none mb-1">{stat.value}</div>
-                            <div className="text-[11px] font-medium text-white/50 uppercase tracking-wide">{stat.label}</div>
+                            <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">{stat.label}</div>
                         </div>
                     ))}
                 </div>
@@ -264,7 +264,7 @@ const TopicDetailPage: React.FC = () => {
                 <div className="grid grid-cols-2 gap-3">
                     <button 
                         onClick={handlePracticeAll}
-                        className="bg-[#6366F1] text-white font-semibold py-3.5 px-6 rounded-[14px] text-[15px] active:scale-[0.98] transition-transform shadow-lg shadow-indigo-900/20"
+                        className="bg-emerald-600 text-white font-semibold py-3.5 px-6 rounded-[14px] text-[15px] active:scale-[0.98] transition-transform shadow-lg shadow-emerald-900/20 hover:bg-emerald-500"
                     >
                         Practice
                     </button>
@@ -280,12 +280,12 @@ const TopicDetailPage: React.FC = () => {
             {/* Subtopics List */}
             <div>
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-[13px] font-semibold text-[#9CA3AF] tracking-wide">
+                    <h3 className="text-[13px] font-semibold text-slate-400 tracking-wide uppercase px-1">
                         Subtopics
                     </h3>
                     <button 
                         onClick={() => setShowCreateSubtopic(true)}
-                        className="bg-transparent border-[1.5px] border-[#6366F1] text-[#6366F1] px-4 py-2 rounded-[12px] text-[13px] font-medium active:scale-95 transition-all hover:bg-indigo-50"
+                        className="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[13px] font-bold active:scale-95 transition-all hover:bg-slate-50 shadow-sm"
                     >
                         + Add Subtopic
                     </button>
@@ -293,11 +293,11 @@ const TopicDetailPage: React.FC = () => {
 
                 {enhancedSubtopics.length === 0 ? (
                     // Empty state
-                    <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-[20px]">
-                        <div className="text-gray-300 mb-2 opacity-50">
+                    <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-[24px] bg-slate-50/50">
+                        <div className="text-slate-300 mb-2 opacity-50">
                             <Icon name="folder" size="xl" />
                         </div>
-                        <p className="text-[14px] text-gray-400 font-medium">No subtopics yet</p>
+                        <p className="text-[14px] text-slate-400 font-medium">No subtopics yet</p>
                     </div>
                 ) : (
                     <div className="flex flex-col gap-[14px]">
@@ -305,18 +305,18 @@ const TopicDetailPage: React.FC = () => {
                             <div 
                                 key={sub.id}
                                 onClick={() => navigate(`/live-mcq/topic/${topic.id}/subtopic/${sub.id}`)}
-                                className="bg-white border border-[#F3F4F6] rounded-[16px] p-3.5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-md transition-all active:scale-[0.99] cursor-pointer group"
+                                className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md hover:border-slate-200 transition-all active:scale-[0.99] cursor-pointer group"
                             >
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-[10px] bg-[#EEF2FF] text-[#6366F1] flex items-center justify-center text-[16px] font-bold">
+                                        <div className="w-10 h-10 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center text-[16px] font-bold border border-slate-100">
                                             {sub.name.charAt(0).toUpperCase()}
                                         </div>
                                         <div>
-                                            <h4 className="text-[16px] font-semibold text-[#111827] group-hover:text-[#6366F1] transition-colors">
+                                            <h4 className="text-[16px] font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors">
                                                 {sub.name}
                                             </h4>
-                                            <p className="text-[13px] font-normal text-[#9CA3AF] mt-0.5">
+                                            <p className="text-[13px] font-normal text-slate-500 mt-0.5">
                                                 {sub.setLen} Sets
                                             </p>
                                         </div>
@@ -325,13 +325,13 @@ const TopicDetailPage: React.FC = () => {
                                     <div className="flex items-center gap-1">
                                         <button 
                                             onClick={(e) => initiateRename('subtopic', sub, e)}
-                                            className="p-2 text-[#D1D5DB] hover:text-[#6366F1] transition-colors"
+                                            className="p-2 text-slate-300 hover:text-slate-600 transition-colors"
                                         >
                                             <Icon name="edit-3" size="sm" />
                                         </button>
                                         <button 
                                             onClick={(e) => handleDeleteSubtopic(sub, e)}
-                                            className="p-2 text-[#D1D5DB] hover:text-red-500 transition-colors"
+                                            className="p-2 text-slate-300 hover:text-red-500 transition-colors"
                                         >
                                             <Icon name="trash-2" size="sm" />
                                         </button>

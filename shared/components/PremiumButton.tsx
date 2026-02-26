@@ -27,26 +27,26 @@ const PremiumButton: React.FC<Props> = ({
   const baseStyles = "relative inline-flex items-center justify-center font-semibold transition-all duration-200 active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:pointer-events-none disabled:shadow-none overflow-hidden select-none tracking-tight";
   
   const variants = {
-    // Primary: Modern Indigo
-    primary: "bg-primary-600 text-white shadow-lg shadow-primary-600/20 hover:bg-primary-700 hover:shadow-xl hover:shadow-primary-600/30 border-none",
+    // Primary: Modern Slate
+    primary: "bg-slate-700 text-white shadow-lg shadow-slate-700/20 hover:bg-slate-800 hover:shadow-xl hover:shadow-slate-700/30 border-none",
     
-    // Gradient: Vivid
-    gradient: "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/35 border-none",
+    // Gradient: Slate
+    gradient: "bg-gradient-to-r from-slate-700 to-slate-800 text-white shadow-lg shadow-slate-500/25 hover:shadow-xl hover:shadow-slate-500/35 border-none",
     
     // Secondary: Clean Outline
-    secondary: "bg-white border border-slate-200 text-slate-700 hover:border-primary-600 hover:text-primary-600 hover:bg-slate-50 shadow-sm",
+    secondary: "bg-white border border-slate-200 text-slate-700 hover:border-slate-700 hover:text-slate-900 hover:bg-slate-50 shadow-sm",
     
     // Ghost: Minimal
-    ghost: "bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+    ghost: "bg-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900",
     
     // Danger: Soft Red
     danger: "bg-red-50 text-red-600 hover:bg-red-100 border border-transparent",
   };
 
   const sizes = {
-    sm: "h-9 px-3 text-xs rounded-[var(--radius-md)] gap-1.5",
-    md: "h-12 px-6 text-sm rounded-[var(--radius-lg)] gap-2",
-    lg: "h-14 px-8 text-base rounded-[var(--radius-xl)] gap-2.5",
+    sm: "h-9 px-3 text-xs rounded-xl gap-1.5",
+    md: "h-12 px-6 text-sm rounded-2xl gap-2",
+    lg: "h-14 px-8 text-base rounded-2xl gap-2.5",
   };
 
   const widthStyle = fullWidth ? "w-full" : "";

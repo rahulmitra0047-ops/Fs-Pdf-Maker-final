@@ -9,14 +9,14 @@ interface Props {
 }
 
 const PremiumCard: React.FC<Props> = ({ children, onClick, className = '', variant = 'default' }) => {
-  const baseStyles = "relative rounded-[var(--radius-xl)] transition-all duration-300 ease-out p-5 overflow-hidden";
+  const baseStyles = "relative rounded-[20px] transition-all duration-300 ease-out p-5 overflow-hidden";
   
   const variants = {
-    default: "bg-[var(--color-surface)] border border-[var(--color-border)] shadow-soft hover:shadow-lifted hover:-translate-y-1",
-    flat: "bg-[var(--color-surface)]",
-    outlined: "bg-transparent border border-[var(--color-border)]",
+    default: "bg-white border border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-0.5",
+    flat: "bg-white",
+    outlined: "bg-transparent border border-slate-200",
     // Premium Glass Effect
-    glass: "bg-white/80 backdrop-blur-xl border border-white/40 shadow-lg shadow-indigo-500/5 hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 hover:bg-white/90",
+    glass: "bg-white/80 backdrop-blur-xl border border-white/40 shadow-lg shadow-slate-500/5 hover:shadow-xl hover:shadow-slate-500/10 hover:-translate-y-0.5 hover:bg-white/90",
   };
 
   const interactiveStyles = onClick 

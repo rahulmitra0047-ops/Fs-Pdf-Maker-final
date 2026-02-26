@@ -228,30 +228,30 @@ const SetDetailPage: React.FC = () => {
   if (initialLoading || !set) return <div className="p-10 text-center text-gray-500">Loading Set...</div>;
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] pb-20 pt-[60px]">
+    <div className="min-h-screen bg-[#F8FAFC] pb-20 pt-[60px]">
         {/* Custom Header */}
-        <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/90 backdrop-blur-md border-b border-gray-100 z-50 px-5 flex items-center justify-between transition-all">
+        <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 z-50 px-5 flex items-center justify-between transition-all">
             <div className="flex items-center gap-3">
                 <button 
                     onClick={() => navigate(backPath)} 
-                    className="p-2 -ml-2 text-[#6B7280] hover:text-gray-900 rounded-full transition-colors active:scale-95"
+                    className="p-2 -ml-2 text-slate-500 hover:text-slate-900 rounded-full transition-colors active:scale-95"
                 >
                     <Icon name="arrow-left" size="md" />
                 </button>
             </div>
-            <h1 className="text-[18px] font-semibold text-[#111827] absolute left-1/2 -translate-x-1/2 tracking-tight">
+            <h1 className="text-[18px] font-semibold text-slate-900 absolute left-1/2 -translate-x-1/2 tracking-tight">
                 {set.name}
             </h1>
             <div className="flex items-center gap-1">
                  <button 
                     onClick={initiateRename}
-                    className="p-2 text-[#9CA3AF] hover:text-gray-900 transition-colors rounded-full"
+                    className="p-2 text-slate-400 hover:text-slate-900 transition-colors rounded-full"
                 >
                     <Icon name="edit-3" size="sm" />
                 </button>
                 <button 
                     onClick={handleDeleteSetTrigger}
-                    className="p-2 text-[#9CA3AF] hover:text-red-600 transition-colors rounded-full"
+                    className="p-2 text-slate-400 hover:text-red-600 transition-colors rounded-full"
                 >
                     <Icon name="trash-2" size="sm" />
                 </button>
@@ -261,23 +261,23 @@ const SetDetailPage: React.FC = () => {
         <div className="max-w-3xl mx-auto px-5 mt-4 space-y-7">
             
             {/* Dark Stats Bar (Hero) */}
-            <div className="rounded-[24px] p-6 shadow-xl" style={{ background: '#1E1B4B' }}>
+            <div className="rounded-[24px] p-6 shadow-xl" style={{ background: 'linear-gradient(135deg, #0F172A 0%, #334155 100%)' }}>
                 <div className="grid grid-cols-4 gap-2 text-center mb-5">
                     <div>
                         <div className="text-[24px] font-bold text-white">{set.mcqs.length}</div>
-                        <div className="text-[11px] font-medium text-white/50 uppercase tracking-wide">MCQs</div>
+                        <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">MCQs</div>
                     </div>
                     <div>
                         <div className={`text-[24px] font-bold ${getScoreColor(lastScore, attempts.length)}`}>{lastScore}%</div>
-                        <div className="text-[11px] font-medium text-white/50 uppercase tracking-wide">Last</div>
+                        <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">Last</div>
                     </div>
                     <div>
                         <div className={`text-[24px] font-bold ${getScoreColor(bestScore, attempts.length)}`}>{bestScore}%</div>
-                        <div className="text-[11px] font-medium text-white/50 uppercase tracking-wide">Best</div>
+                        <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">Best</div>
                     </div>
                     <div>
                         <div className="text-[24px] font-bold text-white">{attempts.length}</div>
-                        <div className="text-[11px] font-medium text-white/50 uppercase tracking-wide">Attempts</div>
+                        <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">Attempts</div>
                     </div>
                 </div>
                 
@@ -286,14 +286,14 @@ const SetDetailPage: React.FC = () => {
                     <button 
                         onClick={() => navigate(`/live-mcq/practice/${set.id}`)}
                         disabled={set.mcqs.length === 0}
-                        className="flex-1 bg-[#6366F1] text-white py-[14px] rounded-[14px] font-semibold text-[15px] active:scale-[0.98] transition-transform disabled:opacity-50"
+                        className="flex-1 bg-emerald-600 text-white py-[14px] rounded-[14px] font-semibold text-[15px] active:scale-[0.98] transition-transform disabled:opacity-50 hover:bg-emerald-500 shadow-lg shadow-emerald-900/20"
                     >
                         Practice
                     </button>
                     <button 
                         onClick={() => navigate(`/live-mcq/exam/${set.id}`)}
                         disabled={set.mcqs.length === 0}
-                        className="flex-1 bg-white/10 border border-white/15 text-white py-[14px] rounded-[14px] font-medium text-[15px] active:scale-[0.98] transition-transform disabled:opacity-50"
+                        className="flex-1 bg-white/10 border border-white/15 text-white py-[14px] rounded-[14px] font-medium text-[15px] active:scale-[0.98] transition-transform disabled:opacity-50 hover:bg-white/20"
                     >
                         Exam
                     </button>
@@ -303,17 +303,17 @@ const SetDetailPage: React.FC = () => {
             {/* MCQs Section Header */}
             <div>
                 <div className="flex items-center justify-between mb-3.5">
-                    <h3 className="text-[13px] font-semibold text-[#9CA3AF] tracking-wide">MCQs</h3>
+                    <h3 className="text-[13px] font-semibold text-slate-400 tracking-wide uppercase px-1">MCQs</h3>
                     <div className="flex gap-2">
                         <button 
                             onClick={() => navigate(`/create?mode=export&source=set&sourceId=${set.id}`)}
-                            className="bg-transparent border-[1.5px] border-[#E5E7EB] text-[#374151] px-4 py-2 rounded-[12px] text-[13px] font-medium active:scale-95 transition-all hover:bg-gray-50"
+                            className="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[13px] font-medium active:scale-95 transition-all hover:bg-slate-50 shadow-sm"
                         >
                             Export PDF
                         </button>
                         <button 
                             onClick={() => setShowAddMenu(true)}
-                            className="bg-[#6366F1] text-white px-4 py-2 rounded-[12px] text-[13px] font-medium active:scale-95 transition-all hover:bg-[#4F46E5]"
+                            className="bg-emerald-600 text-white px-4 py-2 rounded-xl text-[13px] font-medium active:scale-95 transition-all hover:bg-emerald-500 shadow-sm"
                         >
                             + Add
                         </button>
@@ -321,8 +321,8 @@ const SetDetailPage: React.FC = () => {
                 </div>
 
                 {/* Count & Select Row */}
-                <div className="flex items-center justify-between mb-3">
-                    <span className="text-[13px] font-medium text-[#9CA3AF]">
+                <div className="flex items-center justify-between mb-3 px-1">
+                    <span className="text-[13px] font-medium text-slate-500">
                         {set.mcqs.length} MCQs
                     </span>
                     
@@ -330,7 +330,7 @@ const SetDetailPage: React.FC = () => {
                         <div className="flex items-center gap-3">
                             <button 
                                 onClick={selectAll}
-                                className="text-[13px] font-medium text-[#6366F1] hover:underline"
+                                className="text-[13px] font-medium text-emerald-600 hover:underline"
                             >
                                 {selectedIds.size === set.mcqs.length ? 'Unselect All' : 'Select All'}
                             </button>
@@ -344,7 +344,7 @@ const SetDetailPage: React.FC = () => {
                             )}
                             <button 
                                 onClick={toggleSelectionMode}
-                                className="text-[13px] font-medium text-gray-500 hover:text-gray-900"
+                                className="text-[13px] font-medium text-slate-500 hover:text-slate-900"
                             >
                                 Done
                             </button>
@@ -352,7 +352,7 @@ const SetDetailPage: React.FC = () => {
                     ) : (
                         <button 
                             onClick={toggleSelectionMode}
-                            className="text-[13px] font-medium text-[#6366F1] hover:text-[#4F46E5] transition-colors flex items-center gap-1"
+                            className="text-[13px] font-medium text-emerald-600 hover:text-emerald-700 transition-colors flex items-center gap-1"
                         >
                             <Icon name="check-circle" size="sm" /> Select
                         </button>
@@ -362,15 +362,15 @@ const SetDetailPage: React.FC = () => {
                 {/* Custom MCQ List */}
                 <div className="flex flex-col gap-[12px]">
                     {set.mcqs.length === 0 ? (
-                        <div className="text-center py-10 border-2 border-dashed border-gray-200 rounded-[20px]">
-                            <p className="text-[14px] text-gray-400">No MCQs added yet</p>
+                        <div className="text-center py-10 border-2 border-dashed border-slate-200 rounded-[24px] bg-slate-50/50">
+                            <p className="text-[14px] text-slate-400">No MCQs added yet</p>
                         </div>
                     ) : (
                         set.mcqs.map((mcq, index) => (
                             <div 
                                 key={mcq.id}
-                                className={`relative bg-white border rounded-[18px] p-[18px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all ${
-                                    isSelectionMode && selectedIds.has(mcq.id) ? 'border-[#6366F1] bg-indigo-50/10' : 'border-[#F3F4F6]'
+                                className={`relative bg-white border rounded-[20px] p-5 shadow-sm transition-all ${
+                                    isSelectionMode && selectedIds.has(mcq.id) ? 'border-emerald-500 bg-emerald-50/10 ring-1 ring-emerald-500' : 'border-slate-100 hover:border-slate-200 hover:shadow-md'
                                 }`}
                                 onClick={isSelectionMode ? () => toggleSelect(mcq.id) : undefined}
                             >
@@ -378,7 +378,7 @@ const SetDetailPage: React.FC = () => {
                                 {!isSelectionMode && (
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); setEditingMCQ(mcq); setShowSingleMCQ(true); }}
-                                        className="absolute top-4 right-4 text-[#D1D5DB] hover:text-[#6366F1] transition-colors"
+                                        className="absolute top-4 right-4 text-slate-300 hover:text-emerald-600 transition-colors"
                                     >
                                         <Icon name="edit-3" size="sm" />
                                     </button>
@@ -387,7 +387,7 @@ const SetDetailPage: React.FC = () => {
                                 {/* Selection Checkbox */}
                                 {isSelectionMode && (
                                     <div className="absolute top-4 right-4">
-                                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${selectedIds.has(mcq.id) ? 'bg-[#6366F1] border-[#6366F1]' : 'border-gray-300 bg-white'}`}>
+                                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${selectedIds.has(mcq.id) ? 'bg-emerald-500 border-emerald-500' : 'border-slate-300 bg-white'}`}>
                                             {selectedIds.has(mcq.id) && <Icon name="check" size="sm" className="text-white" />}
                                         </div>
                                     </div>
@@ -395,8 +395,8 @@ const SetDetailPage: React.FC = () => {
 
                                 {/* Question */}
                                 <div className="mb-3 pr-8">
-                                    <span className="text-[#6366F1] font-bold mr-2">{index + 1}.</span>
-                                    <span className="text-[15px] font-semibold text-[#111827] leading-relaxed">
+                                    <span className="text-emerald-600 font-bold mr-2">{index + 1}.</span>
+                                    <span className="text-[15px] font-semibold text-slate-900 leading-relaxed">
                                         {mcq.question}
                                     </span>
                                 </div>
@@ -412,11 +412,11 @@ const SetDetailPage: React.FC = () => {
                                                 key={opt}
                                                 className={`text-[14px] flex items-start gap-2 ${
                                                     isCorrect 
-                                                        ? 'bg-[#ECFDF5] text-[#059669] font-semibold px-2 py-1 -ml-2 rounded-[6px]' 
-                                                        : 'text-[#374151] font-normal py-1'
+                                                        ? 'bg-emerald-50 text-emerald-700 font-semibold px-2 py-1 -ml-2 rounded-lg' 
+                                                        : 'text-slate-600 font-normal py-1'
                                                 }`}
                                             >
-                                                <span className={`font-medium ${isCorrect ? 'text-[#059669]' : 'text-[#9CA3AF]'}`}>{opt})</span>
+                                                <span className={`font-medium ${isCorrect ? 'text-emerald-700' : 'text-slate-400'}`}>{opt})</span>
                                                 <span className="leading-snug">{text}</span>
                                             </div>
                                         );
@@ -425,11 +425,11 @@ const SetDetailPage: React.FC = () => {
 
                                 {/* Tag / Source */}
                                 {mcq.source && (
-                                    <div className="mt-3 pt-2.5 border-t border-[#F3F4F6] flex items-center gap-2">
-                                        <div className="text-[#D1D5DB]">
+                                    <div className="mt-3 pt-2.5 border-t border-slate-50 flex items-center gap-2">
+                                        <div className="text-slate-300">
                                             <Icon name="check-circle" size="sm" /> {/* Placeholder for tag icon, reused check-circle as generic badge style */}
                                         </div>
-                                        <span className="text-[12px] font-normal text-[#9CA3AF]">{mcq.source}</span>
+                                        <span className="text-[12px] font-normal text-slate-400">{mcq.source}</span>
                                     </div>
                                 )}
                             </div>

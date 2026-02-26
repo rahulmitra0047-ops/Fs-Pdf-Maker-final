@@ -92,27 +92,35 @@ const ResultPage: React.FC = () => {
   const offset = circumference * (1 - (attempt.percentage || 0) / 100);
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] pb-20 pt-[56px]">
-        <TopBar 
-            title="Result" 
-            showBack 
-            backPath={set ? `/live-mcq/set/${set.id}` : '/live-mcq/topics'}
-            showHome={true}
-        />
+    <div className="min-h-screen bg-[#F8FAFC] pb-20 pt-[60px]">
+        <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 z-50 px-5 flex items-center justify-between transition-all">
+            <div className="flex items-center gap-3">
+                <button 
+                    onClick={() => set ? navigate(`/live-mcq/set/${set.id}`) : navigate('/live-mcq/topics')} 
+                    className="p-2 -ml-2 text-slate-500 hover:text-slate-900 rounded-full transition-colors active:scale-95"
+                >
+                    <Icon name="arrow-left" size="md" />
+                </button>
+            </div>
+            <h1 className="text-[18px] font-semibold text-slate-900 absolute left-1/2 -translate-x-1/2 tracking-tight">
+                Result
+            </h1>
+            <div className="w-10"></div>
+        </header>
 
         {!showReview ? (
             <div className="max-w-md mx-auto p-6 text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
                 <div className="space-y-2">
-                    <div className="text-6xl mb-4 block animate-bounce">{msg.emoji}</div>
-                    <h1 className="text-3xl font-bold text-[var(--text-primary)]">{msg.text}</h1>
-                    <p className="text-[var(--text-secondary)]">You scored {attempt.score} out of {attempt.total}</p>
+                    <div className="text-6xl mb-4 block animate-bounce drop-shadow-md">{msg.emoji}</div>
+                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">{msg.text}</h1>
+                    <p className="text-slate-500 font-medium">You scored {attempt.score} out of {attempt.total}</p>
                 </div>
 
                 {/* Score Circle */}
-                <div className="relative w-48 h-48 mx-auto">
-                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 192 192">
+                <div className="relative w-56 h-56 mx-auto">
+                    <svg className="w-full h-full transform -rotate-90 drop-shadow-xl" viewBox="0 0 192 192">
                         {/* Background Circle */}
-                        <circle cx="96" cy="96" r="82" stroke="#e5e7eb" strokeWidth="12" fill="none" />
+                        <circle cx="96" cy="96" r="82" stroke="#F1F5F9" strokeWidth="12" fill="none" />
                         {/* Progress Circle */}
                         <circle 
                             cx="96" cy="96" r="82" 
@@ -126,41 +134,41 @@ const ResultPage: React.FC = () => {
                         />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center flex-col">
-                        <span className="text-4xl font-bold text-[var(--text-primary)]">{attempt.percentage}%</span>
-                        <span className="text-xs text-gray-500">Accuracy</span>
+                        <span className="text-5xl font-bold text-slate-800 tracking-tighter">{attempt.percentage}%</span>
+                        <span className="text-sm text-slate-400 font-medium uppercase tracking-widest mt-1">Accuracy</span>
                     </div>
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-green-50 p-3 rounded-xl border border-green-100">
-                        <div className="text-xl font-bold text-green-700">{correctCount}</div>
-                        <div className="text-[10px] uppercase text-green-600 font-bold">Correct</div>
+                <div className="grid grid-cols-3 gap-4">
+                    <div className="bg-emerald-50 p-4 rounded-[20px] border border-emerald-100 shadow-sm">
+                        <div className="text-2xl font-bold text-emerald-600">{correctCount}</div>
+                        <div className="text-[11px] uppercase text-emerald-600/70 font-bold tracking-wider mt-1">Correct</div>
                     </div>
-                    <div className="bg-red-50 p-3 rounded-xl border border-red-100">
-                        <div className="text-xl font-bold text-red-700">{wrongCount}</div>
-                        <div className="text-[10px] uppercase text-red-600 font-bold">Wrong</div>
+                    <div className="bg-red-50 p-4 rounded-[20px] border border-red-100 shadow-sm">
+                        <div className="text-2xl font-bold text-red-600">{wrongCount}</div>
+                        <div className="text-[11px] uppercase text-red-600/70 font-bold tracking-wider mt-1">Wrong</div>
                     </div>
-                    <div className="bg-gray-100 p-3 rounded-xl border border-gray-200">
-                        <div className="text-xl font-bold text-gray-700">{skippedCount}</div>
-                        <div className="text-[10px] uppercase text-gray-600 font-bold">Skipped</div>
+                    <div className="bg-slate-50 p-4 rounded-[20px] border border-slate-100 shadow-sm">
+                        <div className="text-2xl font-bold text-slate-600">{skippedCount}</div>
+                        <div className="text-[11px] uppercase text-slate-500/70 font-bold tracking-wider mt-1">Skipped</div>
                     </div>
                 </div>
 
-                <div className="space-y-3 pt-4">
+                <div className="space-y-3 pt-6">
                     {set && (
-                        <PremiumButton fullWidth onClick={() => setShowReview(true)}>Review Answers</PremiumButton>
+                        <PremiumButton fullWidth onClick={() => setShowReview(true)} className="bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-900/20 py-4 text-[16px]">Review Answers</PremiumButton>
                     )}
-                    <PremiumButton fullWidth variant="secondary" onClick={() => set ? navigate(`/live-mcq/set/${set.id}`) : navigate('/live-mcq/topics')}>
+                    <PremiumButton fullWidth variant="secondary" onClick={() => set ? navigate(`/live-mcq/set/${set.id}`) : navigate('/live-mcq/topics')} className="bg-white border-slate-200 text-slate-600 hover:bg-slate-50 py-4 text-[16px]">
                         {set ? 'Back to Set' : 'Back Home'}
                     </PremiumButton>
                 </div>
             </div>
         ) : (
-            <div className="max-w-2xl mx-auto p-4 space-y-4">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="font-bold text-lg">Review Answers</h2>
-                    <button onClick={() => setShowReview(false)} className="text-sm text-[var(--primary)]">Back to Score</button>
+            <div className="max-w-2xl mx-auto p-5 space-y-5">
+                <div className="flex justify-between items-center mb-2 px-1">
+                    <h2 className="font-bold text-xl text-slate-800">Review Answers</h2>
+                    <button onClick={() => setShowReview(false)} className="text-sm font-medium text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors">Back to Score</button>
                 </div>
 
                 {set?.mcqs.map((mcq, i) => {
@@ -169,45 +177,53 @@ const ResultPage: React.FC = () => {
                     const isSkipped = !userAns;
 
                     return (
-                        <PremiumCard key={mcq.id} className="space-y-3">
-                            <div className="flex gap-3">
-                                <div className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold mt-0.5 ${isSkipped ? 'bg-gray-400' : isCorrect ? 'bg-green-500' : 'bg-red-500'}`}>
+                        <div key={mcq.id} className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 space-y-4">
+                            <div className="flex gap-4">
+                                <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-sm font-bold shadow-sm ${isSkipped ? 'bg-slate-400' : isCorrect ? 'bg-emerald-500' : 'bg-red-500'}`}>
                                     {isSkipped ? '?' : isCorrect ? '✓' : '✕'}
                                 </div>
                                 <div className="flex-1">
-                                    <div className="text-sm font-medium text-[var(--text-primary)] mb-2">
-                                        <span className="font-bold mr-1">{i + 1}.</span> {mcq.question}
+                                    <div className="text-[16px] font-medium text-slate-800 mb-4 leading-relaxed">
+                                        <span className="font-bold mr-1 text-slate-400">{i + 1}.</span> {mcq.question}
                                     </div>
                                     
-                                    <div className="space-y-1 text-sm">
+                                    <div className="space-y-2">
                                         {['A', 'B', 'C', 'D'].map(opt => {
                                             const optionKey = `option${opt}` as keyof typeof mcq;
                                             const isSelected = userAns === opt;
                                             const isAnswer = mcq.answer === opt;
                                             
-                                            let cls = "p-2 rounded border border-transparent";
-                                            if (isAnswer) cls = "bg-green-50 border-green-200 text-green-800 font-medium";
-                                            else if (isSelected) cls = "bg-red-50 border-red-200 text-red-800 line-through decoration-red-500";
-                                            else cls = "text-gray-500";
+                                            let cls = "p-3 rounded-xl border border-transparent flex items-center gap-3 transition-colors";
+                                            let icon = null;
+
+                                            if (isAnswer) {
+                                                cls = "bg-emerald-50 border-emerald-200 text-emerald-800 font-medium";
+                                                icon = <CheckmarkIcon size={16} color="#059669" />;
+                                            } else if (isSelected) {
+                                                cls = "bg-red-50 border-red-200 text-red-800 line-through decoration-red-400 opacity-80";
+                                                icon = <span className="text-red-500 font-bold">✕</span>;
+                                            } else {
+                                                cls = "bg-slate-50 text-slate-500 border-slate-100";
+                                            }
 
                                             return (
-                                                <div key={opt} className={`flex gap-2 ${cls}`}>
-                                                    <span className="w-5 font-bold">{opt})</span>
-                                                    <span>{mcq[optionKey] as string}</span>
-                                                    {isAnswer && <CheckmarkIcon size={14} />}
+                                                <div key={opt} className={cls}>
+                                                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isAnswer ? 'bg-emerald-200 text-emerald-800' : isSelected ? 'bg-red-200 text-red-800' : 'bg-white border border-slate-200 text-slate-400'}`}>{opt}</span>
+                                                    <span className="flex-1">{mcq[optionKey] as string}</span>
+                                                    {icon}
                                                 </div>
                                             );
                                         })}
                                     </div>
 
                                     {mcq.explanation && (
-                                        <div className="mt-3 text-xs bg-gray-50 p-2 rounded text-gray-600">
-                                            <span className="font-bold">Exp:</span> {mcq.explanation}
+                                        <div className="mt-4 text-sm bg-slate-50 p-4 rounded-[16px] text-slate-600 border border-slate-100">
+                                            <span className="font-bold text-slate-700 block mb-1">Explanation:</span> {mcq.explanation}
                                         </div>
                                     )}
                                 </div>
                             </div>
-                        </PremiumCard>
+                        </div>
                     );
                 })}
             </div>

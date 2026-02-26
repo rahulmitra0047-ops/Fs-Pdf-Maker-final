@@ -16,6 +16,19 @@ export type FlashcardTheme = {
 
 export const THEMES: FlashcardTheme[] = [
   {
+    id: 'premium-slate-emerald',
+    name: 'Premium Slate',
+    background: '#F8FAFC',
+    cardBg: '#FFFFFF',
+    textColor: '#334155',
+    subTextColor: '#94A3B8',
+    accentColor: '#10B981',
+    borderColor: '#F1F5F9',
+    buttonBg: '#334155',
+    buttonText: '#FFFFFF',
+    shadow: '0 4px 20px -2px rgba(0,0,0,0.05)',
+  },
+  {
     id: 'minimal-white',
     name: 'Minimal White',
     background: '#F5F5F5',

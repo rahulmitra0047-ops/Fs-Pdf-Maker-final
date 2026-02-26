@@ -44,32 +44,32 @@ const PWAInstallPrompt: React.FC = () => {
 
   return (
     <div className="fixed bottom-4 left-4 z-prompt pointer-events-none">
-      <div className="bg-white rounded-xl shadow-2xl border border-gray-100 p-4 animate-in slide-in-from-bottom-4 duration-500 pointer-events-auto max-w-sm">
+      <div className="bg-white rounded-2xl shadow-lg shadow-slate-900/10 border border-slate-100 p-4 animate-in slide-in-from-bottom-4 duration-500 pointer-events-auto max-w-sm">
         <div className="flex items-start gap-3">
-          <div className="bg-gray-100 p-2 rounded-lg text-gray-700">
+          <div className="bg-slate-100 p-2 rounded-xl text-slate-700">
              <Icon name="download" size="sm" />
           </div>
           <div className="flex-1">
-              <h4 className="text-sm font-bold text-gray-900">Install App</h4>
-              <p className="text-xs text-gray-500 mt-0.5 mb-3 leading-relaxed">
+              <h4 className="text-sm font-bold text-slate-900">Install App</h4>
+              <p className="text-xs text-slate-500 mt-0.5 mb-3 leading-relaxed">
                   Add to home screen for offline access and better performance.
               </p>
               <div className="flex gap-2">
                   <button 
                       onClick={handleInstall}
-                      className="flex-1 bg-gray-900 text-white text-xs font-bold py-2 rounded-lg hover:bg-black transition-colors"
+                      className="flex-1 bg-slate-800 text-white text-xs font-bold py-2 rounded-xl hover:bg-slate-900 transition-colors shadow-sm"
                   >
                       Install
                   </button>
                   <button 
                       onClick={handleDismiss}
-                      className="flex-1 bg-gray-100 text-gray-600 text-xs font-bold py-2 rounded-lg hover:bg-gray-200 transition-colors"
+                      className="flex-1 bg-slate-100 text-slate-600 text-xs font-bold py-2 rounded-xl hover:bg-slate-200 transition-colors"
                   >
                       Not Now
                   </button>
               </div>
           </div>
-          <button onClick={handleDismiss} className="text-gray-400 hover:text-gray-600">
+          <button onClick={handleDismiss} className="text-slate-400 hover:text-slate-600">
               <Icon name="x" size="sm" />
           </button>
         </div>

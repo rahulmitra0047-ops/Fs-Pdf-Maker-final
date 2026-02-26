@@ -271,10 +271,10 @@ const CreatePdfPage: React.FC = () => {
       toast.success("MCQs shuffled successfully");
   };
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]"><p className="text-sm text-[#9CA3AF]">Loading Document...</p></div>;
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]"><p className="text-sm text-slate-400">Loading Document...</p></div>;
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] pb-32 pt-[112px]">
+    <div className="min-h-screen bg-[#F8FAFC] pb-32 pt-[116px] font-sans">
       {isExporting && (
           <LoadingOverlay 
               status={exportStatus} 
@@ -293,7 +293,7 @@ const CreatePdfPage: React.FC = () => {
             activeTab === 'documents' ? (
                 <button 
                     onClick={() => navigate('/settings')}
-                    className="p-2 -mr-2 text-[#6B7280] hover:text-gray-900 rounded-full transition-colors active:scale-95"
+                    className="p-2 -mr-2 text-slate-400 hover:text-slate-700 rounded-full transition-colors active:scale-95"
                 >
                     <Icon name="settings" size="md" />
                 </button>
@@ -303,7 +303,7 @@ const CreatePdfPage: React.FC = () => {
                     <button 
                         onClick={handleSharePDF}
                         disabled={document.mcqs.length === 0}
-                        className="bg-white border border-[#E5E7EB] text-[#6366F1] px-3 py-2 rounded-xl text-xs font-bold shadow-sm hover:bg-[#F9FAFB] active:scale-95 transition-all flex items-center gap-1.5 disabled:opacity-50"
+                        className="bg-white border border-slate-200 text-slate-600 px-3 py-2 rounded-xl text-xs font-bold shadow-sm hover:bg-slate-50 active:scale-95 transition-all flex items-center gap-1.5 disabled:opacity-50"
                     >
                         <Icon name="share" size="sm" />
                     </button>
@@ -311,7 +311,7 @@ const CreatePdfPage: React.FC = () => {
                 <button 
                     onClick={handleExportPDF}
                     disabled={document.mcqs.length === 0}
-                    className="bg-[#6366F1] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md hover:bg-indigo-700 active:scale-95 transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:shadow-none mr-2"
+                    className="bg-slate-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md hover:bg-slate-800 active:scale-95 transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:shadow-none mr-2"
                 >
                     <Icon name="download" size="sm" /> PDF
                 </button>
@@ -321,22 +321,22 @@ const CreatePdfPage: React.FC = () => {
       
       {activeTab !== 'documents' && (
         <div 
-            className="fixed top-0 left-16 right-32 h-[56px] z-modal cursor-pointer" 
+            className="fixed top-0 left-16 right-32 h-[60px] z-modal cursor-pointer" 
             onClick={openTitleEdit}
             title="Edit Title"
         />
       )}
 
-      <div className="fixed top-[56px] left-0 right-0 z-header bg-white border-b border-[#F3F4F6] shadow-sm">
+      <div className="fixed top-[60px] left-0 right-0 z-header bg-[#F8FAFC]/90 backdrop-blur-xl border-b border-slate-100 shadow-sm">
           <div className="flex max-w-3xl mx-auto px-4 gap-1">
               {['documents', 'settings', 'editor', 'preview'].map((tab) => (
                   <button 
                     key={tab}
                     onClick={() => setActiveTab(tab as any)} 
-                    className={`flex-1 py-3 text-[13px] md:text-[15px] transition-all relative capitalize 
+                    className={`flex-1 py-3 text-[13px] md:text-[15px] transition-all relative capitalize font-medium
                         ${activeTab === tab 
-                            ? 'text-[#111827] font-semibold border-b-2 border-[#6366F1]' 
-                            : 'text-[#9CA3AF] font-normal border-b-0 hover:text-[#374151]'
+                            ? 'text-slate-700 font-bold border-b-2 border-slate-700' 
+                            : 'text-slate-400 border-b-0 hover:text-slate-600'
                         }`}
                   >
                     {tab}
@@ -384,28 +384,28 @@ const CreatePdfPage: React.FC = () => {
                       {isFabOpen && (
                           <div className="flex flex-col items-end gap-3 mb-2 animate-in slide-in-from-bottom-4 duration-200">
                               <div className="flex items-center gap-3 group">
-                                  <span className="bg-white px-3 py-1.5 rounded-lg shadow-md border border-[#F3F4F6] text-xs font-bold text-[#374151] opacity-0 group-hover:opacity-100 transition-opacity">Shuffle</span>
+                                  <span className="bg-white px-3 py-1.5 rounded-xl shadow-md border border-slate-100 text-xs font-bold text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity">Shuffle</span>
                                   <button 
                                       onClick={() => { setShowShuffle(true); setIsFabOpen(false); }}
-                                      className="w-12 h-12 bg-white text-[#6366F1] border border-[#E5E7EB] rounded-full shadow-lg flex items-center justify-center active:scale-90 transition-transform"
+                                      className="w-12 h-12 bg-white text-slate-600 border border-slate-200 rounded-2xl shadow-lg flex items-center justify-center active:scale-90 transition-transform"
                                   >
                                       <Icon name="shuffle" size="sm" />
                                   </button>
                               </div>
                               <div className="flex items-center gap-3 group">
-                                  <span className="bg-white px-3 py-1.5 rounded-lg shadow-md border border-[#F3F4F6] text-xs font-bold text-[#374151] opacity-0 group-hover:opacity-100 transition-opacity">Bulk Import</span>
+                                  <span className="bg-white px-3 py-1.5 rounded-xl shadow-md border border-slate-100 text-xs font-bold text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity">Bulk Import</span>
                                   <button 
                                       onClick={() => { setShowBulkImport(true); setIsFabOpen(false); }}
-                                      className="w-12 h-12 bg-white text-[#6366F1] border border-[#E5E7EB] rounded-full shadow-lg flex items-center justify-center active:scale-90 transition-transform"
+                                      className="w-12 h-12 bg-white text-slate-600 border border-slate-200 rounded-2xl shadow-lg flex items-center justify-center active:scale-90 transition-transform"
                                   >
                                       <Icon name="upload" size="sm" />
                                   </button>
                               </div>
                               <div className="flex items-center gap-3 group">
-                                  <span className="bg-white px-3 py-1.5 rounded-lg shadow-md border border-[#F3F4F6] text-xs font-bold text-[#374151] opacity-0 group-hover:opacity-100 transition-opacity">Add MCQ</span>
+                                  <span className="bg-white px-3 py-1.5 rounded-xl shadow-md border border-slate-100 text-xs font-bold text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity">Add MCQ</span>
                                   <button 
                                       onClick={() => { setEditingMCQ(null); setShowSingleMCQ(true); setIsFabOpen(false); }}
-                                      className="w-12 h-12 bg-[#6366F1] text-white rounded-full shadow-lg flex items-center justify-center active:scale-90 transition-transform"
+                                      className="w-12 h-12 bg-slate-700 text-white rounded-2xl shadow-lg flex items-center justify-center active:scale-90 transition-transform"
                                   >
                                       <Icon name="edit-3" size="sm" />
                                   </button>
@@ -415,7 +415,7 @@ const CreatePdfPage: React.FC = () => {
                       
                       <button 
                           onClick={() => setIsFabOpen(!isFabOpen)}
-                          className={`w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 active:scale-90 ${isFabOpen ? 'bg-gray-800 text-white rotate-45' : 'bg-[#6366F1] text-white'}`}
+                          className={`w-14 h-14 rounded-2xl shadow-xl shadow-slate-900/20 flex items-center justify-center transition-all duration-300 active:scale-90 ${isFabOpen ? 'bg-slate-800 text-white rotate-45' : 'bg-slate-700 text-white'}`}
                       >
                           <Icon name="plus" size="lg" />
                       </button>

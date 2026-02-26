@@ -56,21 +56,21 @@ const LiveMcqPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] pb-20 pt-[60px]">
+    <div className="min-h-screen bg-[#F8FAFC] pb-20 pt-[60px]">
         {/* Custom Header - Minimal & Clean */}
-        <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/90 backdrop-blur-md border-b border-gray-100 z-50 px-5 flex items-center justify-between transition-all">
+        <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 z-50 px-5 flex items-center justify-between transition-all">
             <div className="flex items-center gap-3">
                 <button 
                     onClick={() => navigate('/')} 
-                    className="p-2 -ml-2 text-gray-500 hover:text-gray-900 rounded-full transition-colors active:scale-95"
+                    className="p-2 -ml-2 text-slate-500 hover:text-slate-900 rounded-full transition-colors active:scale-95"
                 >
                     <Icon name="arrow-left" size="md" />
                 </button>
             </div>
-            <h1 className="text-[18px] font-semibold text-[#111827] absolute left-1/2 -translate-x-1/2 tracking-tight">Live MCQ</h1>
+            <h1 className="text-[18px] font-semibold text-slate-900 absolute left-1/2 -translate-x-1/2 tracking-tight">Live MCQ</h1>
             <button 
                 onClick={() => navigate('/')}
-                className="p-2 -mr-2 text-gray-500 hover:text-gray-900 rounded-full transition-colors active:scale-95"
+                className="p-2 -mr-2 text-slate-500 hover:text-slate-900 rounded-full transition-colors active:scale-95"
             >
                 <Icon name="home" size="md" />
             </button>
@@ -84,9 +84,9 @@ const LiveMcqPage: React.FC = () => {
                     placeholder="Search history..." 
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-[46px] pr-4 py-[14px] bg-[#F9FAFB] border border-[#F3F4F6] rounded-[14px] text-[#111827] placeholder-gray-400 text-sm focus:outline-none focus:border-[#6366F1] focus:bg-white transition-all shadow-sm"
+                    className="w-full pl-[46px] pr-4 py-[14px] bg-white border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-all shadow-sm"
                 />
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#6366F1] transition-colors">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors">
                     <Icon name="search" size="md" />
                 </div>
             </div>
@@ -96,18 +96,18 @@ const LiveMcqPage: React.FC = () => {
                 {/* TOPICS CARD */}
                 <div 
                     onClick={() => navigate('/live-mcq/topics')}
-                    className="bg-white border border-[#F3F4F6] rounded-[20px] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] active:scale-[0.98] transition-all duration-150 cursor-pointer flex items-center justify-between group"
+                    className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-slate-200 active:scale-[0.98] transition-all duration-150 cursor-pointer flex items-center justify-between group"
                 >
                     <div className="flex items-center gap-4">
-                        <div className="text-[#6366F1]">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm">
                             <Icon name="book-open" size="lg" />
                         </div>
                         <div>
-                            <h2 className="text-[17px] font-semibold text-[#111827] leading-tight group-hover:text-[#6366F1] transition-colors">Topics</h2>
-                            <p className="text-[13px] font-normal text-[#9CA3AF] mt-1">Browse & Practice MCQs</p>
+                            <h2 className="text-[17px] font-semibold text-slate-900 leading-tight group-hover:text-emerald-600 transition-colors">Topics</h2>
+                            <p className="text-[13px] font-normal text-slate-500 mt-1">Browse & Practice MCQs</p>
                         </div>
                     </div>
-                    <div className="text-gray-300 group-hover:text-[#6366F1] transition-colors">
+                    <div className="text-slate-300 group-hover:text-emerald-500 transition-colors">
                         <Icon name="chevron-right" size="md" />
                     </div>
                 </div>
@@ -115,18 +115,18 @@ const LiveMcqPage: React.FC = () => {
                 {/* EXAM CENTER CARD */}
                 <div 
                     onClick={() => navigate('/live-mcq/exam-center')}
-                    className="bg-white border border-[#F3F4F6] rounded-[20px] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] active:scale-[0.98] transition-all duration-150 cursor-pointer flex items-center justify-between group"
+                    className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-slate-200 active:scale-[0.98] transition-all duration-150 cursor-pointer flex items-center justify-between group"
                 >
                     <div className="flex items-center gap-4">
-                        <div className="text-[#6366F1]">
+                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-sm">
                             <Icon name="target" size="lg" />
                         </div>
                         <div>
-                            <h2 className="text-[17px] font-semibold text-[#111827] leading-tight group-hover:text-[#6366F1] transition-colors">Exam Center</h2>
-                            <p className="text-[13px] font-normal text-[#9CA3AF] mt-1">Take Custom Exams</p>
+                            <h2 className="text-[17px] font-semibold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">Exam Center</h2>
+                            <p className="text-[13px] font-normal text-slate-500 mt-1">Take Custom Exams</p>
                         </div>
                     </div>
-                    <div className="text-gray-300 group-hover:text-[#6366F1] transition-colors">
+                    <div className="text-slate-300 group-hover:text-indigo-500 transition-colors">
                         <Icon name="chevron-right" size="md" />
                     </div>
                 </div>
@@ -135,28 +135,28 @@ const LiveMcqPage: React.FC = () => {
             {/* Recent Activity */}
             {recentAttempts.length > 0 && (
                 <div className="mt-8 animate-fade-in">
-                    <h2 className="text-[13px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">
+                    <h2 className="text-[13px] font-semibold text-slate-400 uppercase tracking-wider mb-3 px-1">
                         Recent Activity
                     </h2>
-                    <div className="bg-white rounded-[20px] border border-[#F3F4F6] shadow-[0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
+                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                         {recentAttempts.map((attempt, i) => (
                             <div 
                                 key={attempt.id} 
                                 onClick={() => navigate(attempt.mode === 'custom-exam' ? `/live-mcq/exam-center/result/${attempt.id}` : `/live-mcq/result/${attempt.id}`)}
-                                className={`p-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer active:bg-gray-100 transition-colors ${i !== recentAttempts.length - 1 ? 'border-b border-[#F3F4F6]' : ''}`}
+                                className={`p-4 flex items-center justify-between hover:bg-slate-50 cursor-pointer active:bg-slate-100 transition-colors ${i !== recentAttempts.length - 1 ? 'border-b border-slate-100' : ''}`}
                             >
                                 <div className="flex items-center gap-3.5">
                                     <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm ${attempt.mode === 'practice' ? 'bg-emerald-500' : 'bg-indigo-500'}`}>
                                         {attempt.mode === 'practice' ? 'P' : 'E'}
                                     </div>
                                     <div>
-                                        <div className="text-[14px] font-semibold text-gray-900 line-clamp-1">{attempt.setName}</div>
-                                        <div className="text-[12px] text-gray-400 mt-0.5 font-medium">
+                                        <div className="text-[14px] font-semibold text-slate-900 line-clamp-1">{attempt.setName}</div>
+                                        <div className="text-[12px] text-slate-400 mt-0.5 font-medium">
                                             {attempt.percentage}% Score • {getTimeAgo(attempt.completedAt)}
                                         </div>
                                     </div>
                                 </div>
-                                <div className="text-gray-300">
+                                <div className="text-slate-300">
                                     <Icon name="chevron-right" size="sm" />
                                 </div>
                             </div>
