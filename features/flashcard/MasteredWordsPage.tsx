@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import { ArrowLeft, ChevronRight, RefreshCw, Trash2 } from 'lucide-react';
 import { flashcardService } from '../../core/storage/services';
 import { FlashcardMasteredWord } from '../../types';
 import toast from 'react-hot-toast';
@@ -21,6 +21,7 @@ const MasteredWordsPage: React.FC = () => {
   const [expandedDate, setExpandedDate] = useState<string | null>(null);
   const [expandedWords, setExpandedWords] = useState<FlashcardMasteredWord[]>([]);
   const [expanding, setExpanding] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<FlashcardMasteredWord | null>(null);
 
   useEffect(() => {
     loadDates();
@@ -35,6 +36,35 @@ const MasteredWordsPage: React.FC = () => {
       toast.error('Data load হচ্ছে না');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, word: FlashcardMasteredWord) => {
+    e.stopPropagation();
+    setConfirmDelete(word);
+  };
+
+  const confirmDeleteWord = async () => {
+    if (!confirmDelete) return;
+    try {
+      await flashcardService.deleteMasteredWord(confirmDelete.id);
+      toast.success('Word deleted');
+      setConfirmDelete(null);
+      
+      // Reload dates and current expanded words
+      const data = await flashcardService.getMasteredDates();
+      setDates(data);
+      
+      if (expandedDate) {
+         const words = await flashcardService.getMasteredByDate(expandedDate);
+         setExpandedWords(words);
+         // If no words left in this date, collapse it
+         if (words.length === 0) {
+             setExpandedDate(null);
+         }
+      }
+    } catch (error) {
+      toast.error('Delete failed');
     }
   };
 
@@ -203,17 +233,23 @@ const MasteredWordsPage: React.FC = () => {
                         <>
                           <div className="flex flex-wrap gap-2 mb-3">
                             {expandedWords.map(word => (
-                              <span 
+                              <div 
                                 key={word.id} 
-                                className="px-2 py-1 text-[13px] rounded-full border"
+                                className="px-2 py-1 text-[13px] rounded-full border flex items-center gap-1 group"
                                 style={{ 
                                   backgroundColor: `${currentTheme.accentColor}10`,
                                   borderColor: `${currentTheme.accentColor}30`,
                                   color: currentTheme.accentColor
                                 }}
                               >
-                                {word.word}
-                              </span>
+                                <span>{word.word}</span>
+                                <button
+                                  onClick={(e) => handleDeleteClick(e, word)}
+                                  className="p-0.5 rounded-full hover:bg-black/10 active:bg-black/20 transition-colors"
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                              </div>
                             ))}
                           </div>
                           <button 
@@ -238,6 +274,45 @@ const MasteredWordsPage: React.FC = () => {
           ))
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl"
+            style={{ backgroundColor: currentTheme.cardBg }}
+          >
+            <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4 mx-auto text-red-500">
+              <Trash2 size={24} />
+            </div>
+            <h3 className="text-lg font-bold mb-2 text-center" style={{ color: currentTheme.textColor }}>এই word delete করবে?</h3>
+            <p className="mb-6 text-center" style={{ color: currentTheme.subTextColor }}>
+              "{confirmDelete.word}" কে permanently delete করা হবে।
+            </p>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setConfirmDelete(null)}
+                className="flex-1 py-2.5 border font-bold rounded-xl"
+                style={{ 
+                  borderColor: currentTheme.borderColor,
+                  color: currentTheme.textColor
+                }}
+              >
+                না
+              </button>
+              <button 
+                onClick={confirmDeleteWord}
+                className="flex-1 py-2.5 bg-red-500 text-white font-bold rounded-xl"
+              >
+                হ্যাঁ, Delete
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       <ThemeIcon />
     </div>
   );

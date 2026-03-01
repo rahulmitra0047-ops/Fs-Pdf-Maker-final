@@ -177,10 +177,16 @@ const NewWordsPage: React.FC = () => {
   };
 
   const [confirmWord, setConfirmWord] = useState<FlashcardNewWord | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<FlashcardNewWord | null>(null);
 
   const handleMoveClick = (e: React.MouseEvent, word: FlashcardNewWord) => {
     e.stopPropagation();
     setConfirmWord(word);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, word: FlashcardNewWord) => {
+    e.stopPropagation();
+    setConfirmDelete(word);
   };
 
   const confirmMove = async () => {
@@ -194,6 +200,18 @@ const NewWordsPage: React.FC = () => {
     } catch (error) {
       console.error("Service call failed", error);
       toast.error('Operation failed');
+    }
+  };
+
+  const confirmDeleteWord = async () => {
+    if (!confirmDelete) return;
+    try {
+      await flashcardService.deleteNewWord(confirmDelete.id);
+      toast.success('Word deleted');
+      setConfirmDelete(null);
+      loadWords();
+    } catch (error) {
+      toast.error('Delete failed');
     }
   };
 
@@ -260,18 +278,26 @@ const NewWordsPage: React.FC = () => {
                   {word.pronunciation && <span>/{word.pronunciation}/</span>}
                 </div>
               </div>
-              <button 
-                onClick={(e) => handleMoveClick(e, word)}
-                className="p-2 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100 active:bg-blue-200 transition-colors"
-              >
-                <Plus size={18} />
-              </button>
+              <div className="flex gap-2">
+                <button 
+                  onClick={(e) => handleDeleteClick(e, word)}
+                  className="p-2 bg-red-50 text-red-500 rounded-full hover:bg-red-100 active:bg-red-200 transition-colors"
+                >
+                  <Trash2 size={18} />
+                </button>
+                <button 
+                  onClick={(e) => handleMoveClick(e, word)}
+                  className="p-2 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100 active:bg-blue-200 transition-colors"
+                >
+                  <Plus size={18} />
+                </button>
+              </div>
             </motion.div>
           ))
         )}
       </div>
 
-      {/* Confirmation Modal */}
+      {/* Move Confirmation Modal */}
       {confirmWord && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <motion.div 
@@ -295,6 +321,39 @@ const NewWordsPage: React.FC = () => {
                 className="flex-1 py-2.5 bg-[#6C63FF] text-white font-bold rounded-xl"
               >
                 হ্যাঁ
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl"
+          >
+            <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4 mx-auto text-red-500">
+              <Trash2 size={24} />
+            </div>
+            <h3 className="text-lg font-bold text-gray-800 mb-2 text-center">এই word delete করবে?</h3>
+            <p className="text-gray-600 mb-6 text-center">
+              "{confirmDelete.word}" কে permanently delete করা হবে।
+            </p>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setConfirmDelete(null)}
+                className="flex-1 py-2.5 border border-gray-300 text-gray-700 font-bold rounded-xl"
+              >
+                না
+              </button>
+              <button 
+                onClick={confirmDeleteWord}
+                className="flex-1 py-2.5 bg-red-500 text-white font-bold rounded-xl"
+              >
+                হ্যাঁ, Delete
               </button>
             </div>
           </motion.div>

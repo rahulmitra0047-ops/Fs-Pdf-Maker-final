@@ -7,6 +7,7 @@ import TopBar from '../../../shared/components/TopBar';
 import PremiumCard from '../../../shared/components/PremiumCard';
 import PremiumButton from '../../../shared/components/PremiumButton';
 import CheckmarkIcon from '../../../shared/components/CheckmarkIcon';
+import Icon from '../../../shared/components/Icon';
 
 const ResultPage: React.FC = () => {
   const { attemptId } = useParams();

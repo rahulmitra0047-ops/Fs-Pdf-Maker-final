@@ -980,7 +980,9 @@ export const flashcardService = {
 
     const dailyCache = await getFromCache<FlashcardDailyWord>('flashcard_daily_cache') || [];
     await saveToCache('flashcard_daily_cache', [...dailyCache, dailyWord]);
-  }
+  },
+
+  deleteMasteredWord: (id: string) => flashcardMasteredFs.delete(id),
 };
 
 

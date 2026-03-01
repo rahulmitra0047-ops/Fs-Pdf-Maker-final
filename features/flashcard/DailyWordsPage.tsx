@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Check, ArrowRight, Shuffle } from 'lucide-react';
 import { flashcardService } from '../../core/storage/services';
 import { FlashcardDailyWord } from '../../types';
 import toast from 'react-hot-toast';
@@ -96,6 +96,29 @@ const DailyWordsPage: React.FC = () => {
     } else {
         executeMastered(currentWord);
     }
+  };
+
+  const handleShuffle = () => {
+    if (words.length <= 1) return;
+    
+    setIsAnimating(true);
+    setIsFlipped(false);
+    
+    // Small delay for animation feel
+    setTimeout(() => {
+        const shuffled = [...words].sort(() => Math.random() - 0.5);
+        setWords(shuffled);
+        setCurrentIndex(0);
+        setIsAnimating(false);
+        toast.success('Shuffled!', {
+            icon: '🔀',
+            style: {
+                borderRadius: '10px',
+                background: '#333',
+                color: '#fff',
+            },
+        });
+    }, 300);
   };
 
   const executeMastered = (currentWord: FlashcardDailyWord) => {
@@ -244,9 +267,21 @@ const DailyWordsPage: React.FC = () => {
         >
           Daily Words
         </h1>
-        <span className="ml-auto text-[14px] font-medium" style={{ color: currentTheme.subTextColor }}>
-          {words.length > 0 ? `${currentIndex + 1}/${words.length}` : '0/0'}
-        </span>
+        <div className="ml-auto flex items-center gap-3">
+          {words.length > 1 && (
+            <button 
+              onClick={handleShuffle}
+              disabled={isAnimating}
+              className="p-2 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors disabled:opacity-50"
+              style={{ color: currentTheme.textColor }}
+            >
+              <Shuffle size={20} />
+            </button>
+          )}
+          <span className="text-[14px] font-medium" style={{ color: currentTheme.subTextColor }}>
+            {words.length > 0 ? `${currentIndex + 1}/${words.length}` : '0/0'}
+          </span>
+        </div>
       </div>
 
       {/* Main Content - Full Screen Card */}
