@@ -10,6 +10,7 @@ import { useToast } from '../../shared/context/ToastContext';
 import { generateUUID } from '../../core/storage/idGenerator';
 import Icon from '../../shared/components/Icon';
 import PracticeFilterSheet from './components/PracticeFilterSheet';
+import SubtopicItem from './components/SubtopicItem';
 
 const TopicDetailPage: React.FC = () => {
   const { topicId } = useParams();
@@ -188,6 +189,10 @@ const TopicDetailPage: React.FC = () => {
       navigate(`/create?mode=export&source=topic&sourceId=${topic.id}`);
   };
 
+  // Handlers for SubtopicItem
+  const handleNavigateSubtopic = (id: string) => navigate(`/live-mcq/topic/${topicId}/subtopic/${id}`);
+  const handleRenameSubtopic = (sub: Subtopic, e: React.MouseEvent) => initiateRename('subtopic', sub, e);
+
   if (initialLoading && !topic) return <div className="p-10 text-center text-gray-500">Loading Topic...</div>;
   if (!topic) return null;
 
@@ -295,43 +300,14 @@ const TopicDetailPage: React.FC = () => {
                     </div>
                 ) : (
                     <div className="flex flex-col gap-[14px]">
-                        {enhancedSubtopics.map((sub, index) => (
-                            <div 
+                        {enhancedSubtopics.map((sub) => (
+                            <SubtopicItem 
                                 key={sub.id}
-                                onClick={() => navigate(`/live-mcq/topic/${topic.id}/subtopic/${sub.id}`)}
-                                className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md hover:border-slate-200 transition-all active:scale-[0.99] cursor-pointer group"
-                            >
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center text-[16px] font-bold border border-slate-100">
-                                            {sub.name.charAt(0).toUpperCase()}
-                                        </div>
-                                        <div>
-                                            <h4 className="text-[16px] font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors">
-                                                {sub.name}
-                                            </h4>
-                                            <p className="text-[13px] font-normal text-slate-500 mt-0.5">
-                                                {sub.setLen} Sets
-                                            </p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-1">
-                                        <button 
-                                            onClick={(e) => initiateRename('subtopic', sub, e)}
-                                            className="p-2 text-slate-300 hover:text-slate-600 transition-colors"
-                                        >
-                                            <Icon name="edit-3" size="sm" />
-                                        </button>
-                                        <button 
-                                            onClick={(e) => handleDeleteSubtopic(sub, e)}
-                                            className="p-2 text-slate-300 hover:text-red-500 transition-colors"
-                                        >
-                                            <Icon name="trash-2" size="sm" />
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                                subtopic={sub}
+                                onNavigate={handleNavigateSubtopic}
+                                onRename={handleRenameSubtopic}
+                                onDelete={handleDeleteSubtopic}
+                            />
                         ))}
                     </div>
                 )}

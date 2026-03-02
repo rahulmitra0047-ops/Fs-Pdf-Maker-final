@@ -7,10 +7,11 @@ import PremiumModal from '../../../shared/components/PremiumModal';
 import PremiumButton from '../../../shared/components/PremiumButton';
 import { generateUUID } from '../../../core/storage/idGenerator';
 import { useToast } from '../../../shared/context/ToastContext';
-import CheckmarkIcon from '../../../shared/components/CheckmarkIcon';
 import Icon from '../../../shared/components/Icon';
 import { aiManager } from '../../../core/ai/aiManager';
 import { getVisitorId, saveMcqAttempts, MCQAttempt } from '../services/mcqTrackingService';
+import QuestionCard from '../components/QuestionCard';
+import PracticeSettings from '../components/PracticeSettings';
 
 const PracticeSession: React.FC = () => {
   const { setId } = useParams();
@@ -104,18 +105,18 @@ const PracticeSession: React.FC = () => {
              setSessionMCQs(ordered);
              setLoading(false);
         } else if (setId) {
-            const s = await mcqSetService.getById(setId);
-            if (s) {
-                setSet(s);
-                setSessionMCQs(s.mcqs);
-            } else {
-                toast.error("Set not found");
-                navigate('/live-mcq/topics');
-            }
-            setLoading(false);
+             const s = await mcqSetService.getById(setId);
+             if (s) {
+                 setSet(s);
+                 setSessionMCQs(s.mcqs);
+             } else {
+                 toast.error("Set not found");
+                 navigate('/live-mcq/topics');
+             }
+             setLoading(false);
         } else {
-            toast.error("No questions provided");
-            navigate('/live-mcq/topics');
+             toast.error("No questions provided");
+             navigate('/live-mcq/topics');
         }
     };
     initSession();
@@ -334,112 +335,21 @@ const PracticeSession: React.FC = () => {
         {/* Question Area */}
         <div className="flex-1 p-5 pb-32 overflow-y-auto">
             {currentMCQ && (
-                <div className="max-w-xl mx-auto animate-in fade-in slide-in-from-bottom-2 duration-300" key={currentMCQ.id}>
-                    <div className="bg-white rounded-[24px] p-6 mb-6 shadow-sm border border-slate-100">
-                        <h2 className="text-[18px] font-semibold text-slate-800 leading-[1.6]">
-                            {currentMCQ.question}
-                        </h2>
-                        {customState?.attempts?.[currentMCQ.id] && (
-                            <div className="mt-3 flex items-center gap-2 text-[11px] text-slate-400 font-medium bg-slate-50 px-3 py-1.5 rounded-lg w-fit border border-slate-100">
-                                <Icon name="clock" size="xs" />
-                                <span>Last attempted: <span className="text-slate-600">{formatLastAttempt(customState.attempts[currentMCQ.id].lastAttemptedAt).relative}</span></span>
-                                <span className="text-slate-300">|</span>
-                                <span>{new Date(customState.attempts[currentMCQ.id].lastAttemptedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="flex flex-col gap-[12px]">
-                        {['A', 'B', 'C', 'D'].map((opt) => {
-                            const text = currentMCQ[`option${opt}` as keyof MCQ] as string;
-                            let containerClass = "bg-white border-[1.5px] border-slate-100";
-                            let circleClass = "bg-slate-50 text-slate-500";
-                            let textClass = "text-slate-600";
-
-                            if (hasAnswered) {
-                                if (opt === currentMCQ.answer) {
-                                    containerClass = "bg-emerald-50 border-emerald-500 ring-1 ring-emerald-500";
-                                    circleClass = "bg-emerald-500 text-white";
-                                    textClass = "text-emerald-900 font-medium";
-                                } else if (opt === selectedOption) {
-                                    containerClass = "bg-red-50 border-red-400 ring-1 ring-red-400";
-                                    circleClass = "bg-red-500 text-white";
-                                    textClass = "text-red-900";
-                                } else {
-                                    containerClass = "bg-white border-slate-100 opacity-50 grayscale";
-                                }
-                            }
-
-                            return (
-                                <button
-                                    key={opt}
-                                    onClick={() => handleAnswer(opt)}
-                                    disabled={hasAnswered}
-                                    className={`w-full rounded-[20px] p-4 px-5 flex items-center text-left transition-all duration-200 ease-out ${containerClass} ${!hasAnswered ? 'hover:border-emerald-200 hover:bg-emerald-50/30 active:scale-[0.98]' : ''}`}
-                                >
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[14px] font-bold flex-shrink-0 transition-colors ${circleClass}`}>
-                                        {hasAnswered && opt === currentMCQ.answer ? <CheckmarkIcon size={16} color="white" className="ml-0" /> : hasAnswered && opt === selectedOption ? <span className="text-[14px]">✕</span> : opt}
-                                    </div>
-                                    <span className={`text-[16px] font-normal ml-4 leading-snug ${textClass}`}>{text}</span>
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    {/* Standard Explanation & AI Trigger */}
-                    {hasAnswered && (
-                        <div className="mt-8 space-y-4">
-                            {/* AI Action Row */}
-                            <div className="flex items-center justify-between px-1">
-                                <span className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Solution</span>
-                                {!aiExplanation && (
-                                    <button 
-                                        onClick={handleAiExplain}
-                                        disabled={isAiLoading}
-                                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-full text-xs font-bold shadow-lg shadow-emerald-200 active:scale-95 transition-all disabled:opacity-50 hover:shadow-emerald-300"
-                                    >
-                                        <Icon name="sparkles" size="sm" className={isAiLoading ? 'animate-spin' : ''} />
-                                        {isAiLoading ? 'Analyzing...' : 'Explain with AI'}
-                                    </button>
-                                )}
-                            </div>
-
-                            {/* Standard Explanation */}
-                            {options.showExplanation && currentMCQ.explanation && (
-                                <div className="bg-slate-50 border border-slate-100 p-6 rounded-[24px]">
-                                    <p className="text-[15px] text-slate-600 leading-relaxed italic">{currentMCQ.explanation}</p>
-                                </div>
-                            )}
-
-                            {/* AI Premium Explanation Box */}
-                            {(isAiLoading || aiExplanation) && (
-                                <div className={`relative overflow-hidden rounded-[24px] p-[2px] transition-all duration-500 animate-in fade-in slide-in-from-top-4`}>
-                                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 via-teal-400 to-cyan-400 opacity-20 animate-pulse"></div>
-                                    <div className="relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-[22px] p-6 shadow-sm">
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
-                                                <Icon name="sparkles" size="sm" />
-                                            </div>
-                                            <h4 className="font-bold text-[16px] text-slate-800">Detailed AI Analysis</h4>
-                                        </div>
-                                        
-                                        {isAiLoading ? (
-                                            <div className="space-y-3">
-                                                <div className="h-4 bg-slate-100 rounded w-3/4 animate-pulse"></div>
-                                                <div className="h-4 bg-slate-100 rounded w-full animate-pulse"></div>
-                                                <div className="h-4 bg-slate-100 rounded w-5/6 animate-pulse"></div>
-                                            </div>
-                                        ) : (
-                                            <div className="text-[15px] text-slate-700 leading-relaxed space-y-4 whitespace-pre-wrap ai-content">
-                                                {aiExplanation}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
+                <QuestionCard
+                    key={currentMCQ.id}
+                    mcq={currentMCQ}
+                    currentIndex={currentIndex}
+                    totalQuestions={sessionMCQs.length}
+                    selectedOption={selectedOption}
+                    hasAnswered={hasAnswered}
+                    attemptData={customState?.attempts?.[currentMCQ.id]}
+                    aiExplanation={aiExplanation}
+                    isAiLoading={isAiLoading}
+                    showExplanation={options.showExplanation}
+                    onAnswer={handleAnswer}
+                    onAiExplain={handleAiExplain}
+                    formatLastAttempt={formatLastAttempt}
+                />
             )}
         </div>
 
@@ -459,38 +369,13 @@ const PracticeSession: React.FC = () => {
         </div>
 
         {/* Settings Modal */}
-        {showSettings && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity" onClick={() => setShowSettings(false)} />
-                <div className="relative w-full max-w-[360px] bg-white rounded-[28px] p-8 shadow-2xl animate-in zoom-in-95 duration-200">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-[20px] font-bold text-slate-800">Practice Settings</h3>
-                        <button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-slate-600 p-1"><Icon name="x" size="md" /></button>
-                    </div>
-                    <div className="space-y-3">
-                        <label className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-[20px] cursor-pointer group select-none transition-colors hover:border-emerald-200 hover:bg-emerald-50/30">
-                            <span className="text-[15px] font-medium text-slate-700">Shuffle Questions</span>
-                            <div className="relative flex items-center">
-                                <input type="checkbox" checked={options.shuffleQuestions} onChange={e => setOptions({...options, shuffleQuestions: e.target.checked})} className="peer sr-only" />
-                                <div className="w-[24px] h-[24px] bg-white border-2 border-slate-300 rounded-[8px] transition-all peer-checked:bg-emerald-500 peer-checked:border-emerald-500 flex items-center justify-center">
-                                    <svg className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                </div>
-                            </div>
-                        </label>
-                        <label className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-[20px] cursor-pointer group select-none transition-colors hover:border-emerald-200 hover:bg-emerald-50/30">
-                            <span className="text-[15px] font-medium text-slate-700">Show Solution</span>
-                            <div className="relative flex items-center">
-                                <input type="checkbox" checked={options.showExplanation} onChange={e => setOptions({...options, showExplanation: e.target.checked})} className="peer sr-only" />
-                                <div className="w-[24px] h-[24px] bg-white border-2 border-slate-300 rounded-[8px] transition-all peer-checked:bg-emerald-500 peer-checked:border-emerald-500 flex items-center justify-center">
-                                    <svg className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                </div>
-                            </div>
-                        </label>
-                    </div>
-                    <button onClick={startSession} className="w-full mt-6 bg-emerald-600 text-white font-semibold text-[16px] py-4 rounded-[20px] active:scale-[0.98] transition-transform shadow-lg shadow-emerald-900/20 hover:bg-emerald-500">Start Practice</button>
-                </div>
-            </div>
-        )}
+        <PracticeSettings
+            isOpen={showSettings}
+            onClose={() => setShowSettings(false)}
+            options={options}
+            onOptionChange={(key, value) => setOptions(prev => ({ ...prev, [key]: value }))}
+            onStart={startSession}
+        />
 
         <PremiumModal isOpen={showExitConfirm} onClose={() => setShowExitConfirm(false)} title="Exit Practice?" size="sm">
             <div className="space-y-4">

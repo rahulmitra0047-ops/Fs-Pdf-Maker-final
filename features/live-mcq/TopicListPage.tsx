@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import PremiumButton from '../../shared/components/PremiumButton';
 import PremiumModal from '../../shared/components/PremiumModal';
 import PremiumInput from '../../shared/components/PremiumInput';
-import PremiumCard from '../../shared/components/PremiumCard';
 import { topicService, subtopicService, mcqSetService } from '../../core/storage/services';
 import { Topic, Subtopic, MCQSet } from '../../types';
 import AddMCQWizard from './components/AddMCQWizard';
@@ -12,6 +11,7 @@ import { useToast } from '../../shared/context/ToastContext';
 import { generateUUID } from '../../core/storage/idGenerator';
 import Icon from '../../shared/components/Icon';
 import PracticeFilterSheet from './components/PracticeFilterSheet';
+import TopicItem from './components/TopicItem';
 
 const PAGE_SIZE = 25;
 
@@ -48,9 +48,6 @@ const TopicListPage: React.FC = () => {
     // Click outside to close menu and FAB
     const handleClickOutside = () => {
         setActiveMenuId(null);
-        // We generally don't auto-close FAB on outside click for better UX unless strictly required, 
-        // but let's keep it manual toggle for now or close if clicking content.
-        // setIsFabOpen(false); 
     };
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
@@ -187,6 +184,25 @@ const TopicListPage: React.FC = () => {
       setIsFabOpen(false);
   };
 
+  // Handlers for TopicItem
+  const handleNavigate = (id: string) => navigate(`/live-mcq/topic/${id}`);
+  const handleMenuToggle = (id: string, e: React.MouseEvent) => {
+      e.stopPropagation();
+      setActiveMenuId(activeMenuId === id ? null : id);
+  };
+  const handlePractice = (id: string) => {
+      handlePracticeAll(id);
+      setActiveMenuId(null);
+  };
+  const handleExportClick = (id: string, e: React.MouseEvent) => {
+      handleExport(id, e);
+      setActiveMenuId(null);
+  };
+  const handleDeleteClick = (topic: Topic, e: React.MouseEvent) => {
+      confirmDelete(topic, e);
+      setActiveMenuId(null);
+  };
+
   if (initialLoading && topics.length === 0) return <div className="p-10 text-center text-gray-500">Loading Topics...</div>;
 
   return (
@@ -223,73 +239,17 @@ const TopicListPage: React.FC = () => {
                     {/* List */}
                     <div className="flex flex-col gap-3">
                         {visibleTopics.map(topic => (
-                            <div 
-                                key={topic.id} 
-                                onClick={() => navigate(`/live-mcq/topic/${topic.id}`)}
-                                className="relative group bg-white rounded-[20px] p-4 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-slate-100 active:scale-[0.98] transition-all duration-150 cursor-pointer hover:border-slate-200"
-                            >
-                                <div className="flex items-center justify-between">
-                                    {/* Left Content */}
-                                    <div className="flex items-center gap-4">
-                                        {/* Avatar */}
-                                        <div className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-600 flex items-center justify-center text-lg font-bold shadow-sm border border-slate-100">
-                                            {topic.name.charAt(0).toUpperCase()}
-                                        </div>
-                                        {/* Text */}
-                                        <div>
-                                            <h3 className="text-base font-bold text-slate-700 leading-tight">{topic.name}</h3>
-                                            <p className="text-xs font-medium text-slate-400 mt-1">
-                                                {topic.subtopicCount} Subs • {topic.mcqCount} Qs
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Right Actions */}
-                                    <div className="flex items-center gap-1">
-                                        {/* Edit Icon */}
-                                        <button 
-                                            onClick={(e) => initiateRename(topic, e)}
-                                            className="p-2 text-slate-300 hover:text-slate-600 transition-colors rounded-full"
-                                        >
-                                            <Icon name="edit-3" size="sm" />
-                                        </button>
-                                        {/* Menu Icon */}
-                                        <button 
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setActiveMenuId(activeMenuId === topic.id ? null : topic.id);
-                                            }}
-                                            className="p-2 text-slate-300 hover:text-slate-600 transition-colors rounded-full"
-                                        >
-                                            <Icon name="more-vertical" size="sm" />
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* Menu Dropdown */}
-                                {activeMenuId === topic.id && (
-                                    <div className="absolute right-4 top-12 z-20 bg-white border border-slate-100 rounded-xl shadow-xl overflow-hidden min-w-[160px] animate-in fade-in zoom-in-95 duration-100 origin-top-right">
-                                        <button 
-                                            onClick={(e) => { e.stopPropagation(); handlePracticeAll(topic.id); setActiveMenuId(null); }}
-                                            className="w-full text-left px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-2 border-b border-slate-50"
-                                        >
-                                            <Icon name="play" size="sm" className="text-slate-400" /> Practice
-                                        </button>
-                                        <button 
-                                            onClick={(e) => { e.stopPropagation(); handleExport(topic.id, e); setActiveMenuId(null); }}
-                                            className="w-full text-left px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-2 border-b border-slate-50"
-                                        >
-                                            <Icon name="share" size="sm" className="text-slate-400" /> Export
-                                        </button>
-                                        <button 
-                                            onClick={(e) => { e.stopPropagation(); confirmDelete(topic, e); setActiveMenuId(null); }}
-                                            className="w-full text-left px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 flex items-center gap-2"
-                                        >
-                                            <Icon name="trash-2" size="sm" /> Delete
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+                            <TopicItem 
+                                key={topic.id}
+                                topic={topic}
+                                activeMenuId={activeMenuId}
+                                onNavigate={handleNavigate}
+                                onRename={initiateRename}
+                                onMenuToggle={handleMenuToggle}
+                                onPractice={handlePractice}
+                                onExport={handleExportClick}
+                                onDelete={handleDeleteClick}
+                            />
                         ))}
                     </div>
 
@@ -396,14 +356,16 @@ const TopicListPage: React.FC = () => {
                 const tSets = sets.filter(s => tSubtopics.includes(s.subtopicId));
                 return tSets.flatMap(s => s.mcqs);
             })()}
-            onStart={(ids, settings) => {
+            onStart={(ids, settings, attempts) => {
                 const topicName = topics.find(t => t.id === activePracticeTopicId)?.name;
                 setActivePracticeTopicId(null);
                 navigate('/live-mcq/practice', { 
                     state: { 
                         mcqIds: ids,
                         settings: settings,
-                        sourceName: topicName
+                        sourceName: topicName,
+                        attempts: attempts,
+                        backPath: `/live-mcq/topics`
                     } 
                 });
             }}
