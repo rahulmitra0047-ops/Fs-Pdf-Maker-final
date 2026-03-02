@@ -26,63 +26,68 @@ const TopicItem: React.FC<TopicItemProps> = memo(({
     return (
         <div 
             onClick={() => onNavigate(topic.id)}
-            className="relative group bg-white rounded-[20px] p-4 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-slate-100 active:scale-[0.98] transition-all duration-150 cursor-pointer hover:border-slate-200"
+            className="relative group bg-white rounded-2xl p-4 shadow-sm border border-slate-200/60 active:scale-[0.98] transition-all duration-200 cursor-pointer hover:border-emerald-500/30 hover:shadow-md hover:shadow-emerald-500/5 flex flex-col h-full"
         >
-            <div className="flex items-center justify-between">
-                {/* Left Content */}
-                <div className="flex items-center gap-4">
-                    {/* Avatar */}
-                    <div className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-600 flex items-center justify-center text-lg font-bold shadow-sm border border-slate-100">
-                        {topic.name.charAt(0).toUpperCase()}
-                    </div>
-                    {/* Text */}
-                    <div>
-                        <h3 className="text-base font-bold text-slate-700 leading-tight">{topic.name}</h3>
-                        <p className="text-xs font-medium text-slate-400 mt-1">
-                            {topic.subtopicCount} Subs • {topic.mcqCount} Qs
-                        </p>
-                    </div>
+            <div className="flex items-start justify-between mb-3">
+                {/* Avatar */}
+                <div className="w-10 h-10 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center text-lg font-bold shadow-sm border border-slate-100 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
+                    {topic.name.charAt(0).toUpperCase()}
                 </div>
 
-                {/* Right Actions */}
-                <div className="flex items-center gap-1">
-                    {/* Edit Icon */}
-                    <button 
-                        onClick={(e) => onRename(topic, e)}
-                        className="p-2 text-slate-300 hover:text-slate-600 transition-colors rounded-full"
-                    >
-                        <Icon name="edit-3" size="sm" />
-                    </button>
-                    {/* Menu Icon */}
+                {/* Actions */}
+                <div className="flex items-center">
                     <button 
                         onClick={(e) => onMenuToggle(topic.id, e)}
-                        className="p-2 text-slate-300 hover:text-slate-600 transition-colors rounded-full"
+                        className="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-slate-600 hover:bg-slate-50 transition-all rounded-full"
                     >
                         <Icon name="more-vertical" size="sm" />
                     </button>
                 </div>
             </div>
 
+            {/* Text */}
+            <div className="mb-4 flex-grow">
+                <h3 className="text-base font-bold text-slate-700 leading-tight mb-1 line-clamp-2">{topic.name}</h3>
+            </div>
+
+            {/* Stats Footer */}
+            <div className="flex items-center gap-2 mt-auto">
+                <div className="px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-[10px] font-bold text-slate-500 flex items-center gap-1">
+                    <Icon name="list" size="xs" className="text-slate-400" />
+                    {topic.subtopicCount}
+                </div>
+                <div className="px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-[10px] font-bold text-slate-500 flex items-center gap-1">
+                    <Icon name="file-text" size="xs" className="text-slate-400" />
+                    {topic.mcqCount}
+                </div>
+            </div>
+
             {/* Menu Dropdown */}
             {activeMenuId === topic.id && (
-                <div className="absolute right-4 top-12 z-20 bg-white border border-slate-100 rounded-xl shadow-xl overflow-hidden min-w-[160px] animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+                <div className="absolute right-3 top-10 z-20 bg-white border border-slate-100 rounded-xl shadow-xl overflow-hidden min-w-[140px] animate-in fade-in zoom-in-95 duration-100 origin-top-right">
                     <button 
                         onClick={(e) => { e.stopPropagation(); onPractice(topic.id); }}
-                        className="w-full text-left px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-2 border-b border-slate-50"
+                        className="w-full text-left px-3 py-2.5 text-xs font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-2 border-b border-slate-50"
                     >
-                        <Icon name="play" size="sm" className="text-slate-400" /> Practice
+                        <Icon name="play" size="xs" className="text-slate-400" /> Practice
+                    </button>
+                    <button 
+                        onClick={(e) => { e.stopPropagation(); onRename(topic, e); }}
+                        className="w-full text-left px-3 py-2.5 text-xs font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-2 border-b border-slate-50"
+                    >
+                        <Icon name="edit-3" size="xs" className="text-slate-400" /> Rename
                     </button>
                     <button 
                         onClick={(e) => { e.stopPropagation(); onExport(topic.id, e); }}
-                        className="w-full text-left px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-2 border-b border-slate-50"
+                        className="w-full text-left px-3 py-2.5 text-xs font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-2 border-b border-slate-50"
                     >
-                        <Icon name="share" size="sm" className="text-slate-400" /> Export
+                        <Icon name="share" size="xs" className="text-slate-400" /> Export
                     </button>
                     <button 
                         onClick={(e) => { e.stopPropagation(); onDelete(topic, e); }}
-                        className="w-full text-left px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 flex items-center gap-2"
+                        className="w-full text-left px-3 py-2.5 text-xs font-medium text-red-500 hover:bg-red-50 flex items-center gap-2"
                     >
-                        <Icon name="trash-2" size="sm" /> Delete
+                        <Icon name="trash-2" size="xs" /> Delete
                     </button>
                 </div>
             )}

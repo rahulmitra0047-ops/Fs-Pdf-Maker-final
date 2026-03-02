@@ -74,45 +74,55 @@ const TopicListPage: React.FC = () => {
     };
   }, []);
 
-  // Memoized stats calculation
-  const enhancedTopics = useMemo(() => {
-      return topics.map(t => {
-          const tSubtopics = subtopics.filter(st => st.topicId === t.id);
-          const tSubIds = new Set(tSubtopics.map(st => st.id));
-          const tSets = sets.filter(s => tSubIds.has(s.subtopicId));
-          const mcqCount = tSets.reduce((acc, s) => acc + (s.mcqs?.length || 0), 0);
-          
-          return {
-              ...t,
-              subtopicCount: tSubtopics.length,
-              setCount: tSets.length,
-              mcqCount
-          };
-      }).sort((a, b) => a.order - b.order);
-  }, [topics, subtopics, sets]);
+    // Memoized stats calculation
+    const enhancedTopics = useMemo(() => {
+        return topics.map(t => {
+            const tSubtopics = subtopics.filter(st => st.topicId === t.id);
+            const tSubIds = new Set(tSubtopics.map(st => st.id));
+            const tSets = sets.filter(s => tSubIds.has(s.subtopicId));
+            const mcqCount = tSets.reduce((acc, s) => acc + (s.mcqs?.length || 0), 0);
+            
+            return {
+                ...t,
+                subtopicCount: tSubtopics.length,
+                setCount: tSets.length,
+                mcqCount
+            };
+        }).sort((a, b) => {
+            const orderDiff = a.order - b.order;
+            if (orderDiff !== 0) return orderDiff;
+            return b.createdAt - a.createdAt; // Fallback to newest first if order matches
+        });
+    }, [topics, subtopics, sets]);
 
-  const visibleTopics = enhancedTopics.slice(0, visibleCount);
+    const totalMCQs = useMemo(() => enhancedTopics.reduce((acc, t) => acc + t.mcqCount, 0), [enhancedTopics]);
 
-  const handleCreateTopic = async () => {
-      if (!newTopicName.trim()) return;
-      try {
-          const newTopic: Topic = {
-              id: generateUUID(),
-              name: newTopicName,
-              icon: '📚', // Default icon, not used in UI anymore
-              order: topics.length,
-              createdAt: Date.now(),
-              updatedAt: Date.now()
-          };
-          await topicService.create(newTopic);
-          setShowCreateTopic(false);
-          setNewTopicName('');
-          setIsFabOpen(false); // Close FAB on action
-          toast.success("Topic created");
-      } catch (e: any) {
-          toast.error(e.message || "Failed to create topic");
-      }
-  };
+    const visibleTopics = enhancedTopics.slice(0, visibleCount);
+
+    const handleCreateTopic = async () => {
+        if (!newTopicName.trim()) return;
+        try {
+            const newTopic: Topic = {
+                id: generateUUID(),
+                name: newTopicName,
+                icon: '📚',
+                order: topics.length, // Append to end
+                createdAt: Date.now(),
+                updatedAt: Date.now()
+            };
+            await topicService.create(newTopic);
+            setShowCreateTopic(false);
+            setNewTopicName('');
+            setIsFabOpen(false);
+            toast.success("Topic created");
+            // Force visible count to include new item if needed, though it's appended
+            if (visibleCount < topics.length + 1) {
+                 setVisibleCount(prev => Math.max(prev, topics.length + 1));
+            }
+        } catch (e: any) {
+            toast.error(e.message || "Failed to create topic");
+        }
+    };
 
   const handlePracticeAll = (topicId: string) => {
       const tSubtopics = subtopics.filter(st => st.topicId === topicId).map(st => st.id);
@@ -231,13 +241,20 @@ const TopicListPage: React.FC = () => {
                 </div>
             ) : (
                 <div className="mt-4">
-                    {/* Count Row */}
-                    <div className="flex justify-between items-center mb-4 px-1">
-                        <span className="text-xs font-bold text-slate-400 tracking-widest uppercase">{enhancedTopics.length} Topics</span>
+                    {/* Dashboard Stats */}
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                        <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm flex flex-col items-center justify-center text-center">
+                            <span className="text-2xl font-bold text-slate-700">{enhancedTopics.length}</span>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Topics</span>
+                        </div>
+                        <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm flex flex-col items-center justify-center text-center">
+                            <span className="text-2xl font-bold text-emerald-600">{totalMCQs}</span>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Questions</span>
+                        </div>
                     </div>
-                    
-                    {/* List */}
-                    <div className="flex flex-col gap-3">
+
+                    {/* Grid List */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-20">
                         {visibleTopics.map(topic => (
                             <TopicItem 
                                 key={topic.id}
@@ -257,7 +274,7 @@ const TopicListPage: React.FC = () => {
                     {visibleCount < enhancedTopics.length && (
                         <button 
                             onClick={() => setVisibleCount(prev => prev + PAGE_SIZE)}
-                            className="w-full py-3 mt-4 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
+                            className="w-full py-2.5 mt-2 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
                         >
                             Load More ({enhancedTopics.length - visibleCount} remaining)
                         </button>
