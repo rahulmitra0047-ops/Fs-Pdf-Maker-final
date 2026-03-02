@@ -471,6 +471,9 @@ export interface FlashcardBase {
   pronunciation: string;
   createdAt: number;
   updatedAt: number;
+  // New fields
+  mediaUrl?: string | null;
+  mediaType?: 'image' | 'video' | null;
 }
 
 export interface FlashcardNewWord extends FlashcardBase {}
