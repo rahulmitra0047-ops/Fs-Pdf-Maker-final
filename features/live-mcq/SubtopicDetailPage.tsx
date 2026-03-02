@@ -10,6 +10,7 @@ import { useToast } from '../../shared/context/ToastContext';
 import { generateUUID } from '../../core/storage/idGenerator';
 import BulkImportModal from '../create-pdf/components/BulkImportModal';
 import Icon from '../../shared/components/Icon';
+import PracticeFilterSheet from './components/PracticeFilterSheet';
 
 const SubtopicDetailPage: React.FC = () => {
   const { topicId, subtopicId } = useParams();
@@ -34,6 +35,8 @@ const SubtopicDetailPage: React.FC = () => {
   const [renameItem, setRenameItem] = useState<{id: string, name: string} | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<{ type: 'subtopic' | 'set', id: string, name: string } | null>(null);
+
+  const [showPracticeSheet, setShowPracticeSheet] = useState(false);
 
   // New Menu State
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
@@ -180,7 +183,7 @@ const SubtopicDetailPage: React.FC = () => {
   const handlePracticeAll = () => {
       const allMcqs = sets.flatMap(s => s.mcqs);
       if (allMcqs.length === 0) return toast.error("No MCQs found");
-      navigate('/live-mcq/practice', { state: { customMCQs: allMcqs, sourceName: subtopic?.name } });
+      setShowPracticeSheet(true);
   };
 
   const handleExport = () => {
@@ -396,6 +399,25 @@ const SubtopicDetailPage: React.FC = () => {
         <PremiumModal isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Delete?" size="sm">
             <div className="space-y-6 text-center pt-2"><div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto"><svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></div><div className="space-y-2"><h3 className="text-lg font-bold text-gray-900">Delete "{deleteTarget?.name}"?</h3><p className="text-sm text-gray-500">This action cannot be undone.</p></div><div className="flex gap-3 justify-center"><PremiumButton variant="ghost" onClick={() => setDeleteTarget(null)}>Cancel</PremiumButton><PremiumButton variant="danger" onClick={performDelete}>Delete</PremiumButton></div></div>
         </PremiumModal>
+
+        <PracticeFilterSheet
+            isOpen={showPracticeSheet}
+            onClose={() => setShowPracticeSheet(false)}
+            setId={subtopic.id} // Using subtopic ID as the key for history
+            mcqs={sets.flatMap(s => s.mcqs)}
+            onStart={(ids, settings, attempts) => {
+                setShowPracticeSheet(false);
+                navigate('/live-mcq/practice', { 
+                    state: { 
+                        mcqIds: ids,
+                        settings: settings,
+                        sourceName: subtopic.name,
+                        attempts: attempts,
+                        backPath: `/live-mcq/topic/${topicId}/subtopic/${subtopic.id}`
+                    } 
+                });
+            }}
+        />
     </div>
   );
 };

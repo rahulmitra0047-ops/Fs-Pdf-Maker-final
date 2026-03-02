@@ -10,6 +10,7 @@ import { useToast } from '../../../shared/context/ToastContext';
 import CheckmarkIcon from '../../../shared/components/CheckmarkIcon';
 import Icon from '../../../shared/components/Icon';
 import { aiManager } from '../../../core/ai/aiManager';
+import { getVisitorId, saveMcqAttempts, MCQAttempt } from '../services/mcqTrackingService';
 
 const PracticeSession: React.FC = () => {
   const { setId } = useParams();
@@ -20,12 +21,26 @@ const PracticeSession: React.FC = () => {
   const [set, setSet] = useState<MCQSet | null>(null);
   const [loading, setLoading] = useState(true);
   
+  // Custom Session Info
+  const customState = location.state as { 
+      mcqIds?: string[]; 
+      source?: string; 
+      sourceName?: string; 
+      customMCQs?: MCQ[];
+      settings?: { shuffle: boolean; showSolution: boolean; };
+      attempts?: Record<string, MCQAttempt>;
+      backPath?: string;
+  } | undefined;
+
+  // Resolve Set ID for storage (params > state.source > 'custom')
+  const resolvedSetId = setId || (customState?.source && customState.source !== 'custom' ? customState.source : 'custom');
+
   // Settings
-  const [showSettings, setShowSettings] = useState(true);
+  const [showSettings, setShowSettings] = useState(!customState?.settings);
   const [options, setOptions] = useState({
-      shuffleQuestions: false,
+      shuffleQuestions: customState?.settings?.shuffle ?? false,
       shuffleOptions: false,
-      showExplanation: true,
+      showExplanation: customState?.settings?.showSolution ?? true,
       soundEnabled: true,
       vibrationEnabled: true
   });
@@ -39,12 +54,32 @@ const PracticeSession: React.FC = () => {
   const [isFinished, setIsFinished] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   
+  // Tracking State
+  const sessionAttemptsRef = useRef<Record<string, MCQAttempt>>({});
+
   // AI State
   const [aiExplanations, setAiExplanations] = useState<Record<string, string>>({});
   const [isAiLoading, setIsAiLoading] = useState(false);
-  
-  // Custom Session Info
-  const customState = location.state as { mcqIds?: string[]; source?: string; sourceName?: string; customMCQs?: MCQ[] } | undefined;
+
+  // Helper for date formatting
+  const formatLastAttempt = (isoDate: string) => {
+      try {
+          const date = new Date(isoDate);
+          const now = new Date();
+          const diff = now.getTime() - date.getTime();
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          
+          let relative = '';
+          if (days === 0) relative = 'Today';
+          else if (days === 1) relative = 'Yesterday';
+          else if (days < 30) relative = `${days} days ago`;
+          else relative = date.toLocaleDateString();
+
+          return { relative, exact: date.toLocaleString() };
+      } catch (e) {
+          return { relative: '', exact: '' };
+      }
+  };
 
   useEffect(() => {
     const initSession = async () => {
@@ -52,10 +87,21 @@ const PracticeSession: React.FC = () => {
              setSessionMCQs(customState.customMCQs);
              setLoading(false);
         } else if (customState?.mcqIds && customState.mcqIds.length > 0) {
-             const allSets = await mcqSetService.getAll();
-             const allMcqs = allSets.flatMap(s => s.mcqs);
-             const filtered = allMcqs.filter(m => customState.mcqIds!.includes(m.id));
-             setSessionMCQs(filtered);
+             let sourceMCQs: MCQ[] = [];
+             if (setId) {
+                 const s = await mcqSetService.getById(setId);
+                 sourceMCQs = s?.mcqs || [];
+             } else {
+                 const allSets = await mcqSetService.getAll();
+                 sourceMCQs = allSets.flatMap(s => s.mcqs);
+             }
+             
+             // Map to preserve order and filter
+             const ordered = customState.mcqIds
+                 .map(id => sourceMCQs.find(m => m.id === id))
+                 .filter((m): m is MCQ => !!m);
+                 
+             setSessionMCQs(ordered);
              setLoading(false);
         } else if (setId) {
             const s = await mcqSetService.getById(setId);
@@ -74,6 +120,18 @@ const PracticeSession: React.FC = () => {
     };
     initSession();
   }, [setId, customState]);
+
+  // Save attempts on unmount or exit
+  useEffect(() => {
+    const save = async () => {
+        const visitorId = getVisitorId();
+        await saveMcqAttempts(visitorId, sessionAttemptsRef.current);
+    };
+
+    return () => {
+        save();
+    };
+  }, []);
 
   const startSession = () => {
       let mcqs = [...sessionMCQs];
@@ -142,12 +200,21 @@ const PracticeSession: React.FC = () => {
       if (!isCorrect && options.vibrationEnabled && navigator.vibrate) {
           navigator.vibrate(200);
       }
+      
+      console.log(`[PracticeSession] Answered: MCQ=${currentMCQ.id}, Correct=${isCorrect}, SetID=${resolvedSetId}`);
+      
       updateStats(currentMCQ.id, isCorrect);
+      
+      // Track attempt in memory
+      sessionAttemptsRef.current[currentMCQ.id] = {
+          lastAttemptedAt: new Date().toISOString(),
+          attemptCount: 1 // This will be incremented on server side merge
+      };
   };
   
   const updateStats = async (mcqId: string, isCorrect: boolean) => {
       try {
-          const statsId = `${setId || 'custom'}_${mcqId}`;
+          const statsId = `${resolvedSetId}_${mcqId}`;
           const existing = await mcqStatsService.getById(statsId);
           if (existing) {
               await mcqStatsService.update(statsId, {
@@ -159,7 +226,7 @@ const PracticeSession: React.FC = () => {
               await mcqStatsService.create({
                   id: statsId,
                   mcqId,
-                  setId: setId || 'custom',
+                  setId: resolvedSetId,
                   timesAnswered: 1,
                   timesCorrect: isCorrect ? 1 : 0,
                   accuracy: isCorrect ? 100 : 0
@@ -181,6 +248,12 @@ const PracticeSession: React.FC = () => {
   const finishSession = async () => {
       setIsFinished(true);
       toast.info("Saving results...");
+      
+      // Save attempts immediately
+      const visitorId = getVisitorId();
+      await saveMcqAttempts(visitorId, sessionAttemptsRef.current);
+      sessionAttemptsRef.current = {}; // Clear after save
+
       try {
           const total = sessionMCQs.length;
           const correctCount = Object.values(results).filter(Boolean).length;
@@ -190,7 +263,7 @@ const PracticeSession: React.FC = () => {
 
           const attempt: Attempt = {
               id: generateUUID(),
-              setId: setId,
+              setId: resolvedSetId === 'custom' ? undefined : resolvedSetId,
               mode: 'practice',
               score,
               total,
@@ -208,9 +281,20 @@ const PracticeSession: React.FC = () => {
       }
   };
 
-  const handleExit = () => {
-      if (setId) navigate(`/live-mcq/set/${setId}`, { replace: true });
-      else navigate(-1);
+  const handleExit = async () => {
+      // Save attempts before exit
+      const visitorId = getVisitorId();
+      await saveMcqAttempts(visitorId, sessionAttemptsRef.current);
+      sessionAttemptsRef.current = {};
+
+      if (customState?.backPath) {
+          navigate(customState.backPath, { replace: true });
+      } else if (setId) {
+          navigate(`/live-mcq/set/${setId}`, { replace: true });
+      } else {
+          // Default to topics list for custom sessions if no history or direct link
+          navigate('/live-mcq/topics', { replace: true });
+      }
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-white"><div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div></div>;
@@ -232,7 +316,14 @@ const PracticeSession: React.FC = () => {
             <div className="font-semibold text-[16px] text-slate-900">
                 Practice <span className="text-emerald-600">{currentIndex + 1}</span><span className="text-slate-400">/{sessionMCQs.length}</span>
             </div>
-            <div className="w-[22px]"></div>
+            {/* Date Filter for Review Mode (Task 6) */}
+            {customState?.source === 'review' ? (
+                <div className="text-xs text-slate-500 font-medium bg-slate-100 px-2 py-1 rounded">
+                    Review Mode
+                </div>
+            ) : (
+                <div className="w-[22px]"></div>
+            )}
         </div>
 
         {/* Progress Bar */}
@@ -248,6 +339,14 @@ const PracticeSession: React.FC = () => {
                         <h2 className="text-[18px] font-semibold text-slate-800 leading-[1.6]">
                             {currentMCQ.question}
                         </h2>
+                        {customState?.attempts?.[currentMCQ.id] && (
+                            <div className="mt-3 flex items-center gap-2 text-[11px] text-slate-400 font-medium bg-slate-50 px-3 py-1.5 rounded-lg w-fit border border-slate-100">
+                                <Icon name="clock" size="xs" />
+                                <span>Last attempted: <span className="text-slate-600">{formatLastAttempt(customState.attempts[currentMCQ.id].lastAttemptedAt).relative}</span></span>
+                                <span className="text-slate-300">|</span>
+                                <span>{new Date(customState.attempts[currentMCQ.id].lastAttemptedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex flex-col gap-[12px]">
@@ -395,7 +494,7 @@ const PracticeSession: React.FC = () => {
 
         <PremiumModal isOpen={showExitConfirm} onClose={() => setShowExitConfirm(false)} title="Exit Practice?" size="sm">
             <div className="space-y-4">
-                <p className="text-sm text-slate-500">Your progress will not be saved.</p>
+                <p className="text-sm text-slate-500">Current session progress will be lost, but question attempts will be tracked.</p>
                 <div className="flex justify-end gap-3 pt-2">
                     <PremiumButton variant="ghost" onClick={() => setShowExitConfirm(false)}>Cancel</PremiumButton>
                     <PremiumButton variant="danger" onClick={handleExit}>Exit</PremiumButton>

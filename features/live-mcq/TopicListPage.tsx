@@ -11,6 +11,7 @@ import AddMCQWizard from './components/AddMCQWizard';
 import { useToast } from '../../shared/context/ToastContext';
 import { generateUUID } from '../../core/storage/idGenerator';
 import Icon from '../../shared/components/Icon';
+import PracticeFilterSheet from './components/PracticeFilterSheet';
 
 const PAGE_SIZE = 25;
 
@@ -34,6 +35,8 @@ const TopicListPage: React.FC = () => {
   const [topicToRename, setTopicToRename] = useState<Topic | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [topicToDelete, setTopicToDelete] = useState<Topic | null>(null);
+
+  const [activePracticeTopicId, setActivePracticeTopicId] = useState<string | null>(null);
 
   // Menu State
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
@@ -121,13 +124,7 @@ const TopicListPage: React.FC = () => {
       
       if (allMcqs.length === 0) return toast.error("No MCQs in this topic");
       
-      navigate('/live-mcq/practice', { 
-          state: { 
-              customMCQs: allMcqs,
-              source: 'topic',
-              sourceName: topics.find(t => t.id === topicId)?.name 
-          } 
-      });
+      setActivePracticeTopicId(topicId);
   };
 
   const handleExport = (topicId: string, e: React.MouseEvent) => {
@@ -388,6 +385,29 @@ const TopicListPage: React.FC = () => {
                 </div>
             </div>
         </PremiumModal>
+
+        <PracticeFilterSheet
+            isOpen={!!activePracticeTopicId}
+            onClose={() => setActivePracticeTopicId(null)}
+            setId={activePracticeTopicId || ''}
+            mcqs={(() => {
+                if (!activePracticeTopicId) return [];
+                const tSubtopics = subtopics.filter(st => st.topicId === activePracticeTopicId).map(st => st.id);
+                const tSets = sets.filter(s => tSubtopics.includes(s.subtopicId));
+                return tSets.flatMap(s => s.mcqs);
+            })()}
+            onStart={(ids, settings) => {
+                const topicName = topics.find(t => t.id === activePracticeTopicId)?.name;
+                setActivePracticeTopicId(null);
+                navigate('/live-mcq/practice', { 
+                    state: { 
+                        mcqIds: ids,
+                        settings: settings,
+                        sourceName: topicName
+                    } 
+                });
+            }}
+        />
     </div>
   );
 };

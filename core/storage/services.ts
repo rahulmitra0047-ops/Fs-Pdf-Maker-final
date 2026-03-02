@@ -717,6 +717,52 @@ const flashcardNewFs = new CachedFirestoreService<FlashcardNewWord>('flashcard_n
 const flashcardDailyFs = new CachedFirestoreService<FlashcardDailyWord>('flashcard_daily_words', 'flashcard_daily_cache');
 const flashcardMasteredFs = new CachedFirestoreService<FlashcardMasteredWord>('flashcard_mastered', 'flashcard_mastered_cache');
 
+// --- MCQ Attempts Services (New Batch Approach) ---
+
+export interface AttemptsData {
+  visitorId: string;
+  attempts: Record<string, {
+    lastAttemptedAt: string;
+    attemptCount: number;
+  }>;
+  lastUpdatedAt: any; // Timestamp
+}
+
+export const getOrCreateVisitorId = (): string => {
+  let visitorId = localStorage.getItem('mcq_visitor_id');
+  if (!visitorId) {
+    visitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('mcq_visitor_id', visitorId);
+  }
+  return visitorId;
+};
+
+export const getMcqAttempts = async (visitorId: string): Promise<AttemptsData> => {
+  try {
+    const docRef = doc(dbFirestore, 'mcq_user_attempts', visitorId);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      return snap.data() as AttemptsData;
+    }
+    return { visitorId, attempts: {}, lastUpdatedAt: Date.now() };
+  } catch (e) {
+    console.error("Failed to get MCQ attempts", e);
+    return { visitorId, attempts: {}, lastUpdatedAt: Date.now() };
+  }
+};
+
+export const saveMcqAttempts = async (visitorId: string, attempts: AttemptsData): Promise<void> => {
+  try {
+    const docRef = doc(dbFirestore, 'mcq_user_attempts', visitorId);
+    await setDoc(docRef, {
+      ...attempts,
+      lastUpdatedAt: Date.now() // Use server timestamp in real app, but Date.now() is fine for now
+    }, { merge: true });
+  } catch (e) {
+    console.error("Failed to save MCQ attempts", e);
+  }
+};
+
 export const flashcardService = {
   // New Words
   getNewWords: () => flashcardNewFs.getAll(),

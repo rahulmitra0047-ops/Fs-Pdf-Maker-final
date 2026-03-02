@@ -10,6 +10,7 @@ import { useToast } from '../../shared/context/ToastContext';
 import SingleMCQModal from '../create-pdf/components/SingleMCQModal';
 import BulkImportModal from '../create-pdf/components/BulkImportModal';
 import Icon from '../../shared/components/Icon';
+import PracticeFilterSheet from './components/PracticeFilterSheet';
 
 const SetDetailPage: React.FC = () => {
   const { setId } = useParams();
@@ -28,6 +29,7 @@ const SetDetailPage: React.FC = () => {
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [showSingleMCQ, setShowSingleMCQ] = useState(false);
   const [showBulkImport, setShowBulkImport] = useState(false);
+  const [showPracticeSheet, setShowPracticeSheet] = useState(false);
   const [editingMCQ, setEditingMCQ] = useState<MCQ | null>(null);
 
   const [showRenameModal, setShowRenameModal] = useState(false);
@@ -284,7 +286,7 @@ const SetDetailPage: React.FC = () => {
                 {/* Buttons */}
                 <div className="flex gap-[12px]">
                     <button 
-                        onClick={() => navigate(`/live-mcq/practice/${set.id}`)}
+                        onClick={() => setShowPracticeSheet(true)}
                         disabled={set.mcqs.length === 0}
                         className="flex-1 bg-emerald-600 text-white py-[14px] rounded-[14px] font-semibold text-[15px] active:scale-[0.98] transition-transform disabled:opacity-50 hover:bg-emerald-500 shadow-lg shadow-emerald-900/20"
                     >
@@ -479,6 +481,23 @@ const SetDetailPage: React.FC = () => {
             onClose={() => setShowBulkImport(false)} 
             onImport={handleBulkImport} 
             existingMCQs={set.mcqs}
+        />
+
+        <PracticeFilterSheet
+            isOpen={showPracticeSheet}
+            onClose={() => setShowPracticeSheet(false)}
+            setId={set.id}
+            mcqs={set.mcqs}
+            onStart={(ids, settings, attempts) => {
+                setShowPracticeSheet(false);
+                navigate(`/live-mcq/practice/${set.id}`, { 
+                    state: { 
+                        mcqIds: ids,
+                        settings: settings,
+                        attempts: attempts
+                    } 
+                });
+            }}
         />
 
         <PremiumModal isOpen={showRenameModal} onClose={() => setShowRenameModal(false)} title="Rename Set" size="sm">

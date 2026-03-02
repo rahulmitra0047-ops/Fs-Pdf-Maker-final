@@ -49,6 +49,9 @@ const FlashcardHomeContent: React.FC = () => {
         }}
       >
         <div className="flex items-center gap-2">
+            <button onClick={() => navigate('/home')} className="mr-2 p-1 rounded-full hover:bg-black/5 transition-colors active:scale-95">
+                <ArrowLeft className="w-6 h-6" style={{ color: currentTheme.textColor }} />
+            </button>
             <div className="w-7 h-7 rounded-lg flex items-center justify-center transform rotate-45 shadow-lg" style={{ backgroundColor: currentTheme.buttonBg }}>
                 <Target className="w-4 h-4 text-white transform -rotate-45" />
             </div>

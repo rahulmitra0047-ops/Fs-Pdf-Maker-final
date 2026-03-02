@@ -9,6 +9,7 @@ import { Topic, Subtopic, MCQSet } from '../../types';
 import { useToast } from '../../shared/context/ToastContext';
 import { generateUUID } from '../../core/storage/idGenerator';
 import Icon from '../../shared/components/Icon';
+import PracticeFilterSheet from './components/PracticeFilterSheet';
 
 const TopicDetailPage: React.FC = () => {
   const { topicId } = useParams();
@@ -32,6 +33,8 @@ const TopicDetailPage: React.FC = () => {
   const [renameItem, setRenameItem] = useState<{id: string, name: string} | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<{ type: 'topic' | 'subtopic', id: string, name: string } | null>(null);
+  
+  const [showPracticeSheet, setShowPracticeSheet] = useState(false);
 
   // 1. Snapshot Read Flow
   useEffect(() => {
@@ -72,7 +75,7 @@ const TopicDetailPage: React.FC = () => {
   }, [topicId, navigate, toast]);
 
   // 2. Computed Stats (In-Memory Aggregation)
-  const { enhancedSubtopics, topicStats } = useMemo(() => {
+  const { enhancedSubtopics, topicStats, allTopicMcqs } = useMemo(() => {
       const sortedSubs = [...subtopics].sort((a, b) => a.order - b.order);
       const subtopicIds = new Set(sortedSubs.map(s => s.id));
       const relevantSets = sets.filter(s => subtopicIds.has(s.subtopicId));
@@ -82,7 +85,8 @@ const TopicDetailPage: React.FC = () => {
           return { ...st, setLen: mySets.length };
       });
 
-      const totalMCQs = relevantSets.reduce((acc, s) => acc + (s.mcqs?.length || 0), 0);
+      const allMcqs = relevantSets.flatMap(s => s.mcqs);
+      const totalMCQs = allMcqs.length;
 
       return {
           enhancedSubtopics: enhanced,
@@ -90,7 +94,8 @@ const TopicDetailPage: React.FC = () => {
               subtopics: subtopics.length,
               sets: relevantSets.length,
               mcqs: totalMCQs
-          }
+          },
+          allTopicMcqs: allMcqs
       };
   }, [subtopics, sets]);
 
@@ -172,20 +177,9 @@ const TopicDetailPage: React.FC = () => {
       }
   };
 
-  const handlePracticeAll = async () => {
-      const sortedSubs = [...subtopics].sort((a, b) => a.order - b.order);
-      const subtopicIds = new Set(sortedSubs.map(s => s.id));
-      const relevantSets = sets.filter(s => subtopicIds.has(s.subtopicId));
-      const allMcqs = relevantSets.flatMap(s => s.mcqs);
-      
-      if (allMcqs.length === 0) return toast.error("No MCQs found");
-      
-      navigate('/live-mcq/practice', { 
-          state: { 
-              customMCQs: allMcqs, 
-              sourceName: topic?.name 
-          } 
-      });
+  const handlePracticeAll = () => {
+      if (allTopicMcqs.length === 0) return toast.error("No MCQs found");
+      setShowPracticeSheet(true);
   };
 
   const handleExport = () => {
@@ -385,6 +379,25 @@ const TopicDetailPage: React.FC = () => {
                 </div>
             </div>
         </PremiumModal>
+
+        <PracticeFilterSheet
+            isOpen={showPracticeSheet}
+            onClose={() => setShowPracticeSheet(false)}
+            setId={topic.id} // Using topic ID as the key for history
+            mcqs={allTopicMcqs}
+            onStart={(ids, settings, attempts) => {
+                setShowPracticeSheet(false);
+                navigate('/live-mcq/practice', { 
+                    state: { 
+                        mcqIds: ids,
+                        settings: settings,
+                        sourceName: topic.name,
+                        attempts: attempts,
+                        backPath: `/live-mcq/topic/${topic.id}`
+                    } 
+                });
+            }}
+        />
     </div>
   );
 };
