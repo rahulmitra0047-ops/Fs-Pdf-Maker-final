@@ -1,14 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, Image as ImageIcon, Video, Play, Trash2, Paperclip, X, Loader2, Camera } from 'lucide-react';
-import { FlashcardDailyWord, FlashcardMasteredWord } from '../../../types';
+import { FlashcardWord } from '../../../types';
 import { useTheme } from '../context/ThemeContext';
 import { doc, updateDoc } from 'firebase/firestore';
 import { dbFirestore } from '../../../core/firebase';
 import toast from 'react-hot-toast';
 
 interface FlashcardCardProps {
-  word: FlashcardDailyWord | FlashcardMasteredWord;
+  word: FlashcardWord;
   isFlipped: boolean;
   onFlip: () => void;
   onSpeak: (e: React.MouseEvent, text: string) => void;
@@ -300,101 +300,138 @@ const FlashcardCard: React.FC<FlashcardCardProps> = ({ word, isFlipped, onFlip, 
           {/* Content Container */}
           <div className="flex flex-col items-center w-full flex-grow overflow-y-auto no-scrollbar">
             
-            {/* Word + Meaning + Sound */}
-            <div className="flex items-center justify-center flex-wrap gap-2 mb-2 w-full">
-              <span className="text-[20px] font-bold" style={{ color: currentTheme.textColor }}>{word.word}</span>
-              <span className="text-lg" style={{ color: currentTheme.subTextColor }}>→</span>
-              <span className="text-[20px] font-bold" style={{ color: currentTheme.accentColor }}>{word.meaning}</span>
-              
-              <button 
-                onClick={handleBackSpeak}
-                className="ml-1 p-1.5 rounded-full transition-colors hover:bg-black/5 active:scale-95"
-                style={{ color: currentTheme.accentColor }}
-              >
-                <Volume2 size={20} />
-              </button>
-            </div>
+            {word.clusterData ? (
+              <div className="w-full flex flex-col items-center justify-center h-full">
+                <div className="relative w-full h-[200px] flex items-center justify-center mb-4">
+                  <div className="absolute z-10 w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+                    <span className="text-white font-bold text-sm">{word.clusterData.basicWord}</span>
+                  </div>
+                  {[...word.clusterData.advancedWords, ...word.clusterData.greWords, ...word.clusterData.idioms].map((node, index, arr) => {
+                    const angle = (index / arr.length) * 2 * Math.PI - Math.PI / 2;
+                    const radius = 75;
+                    const x = Math.cos(angle) * radius;
+                    const y = Math.sin(angle) * radius;
+                    
+                    let typeColor = 'bg-blue-100 text-blue-700 border-blue-200';
+                    if (index >= 2 && index < 5) typeColor = 'bg-orange-100 text-orange-700 border-orange-200';
+                    if (index >= 5) typeColor = 'bg-green-100 text-green-700 border-green-200';
 
-            {/* Type Badge */}
-            <div 
-                className="px-3 py-0.5 rounded-full text-[11px] font-semibold tracking-wide mb-2"
-                style={{ backgroundColor: typeColors.bg, color: typeColors.text }}
-            >
-                [{word.type}]
-            </div>
-
-            {/* Verb Forms */}
-            {word.type === 'Verb' && word.verbForms && (
-                <div className="text-[12px] mb-3 opacity-80" style={{ color: currentTheme.subTextColor }}>
-                    <span className="mr-3">V2: {word.verbForms.v2}</span>
-                    <span>V3: {word.verbForms.v3}</span>
+                    return (
+                      <div 
+                        key={index}
+                        className={`absolute flex flex-col items-center justify-center w-14 h-14 rounded-full border shadow-sm ${typeColor}`}
+                        style={{ transform: `translate(${x}px, ${y}px)` }}
+                      >
+                        <span className="text-[8px] font-bold text-center leading-tight px-1">{node.word}</span>
+                      </div>
+                    );
+                  })}
                 </div>
-            )}
-
-            {/* Example */}
-            {word.examples && word.examples.length > 0 && (
-              <div 
-                className="w-full text-center mb-2 px-2"
-              >
-                <p className="text-[14px] italic leading-relaxed" style={{ color: currentTheme.textColor }}>
-                  "{word.examples[0]}"
-                </p>
+                <div className="text-center px-2">
+                  <p className="text-[12px] italic leading-relaxed" style={{ color: currentTheme.textColor }}>
+                    "{word.clusterData.contextualExamples.sentence}"
+                  </p>
+                </div>
               </div>
-            )}
-            
-            {/* Synonyms */}
-            {word.synonyms && word.synonyms.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 mb-4 px-4">
-                <span className="text-[13px]" style={{ color: currentTheme.subTextColor }}>~</span>
-                {word.synonyms.slice(0, 3).map((syn, idx) => (
-                  <span 
-                    key={idx} 
-                    className="text-[13px]"
-                    style={{ color: currentTheme.subTextColor }}
+            ) : (
+              <>
+                {/* Word + Meaning + Sound */}
+                <div className="flex items-center justify-center flex-wrap gap-2 mb-2 w-full">
+                  <span className="text-[20px] font-bold" style={{ color: currentTheme.textColor }}>{word.word}</span>
+                  <span className="text-lg" style={{ color: currentTheme.subTextColor }}>→</span>
+                  <span className="text-[20px] font-bold" style={{ color: currentTheme.accentColor }}>{word.meaning}</span>
+                  
+                  <button 
+                    onClick={handleBackSpeak}
+                    className="ml-1 p-1.5 rounded-full transition-colors hover:bg-black/5 active:scale-95"
+                    style={{ color: currentTheme.accentColor }}
                   >
-                    {syn}{idx < Math.min(word.synonyms.length, 3) - 1 ? ',' : ''}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Media Area */}
-            <div className="w-full mt-auto flex justify-center pb-2">
-                <div 
-                    className="relative rounded-xl overflow-hidden bg-black/5 flex items-center justify-center w-full max-w-[200px]"
-                    style={{ height: '120px', border: `1px solid ${currentTheme.borderColor}` }}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        if (!mediaUrl) setShowMediaSheet(true);
-                        else if (mediaType === 'video') toggleVideoPlay(e);
-                    }}
-                >
-                    {mediaUrl ? (
-                        mediaType === 'video' ? (
-                            <>
-                                <video 
-                                    ref={videoRef}
-                                    src={mediaUrl} 
-                                    className="w-full h-full object-cover"
-                                    onEnded={() => setIsPlayingVideo(false)}
-                                    playsInline
-                                />
-                                {!isPlayingVideo && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                                        <div className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center backdrop-blur-sm shadow-lg">
-                                            <Play size={20} className="text-black ml-1" fill="currentColor" />
-                                        </div>
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <img src={mediaUrl} alt={word.word} className="w-full h-full object-cover" />
-                        )
-                    ) : (
-                        <Camera size={32} className="text-gray-400 opacity-50" />
-                    )}
+                    <Volume2 size={20} />
+                  </button>
                 </div>
-            </div>
+
+                {/* Type Badge */}
+                <div 
+                    className="px-3 py-0.5 rounded-full text-[11px] font-semibold tracking-wide mb-2"
+                    style={{ backgroundColor: typeColors.bg, color: typeColors.text }}
+                >
+                    [{word.type}]
+                </div>
+
+                {/* Verb Forms */}
+                {word.type === 'Verb' && word.verbForms && (
+                    <div className="text-[12px] mb-3 opacity-80" style={{ color: currentTheme.subTextColor }}>
+                        <span className="mr-3">V2: {word.verbForms.v2}</span>
+                        <span>V3: {word.verbForms.v3}</span>
+                    </div>
+                )}
+
+                {/* Example */}
+                {word.examples && word.examples.length > 0 && (
+                  <div 
+                    className="w-full text-center mb-2 px-2"
+                  >
+                    <p className="text-[14px] italic leading-relaxed" style={{ color: currentTheme.textColor }}>
+                      "{word.examples[0]}"
+                    </p>
+                  </div>
+                )}
+                
+                {/* Synonyms */}
+                {word.synonyms && word.synonyms.length > 0 && (
+                  <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 mb-4 px-4">
+                    <span className="text-[13px]" style={{ color: currentTheme.subTextColor }}>~</span>
+                    {word.synonyms.slice(0, 3).map((syn, idx) => (
+                      <span 
+                        key={idx} 
+                        className="text-[13px]"
+                        style={{ color: currentTheme.subTextColor }}
+                      >
+                        {syn}{idx < Math.min(word.synonyms.length, 3) - 1 ? ',' : ''}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Media Area */}
+                <div className="w-full mt-auto flex justify-center pb-2">
+                    <div 
+                        className="relative rounded-xl overflow-hidden bg-black/5 flex items-center justify-center w-full max-w-[200px]"
+                        style={{ height: '120px', border: `1px solid ${currentTheme.borderColor}` }}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (!mediaUrl) setShowMediaSheet(true);
+                            else if (mediaType === 'video') toggleVideoPlay(e);
+                        }}
+                    >
+                        {mediaUrl ? (
+                            mediaType === 'video' ? (
+                                <>
+                                    <video 
+                                        ref={videoRef}
+                                        src={mediaUrl} 
+                                        className="w-full h-full object-cover"
+                                        onEnded={() => setIsPlayingVideo(false)}
+                                        playsInline
+                                    />
+                                    {!isPlayingVideo && (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                            <div className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center backdrop-blur-sm shadow-lg">
+                                                <Play size={20} className="text-black ml-1" fill="currentColor" />
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <img src={mediaUrl} alt={word.word} className="w-full h-full object-cover" />
+                            )
+                        ) : (
+                            <Camera size={32} className="text-gray-400 opacity-50" />
+                        )}
+                    </div>
+                </div>
+              </>
+            )}
 
           </div>
         </div>

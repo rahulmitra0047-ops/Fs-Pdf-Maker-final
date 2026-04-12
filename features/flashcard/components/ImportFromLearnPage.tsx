@@ -28,7 +28,7 @@ const ImportFromLearnPage: React.FC = () => {
 
   const loadLessons = async () => {
     try {
-      const all = await lessonService.getAll();
+      const all = await lessonService.getLessons();
       setLessons(all.sort((a, b) => (a.order || 0) - (b.order || 0)));
     } catch (e) {
       console.error(e);
@@ -88,8 +88,8 @@ const ImportFromLearnPage: React.FC = () => {
     try {
       let totalImported = 0;
       for (const lessonId of selectedLessons) {
-        const res = await flashcardService.importFromLesson(lessonId);
-        totalImported += res.imported;
+        const importedCount = await flashcardService.importFromLesson(lessonId);
+        totalImported += importedCount;
       }
       
       toast.success(`${totalImported} words imported successfully!`);

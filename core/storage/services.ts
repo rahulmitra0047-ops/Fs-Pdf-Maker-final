@@ -5,7 +5,7 @@
 
 import { db } from './db';
 import { Table } from 'dexie';
-import { Document, Topic, Subtopic, MCQSet, Attempt, AppSettings, ExamTemplate, MCQStats, AuditLogEntry, MCQ, Lesson, GrammarRule, VocabWord, TranslationItem, PracticeTopic, DailyProgress, UserActivity, FlashcardNewWord, FlashcardDailyWord, FlashcardMasteredWord } from '../../types';
+import { Document, Topic, Subtopic, MCQSet, Attempt, AppSettings, ExamTemplate, MCQStats, AuditLogEntry, MCQ, Lesson, GrammarRule, VocabWord, TranslationItem, PracticeTopic, DailyProgress, UserActivity, FlashcardNewWord, FlashcardDailyWord, FlashcardMasteredWord, FlashcardWord, FlashcardSettings } from '../../types';
 import { dbFirestore } from '../firebase';
 import { 
   collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, 
@@ -56,6 +56,16 @@ class BaseService<T extends { id: string | number }> {
   
   async where(index: string, value: any): Promise<T[]> {
       return await this.table.where(index).equals(value).toArray();
+  }
+
+  async getRecent(limit: number, index: string): Promise<T[]> {
+      try {
+          return await this.table.orderBy(index).reverse().limit(limit).toArray();
+      } catch (e) {
+          return (await this.table.toArray())
+              .sort((a: any, b: any) => (b[index] || 0) - (a[index] || 0))
+              .slice(0, limit);
+      }
   }
 }
 
@@ -1029,6 +1039,292 @@ export const flashcardService = {
   },
 
   deleteMasteredWord: (id: string) => flashcardMasteredFs.delete(id),
+
+  // Unified Methods
+  getAll: async (): Promise<FlashcardWord[]> => {
+    const [newWords, dailyWords, masteredWords] = await Promise.all([
+      flashcardNewFs.getAll(),
+      flashcardDailyFs.getAll(),
+      flashcardMasteredFs.getAll()
+    ]);
+    return [...newWords, ...dailyWords, ...masteredWords];
+  },
+
+  getReviewDueWords: async (): Promise<FlashcardWord[]> => {
+    const now = Date.now();
+    const [dailyWords, masteredWords] = await Promise.all([
+      flashcardDailyFs.getAll(),
+      flashcardMasteredFs.getAll()
+    ]);
+    
+    // Filter words where nextReviewDate is passed or not set (treat as due if not set, though new words usually have 0)
+    // Actually new words are in 'new' collection and usually don't have nextReviewDate set or it is 0.
+    // 'daily' and 'mastered' words should have nextReviewDate.
+    
+    const dueDaily = dailyWords.filter(w => (w.nextReviewDate || 0) <= now);
+    const dueMastered = masteredWords.filter(w => (w.nextReviewDate || 0) <= now);
+    
+    return [...dueDaily, ...dueMastered];
+  },
+
+  updateWord: async (id: string, data: Partial<FlashcardWord>) => {
+    // Try to find where the word is
+    const [isNew, isDaily, isMastered] = await Promise.all([
+      flashcardNewFs.getById(id),
+      flashcardDailyFs.getById(id),
+      flashcardMasteredFs.getById(id)
+    ]);
+
+    if (isNew) {
+      await flashcardNewFs.update(id, data);
+    } else if (isDaily) {
+      await flashcardDailyFs.update(id, data);
+    } else if (isMastered) {
+      await flashcardMasteredFs.update(id, data);
+    } else {
+      console.warn(`Word ${id} not found for update`);
+    }
+  },
+
+  deleteWord: async (id: string) => {
+     // Try delete from all (simplest approach)
+     await Promise.all([
+       flashcardNewFs.delete(id),
+       flashcardDailyFs.delete(id),
+       flashcardMasteredFs.delete(id)
+     ]);
+  },
+
+  // Aliases and Additional Methods
+  addWord: (data: FlashcardNewWord) => flashcardService.addNewWord(data),
+  addBulkWords: (words: FlashcardNewWord[]) => flashcardService.addBulkNewWords(words),
+  getFlashcardWords: () => flashcardService.getAll(),
+  addBulkFlashcardWords: (words: FlashcardNewWord[]) => flashcardService.addBulkNewWords(words),
+  
+  importFromLesson: async (lessonId: string) => {
+    const vocab = await vocabService.getWords(lessonId);
+    const newWords: FlashcardNewWord[] = vocab.map(v => ({
+      id: crypto.randomUUID(),
+      word: v.word,
+      meaning: v.meaning,
+      type: v.type,
+      verbForms: v.v1 ? { v1: v.v1, v1s: v.v1s || '', v2: v.v2 || '', v3: v.v3 || '', vIng: v.vIng || '' } : null,
+      examples: v.examples.map(e => e.english + ' = ' + e.bengali),
+      synonyms: v.synonyms ? v.synonyms.split(',').map(s => s.trim()) : [],
+      pronunciation: v.pronunciation || '',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      confidenceLevel: 0,
+      nextReviewDate: 0,
+      lastReviewedAt: 0,
+      totalReviews: 0,
+      correctCount: 0,
+      wrongCount: 0,
+      isFavorite: false,
+      sourceLessonId: lessonId
+    }));
+    return await flashcardService.addBulkNewWords(newWords);
+  }
+};
+
+// --- Flashcard Stats Service ---
+export const flashcardStatsService = {
+  getTodayStats: async () => {
+    const today = new Date().toISOString().split('T')[0];
+    const docRef = doc(dbFirestore, 'flashcard_stats', today);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      return snap.data() as { completed: number; gotIt: number; again: number };
+    }
+    return { completed: 0, gotIt: 0, again: 0 };
+  },
+
+  updateTodayStats: async (stats: { completed: number; gotIt: number; again: number }) => {
+    const today = new Date().toISOString().split('T')[0];
+    const docRef = doc(dbFirestore, 'flashcard_stats', today);
+    await setDoc(docRef, stats, { merge: true });
+  }
+};
+
+// --- Practice Service ---
+export const practiceService = {
+  saveResult: async (result: any) => {
+    await setDoc(doc(dbFirestore, 'practice_results', result.id), result);
+  },
+  getResults: async () => {
+     const q = query(collection(dbFirestore, 'practice_results'));
+     const snap = await getDocs(q);
+     return snap.docs.map(d => d.data());
+  },
+  getSpeedHighScore: async () => {
+     const docRef = doc(dbFirestore, 'practice_highscores', 'speed');
+     const snap = await getDoc(docRef);
+     return snap.exists() ? snap.data().score : 0;
+  },
+  updateSpeedHighScore: async (score: number) => {
+     const docRef = doc(dbFirestore, 'practice_highscores', 'speed');
+     await setDoc(docRef, { score }, { merge: true });
+  }
+};
+
+// --- Flashcard Settings Service ---
+export const flashcardSettingsService = {
+  getSettings: async (): Promise<FlashcardSettings> => {
+    const docRef = doc(dbFirestore, 'flashcard_settings', 'default');
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      return snap.data() as FlashcardSettings;
+    }
+    return {
+      dailyGoal: 10,
+      newWordsPerDay: 5,
+      reviewLimitPerDay: 50,
+      soundEnabled: true,
+      hapticEnabled: true,
+      notificationEnabled: false,
+      autoPlayTTS: true,
+      showExampleOnCard: true,
+      cardFront: 'word',
+      cardBack: 'meaning',
+      timerInQuiz: true,
+      quizTimerSeconds: 10,
+      speedRoundSeconds: 60,
+      questionsPerSession: 10,
+      reminderEnabled: false,
+      reminderTime: '09:00'
+    };
+  },
+  
+  updateSettings: async (settings: Partial<FlashcardSettings>) => {
+    const docRef = doc(dbFirestore, 'flashcard_settings', 'default');
+    await setDoc(docRef, settings, { merge: true });
+  },
+
+  resetProgress: async () => {
+    const all = await flashcardService.getAll();
+    const batch = writeBatch(dbFirestore);
+    // This is heavy, but requested.
+    // Ideally should be done in backend function.
+    // For now, client side batch (limit 500).
+    // We will just reset confidence to 0 for all.
+    // And move all to 'new' or just keep them where they are but reset stats?
+    // "Reset progress" usually means reset SRS.
+    // If we keep them in daily/mastered, they will be reviewed immediately.
+    // Let's just reset stats.
+    
+    // Note: This implementation is simplified and might time out for large datasets.
+    // In production, use a cloud function.
+    for (const word of all) {
+        // We need to know which collection it is in.
+        // flashcardService.updateWord handles finding it.
+        await flashcardService.updateWord(word.id, {
+            confidenceLevel: 0,
+            nextReviewDate: 0,
+            lastReviewedAt: 0,
+            totalReviews: 0,
+            correctCount: 0,
+            wrongCount: 0
+        });
+    }
+  },
+
+  deleteAllData: async () => {
+      const all = await flashcardService.getAll();
+      for (const word of all) {
+          await flashcardService.deleteWord(word.id);
+      }
+  }
+};
+
+// --- Flashcard Analytics Service ---
+export const flashcardAnalyticsService = {
+    getWordStats: async () => {
+        const [newWords, dailyWords, masteredWords] = await Promise.all([
+            flashcardNewFs.getAll(),
+            flashcardDailyFs.getAll(),
+            flashcardMasteredFs.getAll()
+        ]);
+        const all = [...newWords, ...dailyWords, ...masteredWords];
+        const total = all.length;
+        const totalReviews = all.reduce((acc, w) => acc + (w.totalReviews || 0), 0);
+        const totalCorrect = all.reduce((acc, w) => acc + (w.correctCount || 0), 0);
+        const accuracy = totalReviews > 0 ? Math.round((totalCorrect / totalReviews) * 100) : 0;
+        
+        return {
+            total,
+            new: newWords.length,
+            learning: dailyWords.length, // Approximation
+            mastered: masteredWords.length,
+            accuracy
+        };
+    },
+
+    getConfidenceDistribution: async () => {
+        const all = await flashcardService.getAll();
+        const dist = [0, 0, 0, 0, 0, 0]; // Level 0-5
+        all.forEach(w => {
+            const level = Math.min(5, Math.max(0, w.confidenceLevel || 0));
+            dist[level]++;
+        });
+        return dist;
+    },
+
+    getWeeklyActivity: async () => {
+        // Mock implementation or fetch from stats collection
+        // Since we don't track daily activity history in detail yet
+        return [
+            { day: 'Mon', count: 0 },
+            { day: 'Tue', count: 0 },
+            { day: 'Wed', count: 0 },
+            { day: 'Thu', count: 0 },
+            { day: 'Fri', count: 0 },
+            { day: 'Sat', count: 0 },
+            { day: 'Sun', count: 0 },
+        ];
+    },
+
+    getPracticeHistoryStats: async () => {
+        const results = await practiceService.getResults();
+        // Group by mode
+        const modes: Record<string, any> = {};
+        results.forEach((r: any) => {
+            if (!modes[r.mode]) modes[r.mode] = { mode: r.mode, count: 0, totalScore: 0, best: 0 };
+            modes[r.mode].count++;
+            if (r.accuracy) {
+                modes[r.mode].totalScore += r.accuracy;
+                if (r.accuracy > modes[r.mode].best) modes[r.mode].best = r.accuracy;
+            }
+        });
+        
+        return Object.values(modes).map(m => ({
+            ...m,
+            avg: Math.round(m.totalScore / m.count)
+        }));
+    },
+
+    getTopDifficultWords: async () => {
+        const all = await flashcardService.getAll();
+        return all
+            .filter(w => w.wrongCount > 0)
+            .sort((a, b) => b.wrongCount - a.wrongCount)
+            .slice(0, 5)
+            .map(w => ({
+                ...w,
+                accuracy: Math.round((w.correctCount / (w.totalReviews || 1)) * 100)
+            }));
+    },
+
+    getTopStrongestWords: async () => {
+        const all = await flashcardService.getAll();
+        return all
+            .filter(w => w.totalReviews > 5 && (w.correctCount / w.totalReviews) > 0.8)
+            .sort((a, b) => b.totalReviews - a.totalReviews)
+            .slice(0, 5)
+            .map(w => ({
+                ...w,
+                accuracy: Math.round((w.correctCount / (w.totalReviews || 1)) * 100)
+            }));
+    }
 };
 
 

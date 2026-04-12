@@ -42,6 +42,7 @@ const MasteredWordsPage = lazy(() => import('../../features/flashcard/MasteredWo
 const ReviewFlashcardPage = lazy(() => import('../../features/flashcard/ReviewFlashcardPage'));
 const FlashcardQuizPage = lazy(() => import('../../features/flashcard/FlashcardQuizPage'));
 const ThemeSelectionPage = lazy(() => import('../../features/flashcard/ThemeSelectionPage'));
+const WordUniversePage = lazy(() => import('../../features/flashcard/WordUniversePage'));
 
 const AppRoutes: React.FC = () => {
   return (
@@ -85,6 +86,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/flashcards/review/:date" element={<ReviewFlashcardPage />} />
         <Route path="/flashcards/quiz" element={<FlashcardQuizPage />} />
         <Route path="/flashcards/themes" element={<ThemeSelectionPage />} />
+        <Route path="/flashcards/universe" element={<WordUniversePage />} />
 
         {/* Live MCQ - Immersive/Active Modes (No Bottom Nav) */}
         <Route path="/live-mcq/practice" element={<PracticeSession />} />

@@ -58,12 +58,12 @@ const ImportFromLearnPage: React.FC = () => {
   const handleImport = async (lessonId: string) => {
     setImportingId(lessonId);
     try {
-      const { imported, skipped } = await flashcardService.importFromLesson(lessonId);
-      toast.success(`Imported ${imported} words! (${skipped} skipped)`);
+      const importedCount = await flashcardService.importFromLesson(lessonId);
+      toast.success(`Imported ${importedCount} words!`);
       
       // Update local state
       setLessons(prev => prev.map(l => 
-        l.id === lessonId ? { ...l, imported: l.imported + imported } : l
+        l.id === lessonId ? { ...l, imported: l.imported + importedCount } : l
       ));
     } catch (e) {
       console.error(e);

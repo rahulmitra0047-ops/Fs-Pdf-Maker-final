@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Icon } from '../../shared/components/Icon';
+import Icon from '../../shared/components/Icon';
 import { flashcardService, vocabService } from '../../core/storage/services';
 import { FlashcardWord } from '../../types';
 import { useToast } from '../../shared/context/ToastContext';
@@ -159,7 +159,7 @@ const WordBankPage: React.FC = () => {
     if (action === 'delete') {
       if (window.confirm(`${ids.length} words delete করবে?`)) {
         for (const id of ids) {
-          await flashcardService.deleteWord(id);
+          await flashcardService.deleteWord(String(id));
         }
         setWords(prev => prev.filter(w => !selectedIds.has(w.id)));
         toast.success("Deleted successfully");
@@ -168,7 +168,7 @@ const WordBankPage: React.FC = () => {
       }
     } else if (action === 'favorite') {
       for (const id of ids) {
-        await flashcardService.updateWord(id, { isFavorite: true });
+        await flashcardService.updateWord(String(id), { isFavorite: true });
       }
       setWords(prev => prev.map(w => selectedIds.has(w.id) ? { ...w, isFavorite: true } : w));
       toast.success("Added to favorites");
@@ -176,7 +176,7 @@ const WordBankPage: React.FC = () => {
       setSelectedIds(new Set());
     } else if (action === 'unfavorite') {
       for (const id of ids) {
-        await flashcardService.updateWord(id, { isFavorite: false });
+        await flashcardService.updateWord(String(id), { isFavorite: false });
       }
       setWords(prev => prev.map(w => selectedIds.has(w.id) ? { ...w, isFavorite: false } : w));
       toast.success("Removed from favorites");
@@ -185,10 +185,10 @@ const WordBankPage: React.FC = () => {
     } else if (action === 'reset') {
       if (window.confirm("Reset progress for selected words?")) {
         for (const id of ids) {
-          await flashcardService.updateWord(id, {
+          await flashcardService.updateWord(String(id), {
             confidenceLevel: 0,
             nextReviewDate: Date.now(),
-            lastReviewedAt: null,
+            lastReviewedAt: 0,
             totalReviews: 0,
             correctCount: 0,
             wrongCount: 0
@@ -203,7 +203,7 @@ const WordBankPage: React.FC = () => {
     } else if (action === 'export') {
       const selectedWords = words.filter(w => selectedIds.has(w.id));
       const text = selectedWords.map(w => `${w.word} = ${w.meaning}`).join('\n');
-      navigator.clipboard.writeText(text);
+      navigator.clipboard.writeText(text).catch(e => console.error(e));
       toast.success("Copied to clipboard!");
       setIsMultiSelectMode(false);
       setSelectedIds(new Set());

@@ -124,9 +124,9 @@ const FlashcardQuizPage: React.FC = () => {
         
         for (const id of uniqueWrongIds) {
             try {
-                await flashcardService.moveMasteredToDaily(id);
+                await flashcardService.moveMasteredToDaily(String(id));
             } catch (e) {
-                console.error('Failed to move word', id, e);
+                console.error('Failed to move word', id, String(e));
             }
         }
       };

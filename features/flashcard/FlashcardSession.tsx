@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Icon from '../../shared/components/Icon';
-import { flashcardService, flashcardStatsService, calculateNextReview, practiceService, flashcardSettingsService } from '../../core/storage/services';
+import { flashcardService, flashcardStatsService, practiceService, flashcardSettingsService } from '../../core/storage/services';
+import { calculateNextReview } from './utils/srs';
 import { FlashcardWord, FlashcardSettings } from '../../types';
 import { useToast } from '../../shared/context/ToastContext';
 

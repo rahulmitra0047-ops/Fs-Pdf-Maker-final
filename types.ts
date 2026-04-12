@@ -454,6 +454,44 @@ export interface UserActivity {
 }
 
 // Flashcard System Types (New)
+export interface FlashcardSettings {
+  dailyGoal: number;
+  newWordsPerDay: number;
+  reviewLimitPerDay: number;
+  soundEnabled: boolean;
+  hapticEnabled: boolean;
+  notificationEnabled: boolean;
+  autoPlayTTS: boolean;
+  showExampleOnCard: boolean;
+  cardFront: 'word' | 'meaning';
+  cardBack: 'word' | 'meaning';
+  timerInQuiz: boolean;
+  quizTimerSeconds: number;
+  speedRoundSeconds: number;
+  questionsPerSession: number;
+  reminderEnabled: boolean;
+  reminderTime: string;
+}
+
+export interface ClusterNode {
+  id: string;
+  word: string;
+  meaning: string;
+  partOfSpeech: string;
+  exampleSentence: string;
+}
+
+export interface WordCluster {
+  id: string;
+  basicWord: string;
+  baseContext: string;
+  advancedWords: ClusterNode[];
+  greWords: ClusterNode[];
+  idioms: ClusterNode[];
+  oneWordSubstitutes: ClusterNode[];
+  createdAt: number;
+}
+
 export interface FlashcardBase {
   id: string;
   word: string;
@@ -474,6 +512,17 @@ export interface FlashcardBase {
   // New fields
   mediaUrl?: string | null;
   mediaType?: 'image' | 'video' | null;
+  clusterData?: WordCluster | null;
+  
+  // SRS Fields
+  confidenceLevel: number; // 0-5
+  nextReviewDate: number;
+  lastReviewedAt: number;
+  totalReviews: number;
+  correctCount: number;
+  wrongCount: number;
+  isFavorite: boolean;
+  sourceLessonId?: string;
 }
 
 export interface FlashcardNewWord extends FlashcardBase {}
@@ -490,3 +539,22 @@ export interface FlashcardMasteredWord extends FlashcardBase {
 }
 
 export type FlashcardWord = FlashcardNewWord | FlashcardDailyWord | FlashcardMasteredWord;
+
+export interface FlashcardSettings {
+  dailyGoal: number;
+  newWordsPerDay: number;
+  reviewLimitPerDay: number;
+  soundEnabled: boolean;
+  hapticEnabled: boolean;
+  notificationEnabled: boolean;
+  autoPlayTTS: boolean;
+  showExampleOnCard: boolean;
+  cardFront: 'word' | 'meaning';
+  cardBack: 'word' | 'meaning';
+  timerInQuiz: boolean;
+  quizTimerSeconds: number;
+  speedRoundSeconds: number;
+  questionsPerSession: number;
+  reminderEnabled: boolean;
+  reminderTime: string;
+}

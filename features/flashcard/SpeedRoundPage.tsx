@@ -118,7 +118,8 @@ const SpeedRoundPage: React.FC = () => {
     setGameActive(false);
     setGameOver(true);
 
-    const isNew = await practiceService.updateSpeedHighScore(score);
+    await practiceService.updateSpeedHighScore(score);
+    const isNew = score > highScore;
     setIsNewHighScore(isNew);
     if (isNew) setHighScore(score);
 

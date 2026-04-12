@@ -72,7 +72,14 @@ const NewWordsPage: React.FC = () => {
         synonyms: newWord.synonyms ? newWord.synonyms.split(',').map(s => s.trim()) : [],
         pronunciation: newWord.pronunciation,
         createdAt: Date.now(),
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
+        confidenceLevel: 0,
+        nextReviewDate: Date.now(),
+        lastReviewedAt: 0,
+        totalReviews: 0,
+        correctCount: 0,
+        wrongCount: 0,
+        isFavorite: false
       };
 
       await flashcardService.addNewWord(wordData);
@@ -146,7 +153,14 @@ const NewWordsPage: React.FC = () => {
         examples: [],
         synonyms: [],
         createdAt: Date.now(),
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
+        confidenceLevel: 0,
+        nextReviewDate: Date.now(),
+        lastReviewedAt: 0,
+        totalReviews: 0,
+        correctCount: 0,
+        wrongCount: 0,
+        isFavorite: false
       };
 
       lines.forEach(line => {

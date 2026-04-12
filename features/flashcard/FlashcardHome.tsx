@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Calendar, CheckCircle, Target } from 'lucide-react';
+import { ArrowLeft, Plus, Calendar, CheckCircle, Target, Sparkles } from 'lucide-react';
 import { flashcardService } from '../../core/storage/services';
 import toast from 'react-hot-toast';
 import ThemeIcon from './components/ThemeIcon';
@@ -137,6 +137,23 @@ const FlashcardHomeContent: React.FC = () => {
               </div>
               <span className="text-2xl font-bold leading-none mb-1" style={{ color: currentTheme.textColor }}>Quiz</span>
               <span className="text-xs font-medium" style={{ color: currentTheme.subTextColor }}>Practice</span>
+            </div>
+
+            {/* Word Universe */}
+            <div 
+              onClick={() => navigate('/flashcards/universe')}
+              className="rounded-[20px] p-4 active:scale-95 transition-transform cursor-pointer flex flex-col items-center justify-center aspect-auto group hover:shadow-md col-span-2"
+              style={{ 
+                background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+                boxShadow: currentTheme.shadow,
+                border: `1px solid ${currentTheme.borderColor}`
+              }}
+            >
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-2">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold leading-none mb-1 text-white">Word Universe</span>
+              <span className="text-xs font-medium text-white/80">AI Semantic Clusters</span>
             </div>
           </div>
         )}

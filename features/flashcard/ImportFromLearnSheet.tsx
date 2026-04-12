@@ -94,18 +94,26 @@ const ImportFromLearnSheet: React.FC<ImportFromLearnSheetProps> = ({ onClose, on
         const vocabList = vocabMap[lessonId] || [];
         for (const v of vocabList) {
            // Map VocabWord to FlashcardNewWord
-           const wordData: FlashcardNewWord = {
-             id: crypto.randomUUID(),
-             word: v.word,
-             meaning: v.meaning,
-             type: (v.type as any) || 'Other',
-             verbForms: v.verbForms || null,
-             examples: v.example ? [v.example] : [],
-             synonyms: v.synonyms ? v.synonyms.split(',').map(s => s.trim()) : [],
-             pronunciation: v.pronunciation || '',
-             createdAt: Date.now(),
-             updatedAt: Date.now()
-           };
+             const wordData: FlashcardNewWord = {
+               id: crypto.randomUUID(),
+               word: v.word,
+               meaning: v.meaning,
+               type: (v.type as any) || 'Other',
+               verbForms: v.v1 ? { v1: v.v1, v1s: v.v1s || '', v2: v.v2 || '', v3: v.v3 || '', vIng: v.vIng || '' } : null,
+               examples: v.examples ? v.examples.map(e => e.english + ' = ' + e.bengali) : [],
+               synonyms: v.synonyms ? v.synonyms.split(',').map(s => s.trim()) : [],
+               pronunciation: v.pronunciation || '',
+               createdAt: Date.now(),
+               updatedAt: Date.now(),
+               confidenceLevel: 0,
+               nextReviewDate: Date.now(),
+               lastReviewedAt: 0,
+               totalReviews: 0,
+               correctCount: 0,
+               wrongCount: 0,
+               isFavorite: false,
+               sourceLessonId: lessonId
+             };
            wordsToImport.push(wordData);
         }
       }

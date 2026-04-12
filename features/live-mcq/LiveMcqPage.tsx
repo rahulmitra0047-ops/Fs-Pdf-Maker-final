@@ -18,29 +18,38 @@ const LiveMcqPage: React.FC = () => {
 
   const loadRecents = async () => {
       try {
+          if (!debouncedSearch.trim()) {
+              // Optimized path for initial load
+              const recents = await attemptService.getRecent(5, 'completedAt');
+              
+              const attemptsWithNames = await Promise.all(recents.map(async a => {
+                  let setName = "Unknown";
+                  if (a.setId) {
+                      const set = await mcqSetService.getById(a.setId);
+                      setName = set?.name || "Set Deleted";
+                  } else if (a.mode === 'custom-exam') {
+                      setName = "Custom Exam";
+                  }
+                  return { ...a, setName };
+              }));
+              setRecentAttempts(attemptsWithNames);
+              return;
+          }
+
           const allAttempts = await attemptService.getAll();
           const allSets = await mcqSetService.getAll();
           
-          let filteredAttempts = allAttempts;
-          // Note: Client side filtering happens after mapping below for now
+          const mapped = allAttempts.map(a => {
+              let setName = "Unknown";
+              if (a.setId) setName = allSets.find(s => s.id === a.setId)?.name || "Set Deleted";
+              else if (a.mode === 'custom-exam') setName = "Custom Exam";
+              return { ...a, setName };
+          });
           
-          const recents = filteredAttempts
-              .sort((a, b) => b.completedAt - a.completedAt)
-              .slice(0, 5) // Increased limit slightly for better view
-              .map(a => {
-                  let setName = "Unknown";
-                  if (a.setId) setName = allSets.find(s => s.id === a.setId)?.name || "Set Deleted";
-                  else if (a.mode === 'custom-exam') setName = "Custom Exam";
-                  return { ...a, setName };
-              });
+          const lower = debouncedSearch.toLowerCase();
+          const filtered = mapped.filter(r => r.setName.toLowerCase().includes(lower));
           
-          // Simple client-side filter after mapping
-          if (debouncedSearch.trim()) {
-              const lower = debouncedSearch.toLowerCase();
-              setRecentAttempts(recents.filter(r => r.setName.toLowerCase().includes(lower)));
-          } else {
-              setRecentAttempts(recents);
-          }
+          setRecentAttempts(filtered.sort((a, b) => b.completedAt - a.completedAt).slice(0, 5));
       } catch (e) {
           console.error(e);
       }
