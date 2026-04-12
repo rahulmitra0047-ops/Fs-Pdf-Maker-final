@@ -20,7 +20,7 @@ class AiManager {
   private static instance: AiManager;
   private apiKeys: string[] = [];
   private currentIndex = 0;
-  private preferredModel: string = 'gemini-3-flash-preview';
+  private preferredModel: string | null = null;
 
   private constructor() {}
 
@@ -52,7 +52,12 @@ class AiManager {
    * Get the next key.
    */
   private getKey(): string | null {
-    if (this.apiKeys.length === 0) return null;
+    if (this.apiKeys.length === 0) {
+        if (process.env.GEMINI_API_KEY) {
+            return process.env.GEMINI_API_KEY;
+        }
+        return null;
+    }
     
     const key = this.apiKeys[this.currentIndex % this.apiKeys.length];
     this.currentIndex++;
@@ -71,13 +76,13 @@ class AiManager {
             (async () => {
                 const ai = new GoogleGenAI({ apiKey: key });
                 const response = await ai.models.generateContent({
-                    model: 'gemini-3-flash-preview',
+                    model: 'gemini-3.1-flash-lite-preview',
                     contents: [{ parts: [{ text: 'OK' }] }],
                     config: { maxOutputTokens: 5 }
                 });
                 return !!(response && response.text);
             })(),
-            new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 6000)) // 6s Strict Timeout
+            new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 15000)) // 15s Strict Timeout
         ]);
         
         return result;
@@ -102,8 +107,8 @@ class AiManager {
         };
     }
 
-    // Use Global Preference if set
-    const finalModel = this.preferredModel || model || 'gemini-3-flash-preview';
+    // Use requested model, fallback to Global Preference, then default
+    const finalModel = model || this.preferredModel || 'gemini-3-flash-preview';
     
     // Increased default timeout to 60s for complex tasks, allow override
     const timeoutDuration = config?.timeout || 60000;

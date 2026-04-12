@@ -325,8 +325,9 @@ const SettingsPage: React.FC = () => {
                         onChange={(e) => updateSettings({ preferredModel: e.target.value })}
                         className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl p-3 appearance-none focus:outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 font-medium"
                     >
-                        <option value="gemini-3-flash-preview">Gemini 3.0 Flash (Recommended)</option>
-                        <option value="gemini-2.5-flash">Gemini 2.5 Flash (Fast)</option>
+                        <option value="gemini-3-flash-preview">Gemini 3.0 Flash Preview (Recommended)</option>
+                        <option value="gemini-3.1-flash-lite-preview">Gemini 3.1 Flash Lite Preview (Fastest)</option>
+                        <option value="gemini-2.5-pro">Gemini 2.5 Pro (Advanced)</option>
                     </select>
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                         <Icon name="chevron-left" size="sm" className="-rotate-90" />

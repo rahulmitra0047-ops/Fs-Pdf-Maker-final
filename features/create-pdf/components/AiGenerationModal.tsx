@@ -27,7 +27,7 @@ const AiGenerationModal: React.FC<Props> = ({ isOpen, onClose, onImport }) => {
 
     setIsLoading(true);
     try {
-      const modelId = 'gemini-2.5-flash';
+      const modelId = '';
 
       const prompt = `Generate ${count} multiple choice questions (MCQs) about "${topic}" at ${difficulty} difficulty level. 
       Each question must have 4 options (A, B, C, D) and one correct answer. 

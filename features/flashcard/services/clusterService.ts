@@ -50,7 +50,7 @@ Example JSON format:
 Generate the JSON for the word: "${basicWord}". Ensure the JSON is perfectly formatted.
 `;
 
-    const response = await aiManager.generateContent('gemini-2.5-flash', prompt);
+    const response = await aiManager.generateContent('', prompt);
     
     if (response.error) {
       throw new Error(response.error);
@@ -95,7 +95,7 @@ Return ONLY valid JSON matching this structure:
 Do not include markdown formatting like \`\`\`json.
 `;
 
-    const response = await aiManager.generateContent('gemini-2.5-flash', prompt);
+    const response = await aiManager.generateContent('', prompt);
     
     if (response.error) {
       throw new Error(response.error);
