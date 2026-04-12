@@ -47,28 +47,27 @@ export const WordMindMap: React.FC<WordMindMapProps> = ({ cluster, onNodeClick }
     const initialNodes: Node[] = [];
     const initialEdges: Edge[] = [];
 
-    // 1. Center Node
-    initialNodes.push({
-      id: 'center',
-      type: 'center',
-      position: { x: 50, y: 350 },
-      data: { word: cluster.basicWord },
-    });
+    let currentY = 0;
+    const xCategory = 180;
+    const xWord = 360;
 
-    // Helper to add category and its words
     const addCategoryBranch = (
       categoryId: string, 
       label: string, 
-      catY: number, 
       words: ClusterNode[], 
       colorClass: string,
       categoryKey: keyof WordCluster
     ) => {
+      if (!words || words.length === 0) return;
+
+      const branchHeight = words.length * 60;
+      const catY = currentY + (branchHeight / 2) - 30;
+
       // Category Node
       initialNodes.push({
         id: categoryId,
         type: 'category',
-        position: { x: 350, y: catY },
+        position: { x: xCategory, y: catY },
         data: { label, colorClass },
       });
 
@@ -77,19 +76,20 @@ export const WordMindMap: React.FC<WordMindMapProps> = ({ cluster, onNodeClick }
         id: `e-center-${categoryId}`,
         source: 'center',
         target: categoryId,
-        type: 'bezier',
+        type: 'default',
         animated: true,
         style: { stroke: '#818cf8', strokeWidth: 2 },
       });
 
       // Word Nodes
-      const startY = catY - ((words.length - 1) * 40); // Center the words vertically relative to category
       words.forEach((word, index) => {
         const wordId = `word-${word.id}`;
+        const wordY = currentY + (index * 60);
+        
         initialNodes.push({
           id: wordId,
           type: 'word',
-          position: { x: 650, y: startY + (index * 80) },
+          position: { x: xWord, y: wordY },
           data: { 
             word: word.word, 
             meaning: word.meaning, 
@@ -106,16 +106,26 @@ export const WordMindMap: React.FC<WordMindMapProps> = ({ cluster, onNodeClick }
           id: `e-${categoryId}-${wordId}`,
           source: categoryId,
           target: wordId,
-          type: 'bezier',
+          type: 'default',
           style: { stroke: '#c7d2fe', strokeWidth: 2 },
         });
       });
+
+      currentY += branchHeight + 15; // Add spacing between categories
     };
 
-    addCategoryBranch('cat-adv', 'Advanced', 100, cluster.advancedWords || [], 'border-blue-200 text-blue-700', 'advancedWords');
-    addCategoryBranch('cat-gre', 'GRE', 280, cluster.greWords || [], 'border-orange-200 text-orange-700', 'greWords');
-    addCategoryBranch('cat-idm', 'Idioms', 480, cluster.idioms || [], 'border-green-200 text-green-700', 'idioms');
-    addCategoryBranch('cat-sub', 'Substitutes', 660, cluster.oneWordSubstitutes || [], 'border-purple-200 text-purple-700', 'oneWordSubstitutes');
+    addCategoryBranch('cat-adv', 'Advanced', cluster.advancedWords || [], 'border-blue-200 text-blue-700', 'advancedWords');
+    addCategoryBranch('cat-gre', 'GRE', cluster.greWords || [], 'border-orange-200 text-orange-700', 'greWords');
+    addCategoryBranch('cat-idm', 'Idioms', cluster.idioms || [], 'border-green-200 text-green-700', 'idioms');
+    addCategoryBranch('cat-sub', 'Substitutes', cluster.oneWordSubstitutes || [], 'border-purple-200 text-purple-700', 'oneWordSubstitutes');
+
+    // 1. Center Node (Positioned vertically in the middle)
+    initialNodes.push({
+      id: 'center',
+      type: 'center',
+      position: { x: 0, y: (currentY / 2) - 40 },
+      data: { word: cluster.basicWord },
+    });
 
     return { nodes: initialNodes, edges: initialEdges };
   }, [cluster, onNodeClick]);
@@ -127,8 +137,8 @@ export const WordMindMap: React.FC<WordMindMapProps> = ({ cluster, onNodeClick }
         edges={edges} 
         nodeTypes={nodeTypes}
         fitView
-        fitViewOptions={{ padding: 0.2 }}
-        minZoom={0.5}
+        fitViewOptions={{ padding: 0.1, minZoom: 0.1, maxZoom: 1.2 }}
+        minZoom={0.1}
         maxZoom={1.5}
         attributionPosition="bottom-right"
       >

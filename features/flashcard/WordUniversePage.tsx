@@ -191,12 +191,12 @@ const WordUniversePage: React.FC = () => {
 
   return (
     <div 
-      className="min-h-screen flex flex-col transition-colors duration-300 relative"
+      className="h-[100dvh] flex flex-col transition-colors duration-300 relative overflow-hidden"
       style={{ backgroundColor: currentTheme.background }}
     >
       {/* Top Bar */}
       <div 
-        className="px-6 py-4 flex items-center justify-between sticky top-0 z-30 backdrop-blur-xl bg-opacity-80 transition-all"
+        className="px-6 py-4 flex items-center justify-between shrink-0 z-30 backdrop-blur-xl bg-opacity-80 transition-all"
         style={{ 
           backgroundColor: currentTheme.background === '#F8FAFC' ? 'rgba(248, 250, 252, 0.8)' : currentTheme.cardBg,
           borderBottom: `1px solid ${currentTheme.borderColor}`
@@ -214,9 +214,9 @@ const WordUniversePage: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 p-5 overflow-y-auto pb-32 no-scrollbar" ref={containerRef}>
+      <div className="flex-1 flex flex-col p-4 gap-4 overflow-hidden" ref={containerRef}>
         {!cluster && !loading && (
-          <div className="flex flex-col items-center justify-center h-full mt-20">
+          <div className="flex flex-col items-center justify-center h-full overflow-y-auto">
             <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mb-6">
               <Sparkles className="w-10 h-10 text-indigo-600" />
             </div>
@@ -245,7 +245,7 @@ const WordUniversePage: React.FC = () => {
         )}
 
         {loading && (
-          <div className="flex flex-col items-center justify-center h-full mt-32">
+          <div className="flex flex-col items-center justify-center h-full">
             <div className="relative w-24 h-24">
               <div className="absolute inset-0 border-4 border-indigo-200 rounded-full"></div>
               <div className="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
@@ -256,13 +256,9 @@ const WordUniversePage: React.FC = () => {
         )}
 
         {cluster && !loading && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="w-full"
-          >
+          <>
             {/* Interactive Canvas */}
-            <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 relative overflow-hidden w-full h-[600px] flex items-center justify-center mb-6">
+            <div className="bg-white rounded-[24px] shadow-sm border border-gray-100 relative overflow-hidden w-full transition-all duration-300 flex-1 min-h-[300px]">
               <WordMindMap 
                 cluster={cluster} 
                 onNodeClick={(node, typeLabel, category) => setActiveNode({ node, type: typeLabel, category })} 
@@ -270,92 +266,93 @@ const WordUniversePage: React.FC = () => {
             </div>
 
             {/* Active Node Details Panel */}
-            <AnimatePresence mode="wait">
-              {activeNode ? (
-                <motion.div 
-                  key="active-node"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="bg-white rounded-[24px] p-6 shadow-sm border border-gray-200 mb-6"
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-bold px-2 py-1 rounded-md bg-gray-100 text-gray-600 uppercase tracking-wider">
-                          {activeNode.type}
-                        </span>
-                        <span className="text-xs font-medium text-gray-400 italic">
-                          {activeNode.node.partOfSpeech}
-                        </span>
+            <div className="shrink-0 max-h-[40vh] overflow-y-auto no-scrollbar rounded-[24px] mb-[80px]">
+              <AnimatePresence mode="wait">
+                {activeNode ? (
+                  <motion.div 
+                    key="active-node"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="bg-white rounded-[24px] p-6 shadow-sm border border-gray-200"
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs font-bold px-2 py-1 rounded-md bg-gray-100 text-gray-600 uppercase tracking-wider">
+                            {activeNode.type}
+                          </span>
+                          <span className="text-xs font-medium text-gray-400 italic">
+                            {activeNode.node.partOfSpeech}
+                          </span>
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                          {activeNode.node.word}
+                          <button onClick={() => speak(activeNode.node.word)} className="p-1.5 rounded-full hover:bg-gray-100 text-indigo-500 transition-colors">
+                            <Volume2 size={18} />
+                          </button>
+                        </h3>
+                        <p className="text-lg text-indigo-600 font-medium">{activeNode.node.meaning}</p>
                       </div>
-                      <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        {activeNode.node.word}
-                        <button onClick={() => speak(activeNode.node.word)} className="p-1.5 rounded-full hover:bg-gray-100 text-indigo-500 transition-colors">
-                          <Volume2 size={18} />
+                      
+                      {/* Node Actions */}
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => handleRegenerateNode(activeNode.category, activeNode.node)}
+                          disabled={regeneratingNodeId === activeNode.node.id}
+                          className="p-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                          title="Regenerate"
+                        >
+                          <RefreshCw size={18} className={regeneratingNodeId === activeNode.node.id ? "animate-spin" : ""} />
                         </button>
-                      </h3>
-                      <p className="text-lg text-indigo-600 font-medium">{activeNode.node.meaning}</p>
+                        <button 
+                          onClick={() => handleSaveSingleNode(activeNode.node)}
+                          className="p-2 rounded-xl bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
+                          title="Save to Flashcards"
+                        >
+                          <Save size={18} />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteNode(activeNode.category, activeNode.node.id)}
+                          className="p-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                          title="Remove from Map"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </div>
-                    
-                    {/* Node Actions */}
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => handleRegenerateNode(activeNode.category, activeNode.node)}
-                        disabled={regeneratingNodeId === activeNode.node.id}
-                        className="p-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
-                        title="Regenerate"
-                      >
-                        <RefreshCw size={18} className={regeneratingNodeId === activeNode.node.id ? "animate-spin" : ""} />
-                      </button>
-                      <button 
-                        onClick={() => handleSaveSingleNode(activeNode.node)}
-                        className="p-2 rounded-xl bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
-                        title="Save to Flashcards"
-                      >
-                        <Save size={18} />
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteNode(activeNode.category, activeNode.node.id)}
-                        className="p-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
-                        title="Remove from Map"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </div>
 
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                    <div className="flex items-center gap-2 mb-2 text-gray-500">
-                      <BookOpen size={14} />
-                      <span className="text-xs font-bold uppercase tracking-wider">Contextual Usage</span>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                      <div className="flex items-center gap-2 mb-2 text-gray-500">
+                        <BookOpen size={14} />
+                        <span className="text-xs font-bold uppercase tracking-wider">Contextual Usage</span>
+                      </div>
+                      <p className="text-gray-700 text-[15px] leading-relaxed">
+                        {/* Highlight the word in the sentence */}
+                        {activeNode.node.exampleSentence.split(new RegExp(`(${activeNode.node.word})`, 'gi')).map((part, i) => 
+                          part.toLowerCase() === activeNode.node.word.toLowerCase() 
+                            ? <span key={i} className="font-bold text-indigo-600 bg-indigo-50 px-1 rounded">{part}</span> 
+                            : part
+                        )}
+                      </p>
                     </div>
-                    <p className="text-gray-700 text-[15px] leading-relaxed">
-                      {/* Highlight the word in the sentence */}
-                      {activeNode.node.exampleSentence.split(new RegExp(`(${activeNode.node.word})`, 'gi')).map((part, i) => 
-                        part.toLowerCase() === activeNode.node.word.toLowerCase() 
-                          ? <span key={i} className="font-bold text-indigo-600 bg-indigo-50 px-1 rounded">{part}</span> 
-                          : part
-                      )}
-                    </p>
-                  </div>
-                </motion.div>
-              ) : (
-                <motion.div 
-                  key="base-context"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="bg-indigo-50/50 rounded-[24px] p-6 border border-indigo-100 mb-6 text-center"
-                >
-                  <p className="text-sm text-indigo-400 font-bold uppercase tracking-wider mb-2">Base Context</p>
-                  <p className="text-gray-700 text-lg italic">"{cluster.baseContext}"</p>
-                  <p className="text-xs text-gray-400 mt-4">Tap on any orbiting word to see its details and usage.</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-          </motion.div>
+                  </motion.div>
+                ) : (
+                  <motion.div 
+                    key="base-context"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="bg-indigo-50/50 rounded-[24px] p-6 border border-indigo-100 text-center"
+                  >
+                    <p className="text-sm text-indigo-400 font-bold uppercase tracking-wider mb-2">Base Context</p>
+                    <p className="text-gray-700 text-lg italic">"{cluster.baseContext}"</p>
+                    <p className="text-xs text-gray-400 mt-4">Tap on any orbiting word to see its details and usage.</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </>
         )}
       </div>
 
