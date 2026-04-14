@@ -249,9 +249,10 @@ const FlashcardCard: React.FC<FlashcardCardProps> = ({ word, isFlipped, onFlip, 
       >
         {/* Front Side */}
         <div 
-          className="absolute inset-0 w-full h-full rounded-[24px] flex flex-col items-center justify-center p-8 backface-hidden"
+          className="absolute inset-0 w-full h-full rounded-[24px] flex flex-col items-center justify-center p-8"
           style={{ 
             backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
             backgroundColor: currentTheme.cardBg,
             boxShadow: currentTheme.shadow,
             border: `1px solid ${currentTheme.borderColor}`
@@ -288,9 +289,10 @@ const FlashcardCard: React.FC<FlashcardCardProps> = ({ word, isFlipped, onFlip, 
 
         {/* Back Side */}
         <div 
-          className="absolute inset-0 w-full h-full rounded-[24px] flex flex-col items-center justify-between p-6 backface-hidden"
+          className="absolute inset-0 w-full h-full rounded-[24px] flex flex-col items-center justify-between p-6"
           style={{ 
             backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)',
             backgroundColor: currentTheme.cardBg,
             boxShadow: currentTheme.shadow,

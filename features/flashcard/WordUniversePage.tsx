@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Sparkles, Save, Check, RefreshCw, Trash2, Volume2, BookOpen, Loader2 } from 'lucide-react';
+import { ArrowLeft, Sparkles, Save, Check, RefreshCw, Trash2, Volume2, BookOpen, Loader2, Bookmark, FolderOpen, Search, Filter, Play } from 'lucide-react';
 import { useTheme } from './context/ThemeContext';
 import { clusterService } from './services/clusterService';
+import { universeService } from './services/universeService';
 import { WordCluster, FlashcardNewWord, ClusterNode } from '../../types';
 import { flashcardService } from '../../core/storage/services';
 import toast from 'react-hot-toast';
@@ -13,6 +14,11 @@ const WordUniversePage: React.FC = () => {
   const navigate = useNavigate();
   const { currentTheme } = useTheme();
   
+  const [activeTab, setActiveTab] = useState<'create' | 'saved'>('create');
+  const [savedUniverses, setSavedUniverses] = useState<WordCluster[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'a-z'>('newest');
+
   const [inputWord, setInputWord] = useState('');
   const [loading, setLoading] = useState(false);
   const [cluster, setCluster] = useState<WordCluster | null>(null);
@@ -21,6 +27,17 @@ const WordUniversePage: React.FC = () => {
   const [regeneratingNodeId, setRegeneratingNodeId] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (activeTab === 'saved') {
+      loadSavedUniverses();
+    }
+  }, [activeTab]);
+
+  const loadSavedUniverses = async () => {
+    const saved = await universeService.getAllSaved();
+    setSavedUniverses(saved);
+  };
 
   const handleGenerate = async () => {
     if (!inputWord.trim()) {
@@ -40,85 +57,61 @@ const WordUniversePage: React.FC = () => {
     }
   };
 
-  const handleSaveMasterCard = async () => {
+  const handleSaveUniverse = async () => {
     if (!cluster) return;
-    setSaving(true);
     try {
-      const wordData: FlashcardNewWord = {
-        id: crypto.randomUUID(),
-        word: cluster.basicWord,
-        meaning: "Word Cluster (Master Card)",
-        type: 'Other',
-        verbForms: null,
-        examples: [cluster.baseContext],
-        synonyms: [
-          ...(cluster.advancedWords || []).map(w => w.word),
-          ...(cluster.greWords || []).map(w => w.word)
-        ],
-        pronunciation: '',
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        confidenceLevel: 0,
-        nextReviewDate: Date.now(),
-        lastReviewedAt: 0,
-        totalReviews: 0,
-        correctCount: 0,
-        wrongCount: 0,
-        isFavorite: false,
-        clusterData: cluster
-      };
-
-      await flashcardService.addNewWord(wordData);
-      toast.success("Master Card saved to New Words!");
-      navigate('/flashcards');
+      await universeService.saveUniverse(cluster);
+      await loadSavedUniverses();
+      toast.success("Universe saved successfully!");
     } catch (e) {
-      toast.error("Failed to save");
-    } finally {
-      setSaving(false);
+      toast.error("Failed to save universe");
     }
   };
 
-  const handleSaveIndividualCards = async () => {
-    if (!cluster) return;
-    setSaving(true);
+  const isCurrentUniverseSaved = cluster && savedUniverses.some(u => u.id === cluster.id);
+
+  const handleDeleteUniverse = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     try {
-      const allWords = [
-        ...(cluster.advancedWords || []),
-        ...(cluster.greWords || []),
-        ...(cluster.idioms || []),
-        ...(cluster.oneWordSubstitutes || [])
-      ];
-
-      const newCards: FlashcardNewWord[] = allWords.map(w => {
-        return {
-          id: crypto.randomUUID(),
-          word: w.word,
-          meaning: w.meaning,
-          type: (w.partOfSpeech as any) || 'Other',
-          verbForms: null,
-          examples: [w.exampleSentence],
-          synonyms: [cluster.basicWord],
-          pronunciation: '',
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-          confidenceLevel: 0,
-          nextReviewDate: Date.now(),
-          lastReviewedAt: 0,
-          totalReviews: 0,
-          correctCount: 0,
-          wrongCount: 0,
-          isFavorite: false
-        };
-      });
-
-      await flashcardService.addBulkFlashcardWords(newCards);
-      toast.success(`${newCards.length} individual cards saved!`);
-      navigate('/flashcards');
-    } catch (e) {
-      toast.error("Failed to save individual cards");
-    } finally {
-      setSaving(false);
+      await universeService.deleteUniverse(id);
+      await loadSavedUniverses();
+      if (cluster?.id === id) {
+        setCluster(null);
+      }
+      toast.success("Universe deleted");
+    } catch (err) {
+      toast.error("Failed to delete universe");
     }
+  };
+
+  const handleLoadUniverse = (savedCluster: WordCluster) => {
+    setCluster(savedCluster);
+    setActiveNode(null);
+    setActiveTab('create');
+  };
+
+  const handleReviewUniverse = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/flashcards/universe/review?universeId=${id}`);
+  };
+
+  const [visibleCount, setVisibleCount] = useState(20);
+
+  const filteredUniverses = savedUniverses
+    .filter(u => u.basicWord.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => {
+      if (sortBy === 'newest') return b.createdAt - a.createdAt;
+      if (sortBy === 'oldest') return a.createdAt - b.createdAt;
+      return a.basicWord.localeCompare(b.basicWord);
+    });
+
+  const visibleUniverses = filteredUniverses.slice(0, visibleCount);
+
+  const stats = {
+    total: savedUniverses.length,
+    adv: savedUniverses.reduce((acc, u) => acc + (u.advancedWords?.length || 0), 0),
+    gre: savedUniverses.reduce((acc, u) => acc + (u.greWords?.length || 0), 0),
+    idioms: savedUniverses.reduce((acc, u) => acc + (u.idioms?.length || 0), 0),
   };
 
   const handleSaveSingleNode = async (node: ClusterNode) => {
@@ -127,7 +120,7 @@ const WordUniversePage: React.FC = () => {
       const newCard: FlashcardNewWord = {
           id: crypto.randomUUID(),
           word: node.word,
-          meaning: node.meaning,
+          meaning: `${node.meaning} (Root: ${cluster.basicWord})`,
           type: (node.partOfSpeech as any) || 'Other',
           verbForms: null,
           examples: [node.exampleSentence],
@@ -145,8 +138,12 @@ const WordUniversePage: React.FC = () => {
       };
       await flashcardService.addNewWord(newCard);
       toast.success(`"${node.word}" saved to New Words!`);
-    } catch (e) {
-      toast.error("Failed to save word");
+    } catch (e: any) {
+      if (e.message?.startsWith('Duplicate')) {
+        toast.error(`"${node.word}" is already saved in flashcards!`);
+      } else {
+        toast.error("Failed to save word");
+      }
     }
   };
 
@@ -203,22 +200,173 @@ const WordUniversePage: React.FC = () => {
         }}
       >
         <div className="flex items-center gap-2">
-            <button onClick={() => navigate('/flashcards')} className="mr-2 p-1 rounded-full hover:bg-black/5 transition-colors active:scale-95">
+            <button onClick={() => navigate('/home')} className="mr-2 p-1 rounded-full hover:bg-black/5 transition-colors active:scale-95">
                 <ArrowLeft className="w-6 h-6" style={{ color: currentTheme.textColor }} />
             </button>
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg">
-                <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <h1 className="text-xl font-bold tracking-tight" style={{ color: currentTheme.textColor }}>Word Universe</h1>
+            <h1 className="text-xl font-bold tracking-tight hidden sm:block" style={{ color: currentTheme.textColor }}>Synonym Finder</h1>
+        </div>
+        
+        <div className="flex bg-slate-100/80 p-1 rounded-xl border border-slate-200/60 backdrop-blur-sm">
+          <button
+            onClick={() => setActiveTab('create')}
+            className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'create' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            Create
+          </button>
+          <button
+            onClick={() => setActiveTab('saved')}
+            className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'saved' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            Saved
+          </button>
+        </div>
+
+        <div className="w-[120px] flex justify-end">
+          {activeTab === 'create' && cluster && (
+            <button 
+              onClick={handleSaveUniverse}
+              disabled={isCurrentUniverseSaved}
+              className={`${isCurrentUniverseSaved ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-slate-800 text-white hover:bg-slate-900 shadow-md'} px-4 py-2 rounded-xl text-sm font-bold active:scale-95 transition-all flex items-center gap-2`}
+            >
+              {isCurrentUniverseSaved ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+              <span className="hidden sm:inline">{isCurrentUniverseSaved ? 'Saved' : 'Save'}</span>
+            </button>
+          )}
         </div>
       </div>
 
       {/* Content */}
       <div className="flex-1 flex flex-col p-4 gap-4 overflow-hidden" ref={containerRef}>
-        {!cluster && !loading && (
+        {activeTab === 'saved' ? (
+          <div className="h-full overflow-y-auto no-scrollbar pb-20 flex flex-col gap-6">
+            {/* Stats Section */}
+            <div className="grid grid-cols-3 gap-3 shrink-0">
+              <div className="bg-white py-2 px-3 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center justify-center">
+                <span className="text-xl font-black text-slate-700">{stats.adv}</span>
+                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Adv Words</span>
+              </div>
+              <div className="bg-white py-2 px-3 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center justify-center">
+                <span className="text-xl font-black text-slate-700">{stats.gre}</span>
+                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">GRE Words</span>
+              </div>
+              <div className="bg-white py-2 px-3 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center justify-center">
+                <span className="text-xl font-black text-slate-700">{stats.idioms}</span>
+                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Idioms</span>
+              </div>
+            </div>
+
+            {/* Search and Filter */}
+            <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input 
+                  type="text"
+                  placeholder="Search saved universes..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-white"
+                />
+              </div>
+              <div className="relative min-w-[140px]">
+                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="w-full pl-9 pr-8 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-white appearance-none font-medium text-gray-700"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="a-z">A-Z</option>
+                </select>
+              </div>
+            </div>
+
+            {savedUniverses.length === 0 ? (
+              <div className="flex flex-col items-center justify-center flex-1 text-center mt-10 p-8 bg-white rounded-[24px] border border-slate-100 shadow-sm">
+                <div className="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center mb-6 border-8 border-white shadow-sm">
+                  <FolderOpen className="w-10 h-10 text-indigo-400" />
+                </div>
+                <h2 className="text-xl font-bold text-slate-800 mb-2">No Saved Universes</h2>
+                <p className="text-slate-500 max-w-xs text-sm leading-relaxed">
+                  Generate a new synonym universe and save it to review later.
+                </p>
+              </div>
+            ) : filteredUniverses.length === 0 ? (
+              <div className="flex flex-col items-center justify-center flex-1 text-center mt-10 p-8 bg-white rounded-[24px] border border-slate-100 shadow-sm">
+                <p className="text-slate-500">No universes found matching your search.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {visibleUniverses.map((savedCluster, index) => (
+                  <div 
+                    key={savedCluster.id}
+                    onClick={() => handleLoadUniverse(savedCluster)}
+                    className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 cursor-pointer hover:shadow-md hover:border-indigo-100 transition-all group relative flex flex-col"
+                  >
+                    <div className="absolute top-3 right-3 text-xs font-black text-slate-50 group-hover:text-indigo-50 transition-colors text-3xl -z-0">
+                      #{index + 1}
+                    </div>
+                    <div className="flex justify-between items-start mb-2 relative z-10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-lg shadow-inner border border-indigo-100/50">
+                          {savedCluster.basicWord.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <h3 className="text-base font-bold text-slate-800 leading-tight">{savedCluster.basicWord}</h3>
+                          <p className="text-[10px] font-medium text-slate-400">{new Date(savedCluster.createdAt).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-xs text-slate-500 italic line-clamp-1 relative z-10 flex-1 mb-3">"{savedCluster.baseContext}"</p>
+                    
+                    <div className="flex flex-wrap gap-1.5 relative z-10 mb-3">
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-slate-50 text-slate-500 border border-slate-100 rounded">
+                        {savedCluster.advancedWords?.length || 0} Adv
+                      </span>
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-slate-50 text-slate-500 border border-slate-100 rounded">
+                        {savedCluster.greWords?.length || 0} GRE
+                      </span>
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 bg-slate-50 text-slate-500 border border-slate-100 rounded">
+                        {savedCluster.idioms?.length || 0} Idioms
+                      </span>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-50 flex gap-2 relative z-10">
+                      <button 
+                        onClick={(e) => handleReviewUniverse(savedCluster.id, e)}
+                        className="flex-1 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5"
+                      >
+                        <Play className="w-3 h-3" />
+                        Review
+                      </button>
+                      <button 
+                        onClick={(e) => handleDeleteUniverse(savedCluster.id, e)}
+                        className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {visibleCount < filteredUniverses.length && (
+                <div className="flex justify-center mt-4">
+                  <button
+                    onClick={() => setVisibleCount(prev => prev + 20)}
+                    className="px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-bold transition-colors"
+                  >
+                    Load More
+                  </button>
+                </div>
+              )}
+            )}
+          </div>
+        ) : (
+          <>
+            {!cluster && !loading && (
           <div className="flex flex-col items-center justify-center h-full overflow-y-auto">
-            <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mb-6">
-              <Sparkles className="w-10 h-10 text-indigo-600" />
+            <div className="w-20 h-20 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center mb-6">
+              <Sparkles className="w-10 h-10 text-slate-400" />
             </div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center">Create a Word Universe</h2>
             <p className="text-gray-500 text-center mb-8 max-w-xs">
@@ -231,12 +379,12 @@ const WordUniversePage: React.FC = () => {
                 value={inputWord}
                 onChange={(e) => setInputWord(e.target.value)}
                 placeholder="e.g., Happy, Sad, Angry..."
-                className="w-full px-5 py-4 rounded-2xl border-2 border-indigo-100 focus:border-indigo-500 outline-none text-lg font-medium shadow-sm transition-all"
+                className="w-full px-5 py-4 rounded-2xl border-2 border-slate-100 focus:border-slate-800 outline-none text-lg font-medium shadow-sm transition-all"
                 onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
               />
               <button 
                 onClick={handleGenerate}
-                className="absolute right-2 top-2 bottom-2 bg-indigo-600 text-white px-4 rounded-xl font-bold hover:bg-indigo-700 active:scale-95 transition-all"
+                className="absolute right-2 top-2 bottom-2 bg-slate-800 text-white px-4 rounded-xl font-bold hover:bg-slate-900 active:scale-95 transition-all"
               >
                 Generate
               </button>
@@ -247,11 +395,11 @@ const WordUniversePage: React.FC = () => {
         {loading && (
           <div className="flex flex-col items-center justify-center h-full">
             <div className="relative w-24 h-24">
-              <div className="absolute inset-0 border-4 border-indigo-200 rounded-full"></div>
-              <div className="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
-              <Sparkles className="absolute inset-0 m-auto text-indigo-600 animate-pulse" />
+              <div className="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
+              <div className="absolute inset-0 border-4 border-slate-800 rounded-full border-t-transparent animate-spin"></div>
+              <Sparkles className="absolute inset-0 m-auto text-slate-800 animate-pulse" />
             </div>
-            <p className="mt-6 text-indigo-600 font-medium animate-pulse">Generating Universe...</p>
+            <p className="mt-6 text-slate-600 font-medium animate-pulse">Generating Universe...</p>
           </div>
         )}
 
@@ -288,11 +436,11 @@ const WordUniversePage: React.FC = () => {
                         </div>
                         <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                           {activeNode.node.word}
-                          <button onClick={() => speak(activeNode.node.word)} className="p-1.5 rounded-full hover:bg-gray-100 text-indigo-500 transition-colors">
+                          <button onClick={() => speak(activeNode.node.word)} className="p-1.5 rounded-full hover:bg-gray-100 text-slate-500 transition-colors">
                             <Volume2 size={18} />
                           </button>
                         </h3>
-                        <p className="text-lg text-indigo-600 font-medium">{activeNode.node.meaning}</p>
+                        <p className="text-lg text-slate-700 font-medium">{activeNode.node.meaning}</p>
                       </div>
                       
                       {/* Node Actions */}
@@ -343,9 +491,9 @@ const WordUniversePage: React.FC = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="bg-indigo-50/50 rounded-[24px] p-6 border border-indigo-100 text-center"
+                    className="bg-slate-50 rounded-[24px] p-6 border border-slate-100 text-center"
                   >
-                    <p className="text-sm text-indigo-400 font-bold uppercase tracking-wider mb-2">Base Context</p>
+                    <p className="text-sm text-slate-400 font-bold uppercase tracking-wider mb-2">Base Context</p>
                     <p className="text-gray-700 text-lg italic">"{cluster.baseContext}"</p>
                     <p className="text-xs text-gray-400 mt-4">Tap on any orbiting word to see its details and usage.</p>
                   </motion.div>
@@ -354,48 +502,9 @@ const WordUniversePage: React.FC = () => {
             </div>
           </>
         )}
-      </div>
-
-      {/* Bottom Action Bar */}
-      <AnimatePresence>
-        {cluster && !loading && (
-          <motion.div 
-            initial={{ y: 100 }}
-            animate={{ y: 0 }}
-            exit={{ y: 100 }}
-            className="fixed bottom-0 left-0 right-0 p-5 bg-white border-t border-gray-100 pb-safe z-40 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] flex gap-3"
-          >
-            <button 
-              onClick={handleSaveMasterCard}
-              disabled={saving}
-              className="flex-1 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-2xl shadow-lg shadow-indigo-200 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-            >
-              {saving ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-              ) : (
-                <>
-                  <Save size={20} />
-                  Save Master Map
-                </>
-              )}
-            </button>
-            <button 
-              onClick={handleSaveIndividualCards}
-              disabled={saving}
-              className="flex-1 py-4 bg-white text-indigo-600 border-2 border-indigo-100 font-bold rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-            >
-              {saving ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
-              ) : (
-                <>
-                  <Check size={20} />
-                  Save All Cards
-                </>
-              )}
-            </button>
-          </motion.div>
+          </>
         )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 };

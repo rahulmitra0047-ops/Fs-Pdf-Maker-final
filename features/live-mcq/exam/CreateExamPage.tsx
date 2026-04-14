@@ -162,7 +162,7 @@ const CreateExamPage: React.FC = () => {
               <p className="text-[14px] text-[#9CA3AF] mt-1">Choose topics or specific sets</p>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
               {topics.map(topic => {
                   const relevantSubtopics = subtopics.filter(st => st.topicId === topic.id);
                   const isExpanded = expandedTopics.has(topic.id);
@@ -170,40 +170,40 @@ const CreateExamPage: React.FC = () => {
                   return (
                       <div 
                         key={topic.id} 
-                        className={`bg-white border border-[#F3F4F6] rounded-[18px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden transition-all duration-200 ${isExpanded ? 'ring-1 ring-[#F3F4F6]' : ''}`}
+                        className={`bg-white border border-[#F3F4F6] rounded-xl shadow-sm overflow-hidden transition-all duration-200 ${isExpanded ? 'ring-1 ring-[#F3F4F6]' : ''}`}
                       >
                           <div 
-                            className="flex items-center justify-between p-4 cursor-pointer hover:bg-[#F9FAFB] transition-colors" 
+                            className="flex items-center justify-between p-3 cursor-pointer hover:bg-[#F9FAFB] transition-colors" 
                             onClick={() => toggleTopicExpand(topic.id)}
                           >
-                              <div className="flex items-center gap-3">
-                                  <span className={`text-[#6B7280] text-[12px] transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
+                              <div className="flex items-center gap-2">
+                                  <span className={`text-[#6B7280] text-[10px] transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
                                       ▼
                                   </span>
-                                  <span className="text-[16px] font-semibold text-[#111827]">{topic.name}</span>
+                                  <span className="text-[14px] font-semibold text-[#111827]">{topic.name}</span>
                               </div>
                               <button 
                                   onClick={(e) => { e.stopPropagation(); selectAllInTopic(topic.id); }}
-                                  className="text-[14px] font-medium text-[#6366F1] hover:text-indigo-700 active:scale-95 transition-transform"
+                                  className="text-[12px] font-medium text-[#6366F1] hover:text-indigo-700 active:scale-95 transition-transform"
                               >
                                   Select All
                               </button>
                           </div>
                           
                           {isExpanded && (
-                              <div className="pb-4 pt-0 px-4 space-y-4 animate-in slide-in-from-top-1 duration-150">
+                              <div className="pb-3 pt-0 px-3 space-y-3 animate-in slide-in-from-top-1 duration-150">
                                   {relevantSubtopics.map(st => {
                                       const relevantSets = sets.filter(s => s.subtopicId === st.id);
                                       if (relevantSets.length === 0) return null;
 
                                       return (
                                           <div key={st.id} className="pl-2">
-                                              <div className="text-[14px] font-medium text-[#6B7280] mb-2 pl-1">{st.name}</div>
-                                              <div className="space-y-2">
+                                              <div className="text-[12px] font-medium text-[#6B7280] mb-1.5 pl-1">{st.name}</div>
+                                              <div className="space-y-1">
                                                   {relevantSets.map(set => {
                                                       const isSelected = selectedSetIds.has(set.id);
                                                       return (
-                                                          <label key={set.id} className="flex items-center gap-3 cursor-pointer group p-1.5 rounded-lg hover:bg-gray-50 transition-colors">
+                                                          <label key={set.id} className="flex items-center gap-2.5 cursor-pointer group p-1.5 rounded-lg hover:bg-gray-50 transition-colors">
                                                               <div className="relative flex items-center">
                                                                   <input 
                                                                       type="checkbox" 
@@ -211,14 +211,14 @@ const CreateExamPage: React.FC = () => {
                                                                       onChange={() => toggleSetSelection(set.id)}
                                                                       className="peer sr-only"
                                                                   />
-                                                                  <div className={`w-5 h-5 border-2 rounded-[6px] transition-all duration-150 flex items-center justify-center ${isSelected ? 'bg-[#6366F1] border-[#6366F1]' : 'bg-white border-[#D1D5DB]'}`}>
-                                                                      <svg className={`w-3.5 h-3.5 text-white transform transition-transform ${isSelected ? 'scale-100' : 'scale-0'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                                                  <div className={`w-4 h-4 border-2 rounded-[4px] transition-all duration-150 flex items-center justify-center ${isSelected ? 'bg-[#6366F1] border-[#6366F1]' : 'bg-white border-[#D1D5DB]'}`}>
+                                                                      <svg className={`w-3 h-3 text-white transform transition-transform ${isSelected ? 'scale-100' : 'scale-0'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
                                                                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                                                       </svg>
                                                                   </div>
                                                               </div>
-                                                              <div className="flex-1 text-[15px] text-[#374151] font-medium">{set.name}</div>
-                                                              <div className="text-[13px] text-[#9CA3AF] font-medium">{set.mcqs.length}</div>
+                                                              <div className="flex-1 text-[13px] text-[#374151] font-medium">{set.name}</div>
+                                                              <div className="text-[11px] text-[#9CA3AF] font-medium">{set.mcqs.length}</div>
                                                           </label>
                                                       );
                                                   })}

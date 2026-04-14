@@ -13,6 +13,7 @@ const FlashcardSession: React.FC = () => {
   const mode = searchParams.get('mode') as 'learning' | 'practice' || 'learning';
   const pool = searchParams.get('pool') as 'all' | 'mastered' | 'learning' | 'favorites' || 'all';
   const direction = searchParams.get('direction') as 'normal' | 'reverse' || 'normal';
+  const universeId = searchParams.get('universeId');
   
   const toast = useToast();
 
@@ -70,7 +71,41 @@ const FlashcardSession: React.FC = () => {
     try {
       let words: FlashcardWord[] = [];
       
-      if (mode === 'practice') {
+      if (universeId) {
+        // Load words from a specific universe
+        const savedUniverses = localStorage.getItem('saved_word_universes');
+        if (savedUniverses) {
+          const universes = JSON.parse(savedUniverses);
+          const universe = universes.find((u: any) => u.id === universeId);
+          if (universe) {
+            const allNodes = [
+              ...(universe.advancedWords || []),
+              ...(universe.greWords || []),
+              ...(universe.idioms || []),
+              ...(universe.oneWordSubstitutes || [])
+            ];
+            words = allNodes.map(w => ({
+              id: w.id,
+              word: w.word,
+              meaning: w.meaning,
+              type: (w.partOfSpeech as any) || 'Other',
+              verbForms: null,
+              examples: [w.exampleSentence],
+              synonyms: [universe.basicWord],
+              pronunciation: '',
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              confidenceLevel: 0,
+              nextReviewDate: Date.now(),
+              lastReviewedAt: 0,
+              totalReviews: 0,
+              correctCount: 0,
+              wrongCount: 0,
+              isFavorite: false
+            })) as FlashcardWord[];
+          }
+        }
+      } else if (mode === 'practice') {
         const all = await flashcardService.getAll();
         if (pool === 'mastered') {
           words = all.filter(w => w.confidenceLevel >= 4);

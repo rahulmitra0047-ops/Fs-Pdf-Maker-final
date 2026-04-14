@@ -41,6 +41,7 @@ const SetDetailPage: React.FC = () => {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(30);
 
   useEffect(() => {
     if (!setId) return;
@@ -362,16 +363,16 @@ const SetDetailPage: React.FC = () => {
                 </div>
 
                 {/* Custom MCQ List */}
-                <div className="flex flex-col gap-[12px]">
+                <div className="flex flex-col gap-[8px]">
                     {set.mcqs.length === 0 ? (
-                        <div className="text-center py-10 border-2 border-dashed border-slate-200 rounded-[24px] bg-slate-50/50">
-                            <p className="text-[14px] text-slate-400">No MCQs added yet</p>
+                        <div className="text-center py-8 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+                            <p className="text-[13px] text-slate-400">No MCQs added yet</p>
                         </div>
                     ) : (
-                        set.mcqs.map((mcq, index) => (
+                        set.mcqs.slice(0, visibleCount).map((mcq, index) => (
                             <div 
                                 key={mcq.id}
-                                className={`relative bg-white border rounded-[20px] p-5 shadow-sm transition-all ${
+                                className={`relative bg-white border rounded-xl p-4 shadow-sm transition-all ${
                                     isSelectionMode && selectedIds.has(mcq.id) ? 'border-emerald-500 bg-emerald-50/10 ring-1 ring-emerald-500' : 'border-slate-100 hover:border-slate-200 hover:shadow-md'
                                 }`}
                                 onClick={isSelectionMode ? () => toggleSelect(mcq.id) : undefined}
@@ -380,31 +381,31 @@ const SetDetailPage: React.FC = () => {
                                 {!isSelectionMode && (
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); setEditingMCQ(mcq); setShowSingleMCQ(true); }}
-                                        className="absolute top-4 right-4 text-slate-300 hover:text-emerald-600 transition-colors"
+                                        className="absolute top-3 right-3 text-slate-300 hover:text-emerald-600 transition-colors"
                                     >
-                                        <Icon name="edit-3" size="sm" />
+                                        <Icon name="edit-3" size="xs" />
                                     </button>
                                 )}
 
                                 {/* Selection Checkbox */}
                                 {isSelectionMode && (
-                                    <div className="absolute top-4 right-4">
-                                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${selectedIds.has(mcq.id) ? 'bg-emerald-500 border-emerald-500' : 'border-slate-300 bg-white'}`}>
-                                            {selectedIds.has(mcq.id) && <Icon name="check" size="sm" className="text-white" />}
+                                    <div className="absolute top-3 right-3">
+                                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${selectedIds.has(mcq.id) ? 'bg-emerald-500 border-emerald-500' : 'border-slate-300 bg-white'}`}>
+                                            {selectedIds.has(mcq.id) && <Icon name="check" size="xs" className="text-white w-3 h-3" />}
                                         </div>
                                     </div>
                                 )}
 
                                 {/* Question */}
-                                <div className="mb-3 pr-8">
-                                    <span className="text-emerald-600 font-bold mr-2">{index + 1}.</span>
-                                    <span className="text-[15px] font-semibold text-slate-900 leading-relaxed">
+                                <div className="mb-2.5 pr-6">
+                                    <span className="text-emerald-600 font-bold mr-1.5 text-[13px]">{index + 1}.</span>
+                                    <span className="text-[14px] font-semibold text-slate-900 leading-snug">
                                         {mcq.question}
                                     </span>
                                 </div>
 
                                 {/* Options Grid */}
-                                <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-3">
+                                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mt-2">
                                     {['A', 'B', 'C', 'D'].map((opt) => {
                                         const isCorrect = mcq.answer === opt;
                                         const text = mcq[`option${opt}` as keyof MCQ] as string;
@@ -412,14 +413,14 @@ const SetDetailPage: React.FC = () => {
                                         return (
                                             <div 
                                                 key={opt}
-                                                className={`text-[14px] flex items-start gap-2 ${
+                                                className={`text-[13px] flex items-start gap-1.5 ${
                                                     isCorrect 
-                                                        ? 'bg-emerald-50 text-emerald-700 font-semibold px-2 py-1 -ml-2 rounded-lg' 
-                                                        : 'text-slate-600 font-normal py-1'
+                                                        ? 'bg-emerald-50 text-emerald-700 font-semibold px-1.5 py-0.5 -ml-1.5 rounded-md' 
+                                                        : 'text-slate-600 font-normal py-0.5'
                                                 }`}
                                             >
                                                 <span className={`font-medium ${isCorrect ? 'text-emerald-700' : 'text-slate-400'}`}>{opt})</span>
-                                                <span className="leading-snug">{text}</span>
+                                                <span className="leading-tight">{text}</span>
                                             </div>
                                         );
                                     })}
@@ -427,17 +428,28 @@ const SetDetailPage: React.FC = () => {
 
                                 {/* Tag / Source */}
                                 {mcq.source && (
-                                    <div className="mt-3 pt-2.5 border-t border-slate-50 flex items-center gap-2">
+                                    <div className="mt-2 pt-2 border-t border-slate-50 flex items-center gap-1.5">
                                         <div className="text-slate-300">
-                                            <Icon name="check-circle" size="sm" /> {/* Placeholder for tag icon, reused check-circle as generic badge style */}
+                                            <Icon name="check-circle" size="xs" className="w-3 h-3" />
                                         </div>
-                                        <span className="text-[12px] font-normal text-slate-400">{mcq.source}</span>
+                                        <span className="text-[11px] font-normal text-slate-400">{mcq.source}</span>
                                     </div>
                                 )}
                             </div>
                         ))
                     )}
                 </div>
+                
+                {visibleCount < set.mcqs.length && (
+                    <div className="flex justify-center mt-6">
+                        <button
+                            onClick={() => setVisibleCount(prev => prev + 30)}
+                            className="px-6 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-xl text-sm font-bold transition-colors"
+                        >
+                            Load More
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
 

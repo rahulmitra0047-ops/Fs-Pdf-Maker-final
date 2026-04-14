@@ -26,6 +26,7 @@ const WordBankPage: React.FC = () => {
   const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showBulkActions, setShowBulkActions] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(30);
 
   useEffect(() => {
     loadWords();
@@ -106,6 +107,7 @@ const WordBankPage: React.FC = () => {
     }
 
     setFilteredWords(result);
+    setVisibleCount(30); // Reset visible count when filter/sort changes
   };
 
   const toggleFavorite = async (e: React.MouseEvent, word: FlashcardWord) => {
@@ -219,12 +221,14 @@ const WordBankPage: React.FC = () => {
   
   const isGrouped = sortOption === 'recent' || sortOption === 'oldest';
   
-  const groupedWords = isGrouped ? filteredWords.reduce((acc, word) => {
+  const visibleWords = filteredWords.slice(0, visibleCount);
+  
+  const groupedWords = isGrouped ? visibleWords.reduce((acc, word) => {
     const key = word.sourceLessonId || 'manual';
     if (!acc[key]) acc[key] = [];
     acc[key].push(word);
     return acc;
-  }, {} as Record<string, FlashcardWord[]>) : { 'all': filteredWords };
+  }, {} as Record<string, FlashcardWord[]>) : { 'all': visibleWords };
 
   const sortedGroups = Object.keys(groupedWords).sort((a, b) => {
     if (a === 'manual') return 1;
@@ -471,6 +475,17 @@ const WordBankPage: React.FC = () => {
               </div>
             </div>
           ))
+        )}
+        
+        {visibleCount < filteredWords.length && (
+          <div className="flex justify-center mt-6 pb-6">
+            <button
+              onClick={() => setVisibleCount(prev => prev + 30)}
+              className="px-6 py-2 bg-[#6C63FF]/10 hover:bg-[#6C63FF]/20 text-[#6C63FF] rounded-xl text-sm font-bold transition-colors"
+            >
+              Load More
+            </button>
+          </div>
         )}
       </main>
 

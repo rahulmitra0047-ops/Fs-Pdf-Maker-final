@@ -252,24 +252,24 @@ const AdvancedResultPage: React.FC = () => {
                       <p className="text-[#9CA3AF] text-[14px]">No questions found for this filter.</p>
                   </div>
               ) : (
-                  <div className="space-y-[12px]">
+                  <div className="space-y-3">
                       {filteredMCQs.map((mcq, i) => {
                           const userAns = attempt.answers[mcq.id];
                           const isCorrect = userAns === mcq.answer;
                           const isSkipped = !userAns;
                           
                           return (
-                              <div key={mcq.id} className="bg-white border border-[#F3F4F6] rounded-[18px] p-[18px] shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-                                  <div className="flex gap-3">
-                                      <div className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[12px] font-bold mt-0.5 ${isSkipped ? 'bg-gray-300' : isCorrect ? 'bg-[#34D399]' : 'bg-[#F87171]'}`}>
+                              <div key={mcq.id} className="bg-white border border-[#F3F4F6] rounded-xl p-4 shadow-sm">
+                                  <div className="flex gap-2.5">
+                                      <div className={`w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold mt-0.5 ${isSkipped ? 'bg-gray-300' : isCorrect ? 'bg-[#34D399]' : 'bg-[#F87171]'}`}>
                                           {isSkipped ? '?' : isCorrect ? '✓' : '✕'}
                                       </div>
                                       <div className="flex-1">
-                                          <div className="text-[15px] font-semibold text-[#111827] leading-[1.5] mb-3">
+                                          <div className="text-[14px] font-semibold text-[#111827] leading-[1.4] mb-2.5">
                                               {mcq.question}
                                           </div>
                                           
-                                          <div className="space-y-2">
+                                          <div className="space-y-1.5">
                                               {['A', 'B', 'C', 'D'].map(opt => {
                                                   const optionKey = `option${opt}` as keyof typeof mcq;
                                                   const isSelected = userAns === opt;
@@ -292,16 +292,16 @@ const AdvancedResultPage: React.FC = () => {
                                                   }
 
                                                   return (
-                                                      <div key={opt} className={`flex gap-2 p-2 rounded-[8px] ${bgClass} ${borderClass}`}>
-                                                          <span className={`w-5 ${fontClass} ${textClass}`}>{opt})</span>
-                                                          <span className={`flex-1 text-[14px] ${textClass} ${fontClass}`}>{mcq[optionKey] as string}</span>
+                                                      <div key={opt} className={`flex gap-2 p-1.5 rounded-lg ${bgClass} ${borderClass}`}>
+                                                          <span className={`w-4 text-[13px] ${fontClass} ${textClass}`}>{opt})</span>
+                                                          <span className={`flex-1 text-[13px] ${textClass} ${fontClass}`}>{mcq[optionKey] as string}</span>
                                                       </div>
                                                   );
                                               })}
                                           </div>
 
                                           {mcq.explanation && (
-                                              <div className="mt-3 text-[13px] bg-[#F9FAFB] p-3 rounded-[12px] text-[#4B5563] leading-relaxed">
+                                              <div className="mt-2.5 text-[12px] bg-[#F9FAFB] p-2.5 rounded-lg text-[#4B5563] leading-relaxed">
                                                   <span className="font-bold text-[#374151] mr-1">Explanation:</span>
                                                   {mcq.explanation}
                                               </div>

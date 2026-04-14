@@ -101,66 +101,66 @@ const LiveMcqPage: React.FC = () => {
             </div>
 
             {/* Main Navigation Cards */}
-            <div className="flex flex-col gap-[14px] mt-4">
+            <div className="flex flex-col gap-3 mt-4">
                 {/* TOPICS CARD */}
                 <div 
                     onClick={() => navigate('/live-mcq/topics')}
-                    className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-slate-200 active:scale-[0.98] transition-all duration-150 cursor-pointer flex items-center justify-between group"
+                    className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-slate-200 active:scale-[0.98] transition-all duration-150 cursor-pointer flex items-center justify-between group"
                 >
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm">
-                            <Icon name="book-open" size="lg" />
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm">
+                            <Icon name="book-open" size="sm" />
                         </div>
                         <div>
-                            <h2 className="text-[17px] font-semibold text-slate-900 leading-tight group-hover:text-emerald-600 transition-colors">Topics</h2>
-                            <p className="text-[13px] font-normal text-slate-500 mt-1">Browse & Practice MCQs</p>
+                            <h2 className="text-sm font-semibold text-slate-900 leading-tight group-hover:text-emerald-600 transition-colors">Topics</h2>
+                            <p className="text-xs font-normal text-slate-500 mt-0.5">Browse & Practice MCQs</p>
                         </div>
                     </div>
                     <div className="text-slate-300 group-hover:text-emerald-500 transition-colors">
-                        <Icon name="chevron-right" size="md" />
+                        <Icon name="chevron-right" size="sm" />
                     </div>
                 </div>
 
                 {/* EXAM CENTER CARD */}
                 <div 
                     onClick={() => navigate('/live-mcq/exam-center')}
-                    className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-slate-200 active:scale-[0.98] transition-all duration-150 cursor-pointer flex items-center justify-between group"
+                    className="bg-white border border-slate-100 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-slate-200 active:scale-[0.98] transition-all duration-150 cursor-pointer flex items-center justify-between group"
                 >
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-sm">
-                            <Icon name="target" size="lg" />
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-sm">
+                            <Icon name="target" size="sm" />
                         </div>
                         <div>
-                            <h2 className="text-[17px] font-semibold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">Exam Center</h2>
-                            <p className="text-[13px] font-normal text-slate-500 mt-1">Take Custom Exams</p>
+                            <h2 className="text-sm font-semibold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">Exam Center</h2>
+                            <p className="text-xs font-normal text-slate-500 mt-0.5">Take Custom Exams</p>
                         </div>
                     </div>
                     <div className="text-slate-300 group-hover:text-indigo-500 transition-colors">
-                        <Icon name="chevron-right" size="md" />
+                        <Icon name="chevron-right" size="sm" />
                     </div>
                 </div>
             </div>
 
             {/* Recent Activity */}
             {recentAttempts.length > 0 && (
-                <div className="mt-8 animate-fade-in">
-                    <h2 className="text-[13px] font-semibold text-slate-400 uppercase tracking-wider mb-3 px-1">
+                <div className="mt-6 animate-fade-in">
+                    <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-1">
                         Recent Activity
                     </h2>
-                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                         {recentAttempts.map((attempt, i) => (
                             <div 
                                 key={attempt.id} 
                                 onClick={() => navigate(attempt.mode === 'custom-exam' ? `/live-mcq/exam-center/result/${attempt.id}` : `/live-mcq/result/${attempt.id}`)}
-                                className={`p-4 flex items-center justify-between hover:bg-slate-50 cursor-pointer active:bg-slate-100 transition-colors ${i !== recentAttempts.length - 1 ? 'border-b border-slate-100' : ''}`}
+                                className={`p-3 flex items-center justify-between hover:bg-slate-50 cursor-pointer active:bg-slate-100 transition-colors ${i !== recentAttempts.length - 1 ? 'border-b border-slate-100' : ''}`}
                             >
-                                <div className="flex items-center gap-3.5">
-                                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm ${attempt.mode === 'practice' ? 'bg-emerald-500' : 'bg-indigo-500'}`}>
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-sm ${attempt.mode === 'practice' ? 'bg-emerald-500' : 'bg-indigo-500'}`}>
                                         {attempt.mode === 'practice' ? 'P' : 'E'}
                                     </div>
                                     <div>
-                                        <div className="text-[14px] font-semibold text-slate-900 line-clamp-1">{attempt.setName}</div>
-                                        <div className="text-[12px] text-slate-400 mt-0.5 font-medium">
+                                        <div className="text-sm font-semibold text-slate-900 line-clamp-1">{attempt.setName}</div>
+                                        <div className="text-[10px] text-slate-400 mt-0.5 font-medium">
                                             {attempt.percentage}% Score • {getTimeAgo(attempt.completedAt)}
                                         </div>
                                     </div>

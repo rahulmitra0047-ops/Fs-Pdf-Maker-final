@@ -7,6 +7,7 @@ import PremiumButton from '../../../shared/components/PremiumButton';
 import { generateUUID } from '../../../core/storage/idGenerator';
 import { useToast } from '../../../shared/context/ToastContext';
 import Icon from '../../../shared/components/Icon';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ExamConfig {
     sourceIds: string[];
@@ -273,30 +274,60 @@ const ActiveExamPage: React.FC = () => {
                         const isSelected = selectedOption === opt;
                         
                         return (
-                            <button
+                            <motion.button
                                 key={opt}
                                 onClick={() => handleAnswer(opt)}
+                                whileHover={{ scale: 0.99, backgroundColor: "#f8fafc", borderColor: "#cbd5e1" }}
+                                whileTap={{ scale: 0.97 }}
+                                initial={false}
+                                animate={{
+                                    backgroundColor: isSelected ? "#EEF2FF" : "#ffffff",
+                                    borderColor: isSelected ? "#6366F1" : "#F3F4F6",
+                                    scale: isSelected ? [1, 1.02, 1] : 1,
+                                }}
+                                transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
                                 className={`
                                     w-full rounded-[14px] p-[12px] px-[16px] 
                                     flex items-center text-left border-[1.5px]
-                                    transition-all duration-150 ease-out
-                                    active:scale-[0.98]
-                                    ${isSelected 
-                                        ? 'bg-[#EEF2FF] border-[#6366F1]' 
-                                        : 'bg-white border-[#F3F4F6]'
-                                    }
+                                    transition-colors duration-150 ease-out
                                 `}
                             >
-                                <div className={`
-                                    w-[30px] h-[30px] rounded-full flex items-center justify-center text-[13px] font-semibold flex-shrink-0 transition-colors
-                                    ${isSelected ? 'bg-[#6366F1] text-white' : 'bg-[#F3F4F6] text-[#6B7280]'}
-                                `}>
-                                    {opt}
-                                </div>
+                                <motion.div 
+                                    className={`
+                                        w-[30px] h-[30px] rounded-full flex items-center justify-center text-[13px] font-semibold flex-shrink-0 transition-colors
+                                    `}
+                                    animate={{
+                                        backgroundColor: isSelected ? "#6366F1" : "#F3F4F6",
+                                        color: isSelected ? "#ffffff" : "#6B7280"
+                                    }}
+                                >
+                                    <AnimatePresence mode="wait">
+                                        {isSelected ? (
+                                            <motion.div
+                                                key="selected"
+                                                initial={{ scale: 0, rotate: -180 }}
+                                                animate={{ scale: 1, rotate: 0 }}
+                                                exit={{ scale: 0 }}
+                                                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                            >
+                                                <Icon name="check" size="sm" className="text-white w-4 h-4" />
+                                            </motion.div>
+                                        ) : (
+                                            <motion.span
+                                                key="letter"
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                            >
+                                                {opt}
+                                            </motion.span>
+                                        )}
+                                    </AnimatePresence>
+                                </motion.div>
                                 <span className="text-[15px] font-normal text-[#374151] ml-[12px] leading-snug">
                                     {text}
                                 </span>
-                            </button>
+                            </motion.button>
                         );
                     })}
                 </div>

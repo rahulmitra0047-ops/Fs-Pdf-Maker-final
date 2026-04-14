@@ -74,86 +74,57 @@ const FlashcardHomeContent: React.FC = () => {
             {/* New Words */}
             <div 
               onClick={() => navigate('/flashcards/new')}
-              className="rounded-[20px] p-4 active:scale-95 transition-transform cursor-pointer flex flex-col items-center justify-center aspect-square group hover:shadow-md"
-              style={{ 
-                backgroundColor: currentTheme.cardBg,
-                boxShadow: currentTheme.shadow,
-                border: `1px solid ${currentTheme.borderColor}`
-              }}
+              className="bg-white rounded-2xl p-5 relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between border border-slate-200/80 group cursor-pointer aspect-square"
             >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center mb-2" style={{ backgroundColor: `${currentTheme.accentColor}15` }}>
-                <Plus className="w-5 h-5" style={{ color: currentTheme.accentColor }} />
+              <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center mb-3 group-hover:bg-indigo-600 transition-colors duration-300">
+                <Plus className="w-6 h-6 text-indigo-600 group-hover:text-white transition-colors duration-300" />
               </div>
-              <span className="text-2xl font-bold leading-none mb-1" style={{ color: currentTheme.textColor }}>{counts.new}</span>
-              <span className="text-xs font-medium" style={{ color: currentTheme.subTextColor }}>New Words</span>
+              <div className="flex flex-col">
+                <span className="text-3xl font-bold leading-none mb-1 text-slate-800">{counts.new}</span>
+                <span className="text-xs font-semibold tracking-wide uppercase text-slate-500">New Words</span>
+              </div>
             </div>
 
             {/* Daily Words */}
             <div 
               onClick={() => navigate('/flashcards/daily')}
-              className="rounded-[20px] p-4 active:scale-95 transition-transform cursor-pointer flex flex-col items-center justify-center aspect-square group hover:shadow-md"
-              style={{ 
-                backgroundColor: currentTheme.cardBg,
-                boxShadow: currentTheme.shadow,
-                border: `1px solid ${currentTheme.borderColor}`
-              }}
+              className="bg-white rounded-2xl p-5 relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between border border-slate-200/80 group cursor-pointer aspect-square"
             >
-              <div className="w-10 h-10 rounded-full bg-[#FF6B6B]/10 flex items-center justify-center mb-2">
-                <Calendar className="w-5 h-5 text-[#FF6B6B]" />
+              <div className="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center mb-3 group-hover:bg-rose-600 transition-colors duration-300">
+                <Calendar className="w-6 h-6 text-rose-600 group-hover:text-white transition-colors duration-300" />
               </div>
-              <span className="text-2xl font-bold leading-none mb-1" style={{ color: currentTheme.textColor }}>{counts.daily}</span>
-              <span className="text-xs font-medium" style={{ color: currentTheme.subTextColor }}>Daily Words</span>
+              <div className="flex flex-col">
+                <span className="text-3xl font-bold leading-none mb-1 text-slate-800">{counts.daily}</span>
+                <span className="text-xs font-semibold tracking-wide uppercase text-slate-500">Daily Words</span>
+              </div>
             </div>
 
             {/* Mastered */}
             <div 
               onClick={() => navigate('/flashcards/mastered')}
-              className="rounded-[20px] p-4 active:scale-95 transition-transform cursor-pointer flex flex-col items-center justify-center aspect-square group hover:shadow-md"
-              style={{ 
-                backgroundColor: currentTheme.cardBg,
-                boxShadow: currentTheme.shadow,
-                border: `1px solid ${currentTheme.borderColor}`
-              }}
+              className="bg-white rounded-2xl p-5 relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between border border-slate-200/80 group cursor-pointer aspect-square"
             >
-              <div className="w-10 h-10 rounded-full bg-[#4CAF50]/10 flex items-center justify-center mb-2">
-                <CheckCircle className="w-5 h-5 text-[#4CAF50]" />
+              <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-3 group-hover:bg-emerald-600 transition-colors duration-300">
+                <CheckCircle className="w-6 h-6 text-emerald-600 group-hover:text-white transition-colors duration-300" />
               </div>
-              <span className="text-2xl font-bold leading-none mb-1" style={{ color: currentTheme.textColor }}>{counts.mastered}</span>
-              <span className="text-xs font-medium" style={{ color: currentTheme.subTextColor }}>Mastered</span>
+              <div className="flex flex-col">
+                <span className="text-3xl font-bold leading-none mb-1 text-slate-800">{counts.mastered}</span>
+                <span className="text-xs font-semibold tracking-wide uppercase text-slate-500">Mastered</span>
+              </div>
             </div>
 
             {/* Quiz Mode */}
             <div 
               onClick={() => navigate('/flashcards/quiz')}
-              className="rounded-[20px] p-4 active:scale-95 transition-transform cursor-pointer flex flex-col items-center justify-center aspect-square group hover:shadow-md"
-              style={{ 
-                backgroundColor: currentTheme.cardBg,
-                boxShadow: currentTheme.shadow,
-                border: `1px solid ${currentTheme.borderColor}`
-              }}
+              className="bg-white rounded-2xl p-5 relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between border border-slate-200/80 group cursor-pointer aspect-square"
             >
-              <div className="w-10 h-10 rounded-full bg-[#FFA726]/10 flex items-center justify-center mb-2">
-                <Target className="w-5 h-5 text-[#FFA726]" />
+              <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center mb-3 group-hover:bg-amber-500 transition-colors duration-300">
+                <Target className="w-6 h-6 text-amber-600 group-hover:text-white transition-colors duration-300" />
               </div>
-              <span className="text-2xl font-bold leading-none mb-1" style={{ color: currentTheme.textColor }}>Quiz</span>
-              <span className="text-xs font-medium" style={{ color: currentTheme.subTextColor }}>Practice</span>
-            </div>
-
-            {/* Word Universe */}
-            <div 
-              onClick={() => navigate('/flashcards/universe')}
-              className="rounded-[20px] p-4 active:scale-95 transition-transform cursor-pointer flex flex-col items-center justify-center aspect-auto group hover:shadow-md col-span-2"
-              style={{ 
-                background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-                boxShadow: currentTheme.shadow,
-                border: `1px solid ${currentTheme.borderColor}`
-              }}
-            >
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-2">
-                <Sparkles className="w-5 h-5 text-white" />
+              <div className="flex flex-col">
+                <span className="text-3xl font-bold leading-none mb-1 text-slate-800">Quiz</span>
+                <span className="text-xs font-semibold tracking-wide uppercase text-slate-500">Practice</span>
               </div>
-              <span className="text-xl font-bold leading-none mb-1 text-white">Word Universe</span>
-              <span className="text-xs font-medium text-white/80">AI Semantic Clusters</span>
             </div>
           </div>
         )}

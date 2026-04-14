@@ -141,18 +141,18 @@ const ResultPage: React.FC = () => {
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-3 gap-4">
-                    <div className="bg-emerald-50 p-4 rounded-[20px] border border-emerald-100 shadow-sm">
-                        <div className="text-2xl font-bold text-emerald-600">{correctCount}</div>
-                        <div className="text-[11px] uppercase text-emerald-600/70 font-bold tracking-wider mt-1">Correct</div>
+                <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100 shadow-sm">
+                        <div className="text-xl font-bold text-emerald-600">{correctCount}</div>
+                        <div className="text-[10px] uppercase text-emerald-600/70 font-bold tracking-wider mt-0.5">Correct</div>
                     </div>
-                    <div className="bg-red-50 p-4 rounded-[20px] border border-red-100 shadow-sm">
-                        <div className="text-2xl font-bold text-red-600">{wrongCount}</div>
-                        <div className="text-[11px] uppercase text-red-600/70 font-bold tracking-wider mt-1">Wrong</div>
+                    <div className="bg-red-50 p-3 rounded-xl border border-red-100 shadow-sm">
+                        <div className="text-xl font-bold text-red-600">{wrongCount}</div>
+                        <div className="text-[10px] uppercase text-red-600/70 font-bold tracking-wider mt-0.5">Wrong</div>
                     </div>
-                    <div className="bg-slate-50 p-4 rounded-[20px] border border-slate-100 shadow-sm">
-                        <div className="text-2xl font-bold text-slate-600">{skippedCount}</div>
-                        <div className="text-[11px] uppercase text-slate-500/70 font-bold tracking-wider mt-1">Skipped</div>
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 shadow-sm">
+                        <div className="text-xl font-bold text-slate-600">{skippedCount}</div>
+                        <div className="text-[10px] uppercase text-slate-500/70 font-bold tracking-wider mt-0.5">Skipped</div>
                     </div>
                 </div>
 
@@ -178,38 +178,38 @@ const ResultPage: React.FC = () => {
                     const isSkipped = !userAns;
 
                     return (
-                        <div key={mcq.id} className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 space-y-4">
-                            <div className="flex gap-4">
-                                <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-sm font-bold shadow-sm ${isSkipped ? 'bg-slate-400' : isCorrect ? 'bg-emerald-500' : 'bg-red-500'}`}>
+                        <div key={mcq.id} className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 space-y-3">
+                            <div className="flex gap-3">
+                                <div className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold shadow-sm mt-0.5 ${isSkipped ? 'bg-slate-400' : isCorrect ? 'bg-emerald-500' : 'bg-red-500'}`}>
                                     {isSkipped ? '?' : isCorrect ? '✓' : '✕'}
                                 </div>
                                 <div className="flex-1">
-                                    <div className="text-[16px] font-medium text-slate-800 mb-4 leading-relaxed">
+                                    <div className="text-[14px] font-medium text-slate-800 mb-3 leading-relaxed">
                                         <span className="font-bold mr-1 text-slate-400">{i + 1}.</span> {mcq.question}
                                     </div>
                                     
-                                    <div className="space-y-2">
+                                    <div className="space-y-1.5">
                                         {['A', 'B', 'C', 'D'].map(opt => {
                                             const optionKey = `option${opt}` as keyof typeof mcq;
                                             const isSelected = userAns === opt;
                                             const isAnswer = mcq.answer === opt;
                                             
-                                            let cls = "p-3 rounded-xl border border-transparent flex items-center gap-3 transition-colors";
+                                            let cls = "p-2 rounded-lg border border-transparent flex items-center gap-2.5 transition-colors text-[13px]";
                                             let icon = null;
 
                                             if (isAnswer) {
-                                                cls = "bg-emerald-50 border-emerald-200 text-emerald-800 font-medium";
-                                                icon = <CheckmarkIcon size={16} color="#059669" />;
+                                                cls = "bg-emerald-50 border-emerald-200 text-emerald-800 font-medium text-[13px]";
+                                                icon = <CheckmarkIcon size={14} color="#059669" />;
                                             } else if (isSelected) {
-                                                cls = "bg-red-50 border-red-200 text-red-800 line-through decoration-red-400 opacity-80";
-                                                icon = <span className="text-red-500 font-bold">✕</span>;
+                                                cls = "bg-red-50 border-red-200 text-red-800 line-through decoration-red-400 opacity-80 text-[13px]";
+                                                icon = <span className="text-red-500 font-bold text-[12px]">✕</span>;
                                             } else {
-                                                cls = "bg-slate-50 text-slate-500 border-slate-100";
+                                                cls = "bg-slate-50 text-slate-500 border-slate-100 text-[13px]";
                                             }
 
                                             return (
                                                 <div key={opt} className={cls}>
-                                                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isAnswer ? 'bg-emerald-200 text-emerald-800' : isSelected ? 'bg-red-200 text-red-800' : 'bg-white border border-slate-200 text-slate-400'}`}>{opt}</span>
+                                                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${isAnswer ? 'bg-emerald-200 text-emerald-800' : isSelected ? 'bg-red-200 text-red-800' : 'bg-white border border-slate-200 text-slate-400'}`}>{opt}</span>
                                                     <span className="flex-1">{mcq[optionKey] as string}</span>
                                                     {icon}
                                                 </div>
@@ -218,8 +218,8 @@ const ResultPage: React.FC = () => {
                                     </div>
 
                                     {mcq.explanation && (
-                                        <div className="mt-4 text-sm bg-slate-50 p-4 rounded-[16px] text-slate-600 border border-slate-100">
-                                            <span className="font-bold text-slate-700 block mb-1">Explanation:</span> {mcq.explanation}
+                                        <div className="mt-3 text-[12px] bg-slate-50 p-3 rounded-lg text-slate-600 border border-slate-100">
+                                            <span className="font-bold text-slate-700 block mb-0.5">Explanation:</span> {mcq.explanation}
                                         </div>
                                     )}
                                 </div>

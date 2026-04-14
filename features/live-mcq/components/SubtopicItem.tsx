@@ -18,35 +18,35 @@ const SubtopicItem: React.FC<SubtopicItemProps> = memo(({
     return (
         <div 
             onClick={() => onNavigate(subtopic.id)}
-            className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md hover:border-slate-200 transition-all active:scale-[0.99] cursor-pointer group"
+            className="bg-white border border-slate-100 rounded-xl p-3 shadow-sm hover:shadow-md hover:border-slate-200 transition-all active:scale-[0.99] cursor-pointer group"
         >
             <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center text-[16px] font-bold border border-slate-100">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-600 flex items-center justify-center text-sm font-bold border border-slate-100">
                         {subtopic.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                        <h4 className="text-[16px] font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors">
+                        <h4 className="text-sm font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors">
                             {subtopic.name}
                         </h4>
-                        <p className="text-[13px] font-normal text-slate-500 mt-0.5">
+                        <p className="text-xs font-normal text-slate-500 mt-0.5">
                             {subtopic.setLen} Sets
                         </p>
                     </div>
                 </div>
                 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-0.5">
                     <button 
                         onClick={(e) => onRename(subtopic, e)}
-                        className="p-2 text-slate-300 hover:text-slate-600 transition-colors rounded-full"
+                        className="p-1.5 text-slate-300 hover:text-slate-600 transition-colors rounded-full"
                     >
-                        <Icon name="edit-3" size="sm" />
+                        <Icon name="edit-3" size="sm" className="w-4 h-4" />
                     </button>
                     <button 
                         onClick={(e) => onDelete(subtopic, e)}
-                        className="p-2 text-slate-300 hover:text-red-500 transition-colors rounded-full"
+                        className="p-1.5 text-slate-300 hover:text-red-500 transition-colors rounded-full"
                     >
-                        <Icon name="trash-2" size="sm" />
+                        <Icon name="trash-2" size="sm" className="w-4 h-4" />
                     </button>
                 </div>
             </div>

@@ -26,19 +26,19 @@ const TopicItem: React.FC<TopicItemProps> = memo(({
     return (
         <div 
             onClick={() => onNavigate(topic.id)}
-            className="relative group bg-white rounded-2xl p-4 shadow-sm border border-slate-200/60 active:scale-[0.98] transition-all duration-200 cursor-pointer hover:border-emerald-500/30 hover:shadow-md hover:shadow-emerald-500/5 flex flex-col h-full"
+            className="relative group bg-white rounded-xl p-3 shadow-sm border border-slate-200/60 active:scale-[0.98] transition-all duration-200 cursor-pointer hover:border-emerald-500/30 hover:shadow-md hover:shadow-emerald-500/5 flex flex-col h-full"
         >
-            <div className="flex items-start justify-between mb-3">
+            <div className="flex items-start justify-between mb-2">
                 {/* Avatar */}
-                <div className="w-10 h-10 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center text-lg font-bold shadow-sm border border-slate-100 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
+                <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-600 flex items-center justify-center text-sm font-bold shadow-sm border border-slate-100 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
                     {topic.name.charAt(0).toUpperCase()}
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center">
+                <div className="flex items-center -mt-1 -mr-1">
                     <button 
                         onClick={(e) => onMenuToggle(topic.id, e)}
-                        className="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-slate-600 hover:bg-slate-50 transition-all rounded-full"
+                        className="w-7 h-7 flex items-center justify-center text-slate-300 hover:text-slate-600 hover:bg-slate-50 transition-all rounded-full"
                     >
                         <Icon name="more-vertical" size="sm" />
                     </button>
@@ -46,18 +46,18 @@ const TopicItem: React.FC<TopicItemProps> = memo(({
             </div>
 
             {/* Text */}
-            <div className="mb-4 flex-grow">
-                <h3 className="text-base font-bold text-slate-700 leading-tight mb-1 line-clamp-2">{topic.name}</h3>
+            <div className="mb-2 flex-grow">
+                <h3 className="text-sm font-bold text-slate-700 leading-tight mb-1 line-clamp-2">{topic.name}</h3>
             </div>
 
             {/* Stats Footer */}
-            <div className="flex items-center gap-2 mt-auto">
-                <div className="px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-[10px] font-bold text-slate-500 flex items-center gap-1">
-                    <Icon name="list" size="xs" className="text-slate-400" />
+            <div className="flex items-center gap-1.5 mt-auto">
+                <div className="px-1.5 py-0.5 rounded bg-slate-50 border border-slate-100 text-[9px] font-bold text-slate-500 flex items-center gap-1">
+                    <Icon name="list" size="xs" className="text-slate-400 w-2.5 h-2.5" />
                     {topic.subtopicCount}
                 </div>
-                <div className="px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-[10px] font-bold text-slate-500 flex items-center gap-1">
-                    <Icon name="file-text" size="xs" className="text-slate-400" />
+                <div className="px-1.5 py-0.5 rounded bg-slate-50 border border-slate-100 text-[9px] font-bold text-slate-500 flex items-center gap-1">
+                    <Icon name="file-text" size="xs" className="text-slate-400 w-2.5 h-2.5" />
                     {topic.mcqCount}
                 </div>
             </div>

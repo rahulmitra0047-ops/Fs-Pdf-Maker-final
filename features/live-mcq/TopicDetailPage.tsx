@@ -292,14 +292,14 @@ const TopicDetailPage: React.FC = () => {
 
                 {enhancedSubtopics.length === 0 ? (
                     // Empty state
-                    <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-[24px] bg-slate-50/50">
+                    <div className="text-center py-8 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
                         <div className="text-slate-300 mb-2 opacity-50">
-                            <Icon name="folder" size="xl" />
+                            <Icon name="folder" size="lg" />
                         </div>
-                        <p className="text-[14px] text-slate-400 font-medium">No subtopics yet</p>
+                        <p className="text-[13px] text-slate-400 font-medium">No subtopics yet</p>
                     </div>
                 ) : (
-                    <div className="flex flex-col gap-[14px]">
+                    <div className="flex flex-col gap-[8px]">
                         {enhancedSubtopics.map((sub) => (
                             <SubtopicItem 
                                 key={sub.id}

@@ -10,6 +10,7 @@ import ImportFromLearnSheet from './ImportFromLearnSheet';
 const NewWordsPage: React.FC = () => {
   const navigate = useNavigate();
   const [words, setWords] = useState<FlashcardNewWord[]>([]);
+  const [visibleCount, setVisibleCount] = useState(20);
   const [loading, setLoading] = useState(true);
   const [showAddSheet, setShowAddSheet] = useState(false);
   const [showBulkSheet, setShowBulkSheet] = useState(false);
@@ -42,6 +43,7 @@ const NewWordsPage: React.FC = () => {
     try {
       const data = await flashcardService.getNewWords();
       setWords(data.sort((a, b) => b.createdAt - a.createdAt));
+      setVisibleCount(20); // Reset on load
     } catch (error) {
       toast.error('Data load হচ্ছে না');
     } finally {
@@ -274,10 +276,11 @@ const NewWordsPage: React.FC = () => {
             <p>কোনো word নেই!</p>
           </div>
         ) : (
-          words.map(word => (
-            <motion.div 
-              key={word.id}
-              layout
+          <>
+            {words.slice(0, visibleCount).map(word => (
+              <motion.div 
+                key={word.id}
+                layout
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, x: -100 }}
@@ -307,7 +310,18 @@ const NewWordsPage: React.FC = () => {
                 </button>
               </div>
             </motion.div>
-          ))
+            ))}
+            {visibleCount < words.length && (
+              <div className="flex justify-center mt-4 pb-4">
+                <button
+                  onClick={() => setVisibleCount(prev => prev + 20)}
+                  className="px-6 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl text-sm font-bold transition-colors"
+                >
+                  Load More
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 

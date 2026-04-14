@@ -5,7 +5,7 @@ import { WordCluster, ClusterNode } from '../../../types';
 
 // Custom Node Components
 const CenterNode = ({ data }: any) => (
-  <div className="px-6 py-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-xl border-4 border-white text-center min-w-[120px]">
+  <div className="px-6 py-4 rounded-2xl bg-slate-800 text-white shadow-xl border-4 border-slate-700 text-center min-w-[120px]">
     <div className="text-2xl font-bold">{data.word}</div>
     <div className="text-xs opacity-80 uppercase tracking-widest mt-1">Core Word</div>
     <Handle type="source" position={Position.Right} className="opacity-0" />
@@ -78,7 +78,7 @@ export const WordMindMap: React.FC<WordMindMapProps> = ({ cluster, onNodeClick }
         target: categoryId,
         type: 'default',
         animated: true,
-        style: { stroke: '#818cf8', strokeWidth: 2 },
+        style: { stroke: '#94a3b8', strokeWidth: 2 },
       });
 
       // Word Nodes
@@ -107,17 +107,17 @@ export const WordMindMap: React.FC<WordMindMapProps> = ({ cluster, onNodeClick }
           source: categoryId,
           target: wordId,
           type: 'default',
-          style: { stroke: '#c7d2fe', strokeWidth: 2 },
+          style: { stroke: '#cbd5e1', strokeWidth: 2 },
         });
       });
 
       currentY += branchHeight + 15; // Add spacing between categories
     };
 
-    addCategoryBranch('cat-adv', 'Advanced', cluster.advancedWords || [], 'border-blue-200 text-blue-700', 'advancedWords');
-    addCategoryBranch('cat-gre', 'GRE', cluster.greWords || [], 'border-orange-200 text-orange-700', 'greWords');
-    addCategoryBranch('cat-idm', 'Idioms', cluster.idioms || [], 'border-green-200 text-green-700', 'idioms');
-    addCategoryBranch('cat-sub', 'Substitutes', cluster.oneWordSubstitutes || [], 'border-purple-200 text-purple-700', 'oneWordSubstitutes');
+    addCategoryBranch('cat-adv', 'Advanced', cluster.advancedWords || [], 'border-slate-200 text-slate-700', 'advancedWords');
+    addCategoryBranch('cat-gre', 'GRE', cluster.greWords || [], 'border-slate-200 text-slate-700', 'greWords');
+    addCategoryBranch('cat-idm', 'Idioms', cluster.idioms || [], 'border-slate-200 text-slate-700', 'idioms');
+    addCategoryBranch('cat-sub', 'Substitutes', cluster.oneWordSubstitutes || [], 'border-slate-200 text-slate-700', 'oneWordSubstitutes');
 
     // 1. Center Node (Positioned vertically in the middle)
     initialNodes.push({
@@ -142,7 +142,7 @@ export const WordMindMap: React.FC<WordMindMapProps> = ({ cluster, onNodeClick }
         maxZoom={1.5}
         attributionPosition="bottom-right"
       >
-        <Background color="#e0e7ff" gap={16} />
+        <Background color="#e2e8f0" gap={16} />
         <Controls showInteractive={false} className="bg-white shadow-md border-gray-100 rounded-xl overflow-hidden" />
       </ReactFlow>
     </div>

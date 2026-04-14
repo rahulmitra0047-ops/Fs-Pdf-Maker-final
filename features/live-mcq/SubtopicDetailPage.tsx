@@ -312,12 +312,12 @@ const SubtopicDetailPage: React.FC = () => {
             {showArchived && <div className="text-xs text-center text-orange-600 bg-orange-50 p-2 rounded-xl border border-orange-100 mb-2">Viewing Archived Sets</div>}
 
             {filteredSets.length === 0 ? (
-                <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-[24px] bg-slate-50/50">
-                    <p className="text-[14px] text-slate-400 mb-2">No sets found</p>
-                    <button onClick={() => setShowCreateSet(true)} className="text-emerald-600 font-medium text-sm hover:underline">Create First Set</button>
+                <div className="text-center py-8 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+                    <p className="text-[13px] text-slate-400 mb-1.5">No sets found</p>
+                    <button onClick={() => setShowCreateSet(true)} className="text-emerald-600 font-medium text-[13px] hover:underline">Create First Set</button>
                 </div>
             ) : (
-                <div className="flex flex-col gap-[14px]">
+                <div className="flex flex-col gap-[8px]">
                     {filteredSets.map(set => (
                         <SetItem 
                             key={set.id}
