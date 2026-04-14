@@ -231,19 +231,19 @@ const SubtopicDetailPage: React.FC = () => {
                     <Icon name="arrow-left" size="md" />
                 </button>
             </div>
-            <h1 className="text-[18px] font-semibold text-slate-900 absolute left-1/2 -translate-x-1/2 tracking-tight">
+            <h1 className="text-[18px] font-bold text-slate-900 absolute left-1/2 -translate-x-1/2 tracking-tight">
                 {subtopic.name}
             </h1>
             <div className="flex items-center gap-1">
                  <button 
                     onClick={(e) => initiateRename('subtopic', subtopic, e)}
-                    className="p-2 text-slate-400 hover:text-slate-900 transition-colors rounded-full"
+                    className="p-2 text-slate-400 hover:text-indigo-600 transition-colors rounded-full"
                 >
                     <Icon name="edit-3" size="sm" />
                 </button>
                 <button 
                     onClick={handleDeleteSubtopic}
-                    className="p-2 text-slate-400 hover:text-red-600 transition-colors rounded-full"
+                    className="p-2 text-slate-400 hover:text-rose-600 transition-colors rounded-full"
                 >
                     <Icon name="trash-2" size="sm" />
                 </button>
@@ -256,7 +256,7 @@ const SubtopicDetailPage: React.FC = () => {
             <div className="flex items-center text-[13px] font-medium mb-4">
                 <span 
                     onClick={() => navigate(`/live-mcq/topic/${topicId}`)}
-                    className="text-emerald-600 cursor-pointer hover:underline"
+                    className="text-indigo-600 cursor-pointer hover:underline"
                 >
                     {topic.name}
                 </span>
@@ -267,45 +267,58 @@ const SubtopicDetailPage: React.FC = () => {
             </div>
 
             {/* Info Card */}
-            <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
-                <div>
-                    <h2 className="text-[20px] font-bold text-slate-900">{subtopic.name}</h2>
-                    <p className="text-[14px] font-normal text-slate-500 mt-1">
-                        {sets.length} Sets • {sets.reduce((acc, s) => acc + s.mcqs.length, 0)} MCQs
-                    </p>
+            <div className="rounded-[24px] p-6 shadow-xl mb-6 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0F172A 0%, #334155 100%)' }}>
+                <div className="relative z-10">
+                    <h2 className="text-[22px] font-bold text-white mb-1">{subtopic.name}</h2>
+                    <div className="flex items-center gap-3 text-white/70 text-[13px] font-medium">
+                        <div className="flex items-center gap-1.5">
+                            <Icon name="folder" size="xs" />
+                            <span>{sets.length} Sets</span>
+                        </div>
+                        <div className="w-1 h-1 rounded-full bg-white/30"></div>
+                        <div className="flex items-center gap-1.5">
+                            <Icon name="file-text" size="xs" />
+                            <span>{sets.reduce((acc, s) => acc + s.mcqs.length, 0)} MCQs</span>
+                        </div>
+                    </div>
                 </div>
-                <div className="flex gap-3 mt-4">
+                
+                <div className="flex gap-3 mt-6 relative z-10">
                     <button 
                         onClick={handlePracticeAll}
-                        className="flex-1 bg-emerald-600 text-white font-semibold py-3.5 px-4 rounded-xl text-[15px] active:scale-[0.98] transition-transform flex justify-center items-center gap-2 shadow-sm hover:bg-emerald-500"
+                        className="flex-1 bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl text-[14px] active:scale-[0.98] transition-all flex justify-center items-center gap-2 shadow-lg shadow-indigo-500/30 hover:bg-indigo-400"
                     >
                         <Icon name="play" size="sm" /> Practice All
                     </button>
                     <button 
                         onClick={handleExport}
-                        className="flex-1 bg-white border border-slate-200 text-slate-700 font-medium py-3.5 px-4 rounded-xl text-[15px] active:scale-[0.98] transition-transform flex justify-center items-center gap-2 hover:bg-slate-50"
+                        className="flex-1 bg-white/10 border border-white/20 text-white font-bold py-3 px-4 rounded-xl text-[14px] active:scale-[0.98] transition-all flex justify-center items-center gap-2 hover:bg-white/20 backdrop-blur-sm"
                     >
                         <Icon name="share" size="sm" /> Export PDF
                     </button>
                 </div>
+                
+                {/* Decorative Elements */}
+                <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+                <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl"></div>
             </div>
 
             {/* Sets Header */}
-            <div className="flex items-center justify-between mt-7 mb-3.5">
+            <div className="flex items-center justify-between mt-2 mb-4 px-1">
                 <div className="flex items-center gap-2">
-                    <h3 className="text-[13px] font-semibold text-slate-400 tracking-wide uppercase px-1">MCQ Sets</h3>
+                    <h3 className="text-[14px] font-bold text-slate-800">MCQ Sets</h3>
                     <button 
                         onClick={() => setShowArchived(!showArchived)} 
-                        className={`text-slate-400 hover:text-emerald-600 transition-colors ${showArchived ? 'text-emerald-600' : ''}`}
+                        className={`text-slate-400 hover:text-indigo-600 transition-colors ${showArchived ? 'text-indigo-600' : ''}`}
                     >
                         <Icon name="folder" size="sm" />
                     </button>
                 </div>
                 <button 
                     onClick={() => setShowCreateSet(true)}
-                    className="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[13px] font-bold active:scale-95 transition-all hover:bg-slate-50 shadow-sm"
+                    className="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[13px] font-bold active:scale-95 transition-all hover:bg-slate-50 shadow-sm flex items-center gap-1.5"
                 >
-                    + New Set
+                    <Icon name="plus" size="xs" /> New Set
                 </button>
             </div>
 

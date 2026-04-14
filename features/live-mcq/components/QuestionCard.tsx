@@ -149,7 +149,7 @@ const QuestionCard: React.FC<QuestionCardProps> = memo(({
                             <button 
                                 onClick={onAiExplain}
                                 disabled={isAiLoading}
-                                className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-full text-[11px] font-bold shadow-sm shadow-emerald-200 active:scale-95 transition-all disabled:opacity-50 hover:shadow-emerald-300"
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-full text-[11px] font-bold shadow-sm shadow-indigo-200 active:scale-95 transition-all disabled:opacity-50 hover:shadow-indigo-300"
                             >
                                 <Icon name="sparkles" size="xs" className={isAiLoading ? 'animate-spin w-3 h-3' : 'w-3 h-3'} />
                                 {isAiLoading ? 'Analyzing...' : 'Explain with AI'}
@@ -167,10 +167,10 @@ const QuestionCard: React.FC<QuestionCardProps> = memo(({
                     {/* AI Premium Explanation Box */}
                     {(isAiLoading || aiExplanation) && (
                         <div className={`relative overflow-hidden rounded-xl p-[2px] transition-all duration-500 animate-in fade-in slide-in-from-top-4`}>
-                            <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 via-teal-400 to-cyan-400 opacity-20 animate-pulse"></div>
+                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 via-violet-400 to-fuchsia-400 opacity-20 animate-pulse"></div>
                             <div className="relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-[10px] p-4 shadow-sm">
                                 <div className="flex items-center gap-2.5 mb-3">
-                                    <div className="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
+                                    <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
                                         <Icon name="sparkles" size="xs" className="w-3 h-3" />
                                     </div>
                                     <h4 className="font-bold text-[14px] text-slate-800">Detailed AI Analysis</h4>

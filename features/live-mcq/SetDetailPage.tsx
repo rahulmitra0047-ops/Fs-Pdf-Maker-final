@@ -242,19 +242,19 @@ const SetDetailPage: React.FC = () => {
                     <Icon name="arrow-left" size="md" />
                 </button>
             </div>
-            <h1 className="text-[18px] font-semibold text-slate-900 absolute left-1/2 -translate-x-1/2 tracking-tight">
+            <h1 className="text-[18px] font-bold text-slate-900 absolute left-1/2 -translate-x-1/2 tracking-tight">
                 {set.name}
             </h1>
             <div className="flex items-center gap-1">
                  <button 
                     onClick={initiateRename}
-                    className="p-2 text-slate-400 hover:text-slate-900 transition-colors rounded-full"
+                    className="p-2 text-slate-400 hover:text-indigo-600 transition-colors rounded-full"
                 >
                     <Icon name="edit-3" size="sm" />
                 </button>
                 <button 
                     onClick={handleDeleteSetTrigger}
-                    className="p-2 text-slate-400 hover:text-red-600 transition-colors rounded-full"
+                    className="p-2 text-slate-400 hover:text-rose-600 transition-colors rounded-full"
                 >
                     <Icon name="trash-2" size="sm" />
                 </button>
@@ -264,61 +264,65 @@ const SetDetailPage: React.FC = () => {
         <div className="max-w-3xl mx-auto px-5 mt-4 space-y-7">
             
             {/* Dark Stats Bar (Hero) */}
-            <div className="rounded-[24px] p-6 shadow-xl" style={{ background: 'linear-gradient(135deg, #0F172A 0%, #334155 100%)' }}>
-                <div className="grid grid-cols-4 gap-2 text-center mb-5">
+            <div className="rounded-[24px] p-6 shadow-xl relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0F172A 0%, #334155 100%)' }}>
+                <div className="grid grid-cols-4 gap-2 text-center mb-6 relative z-10">
                     <div>
                         <div className="text-[24px] font-bold text-white">{set.mcqs.length}</div>
-                        <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">MCQs</div>
+                        <div className="text-[11px] font-medium text-white/60 uppercase tracking-wider mt-1">MCQs</div>
                     </div>
                     <div>
                         <div className={`text-[24px] font-bold ${getScoreColor(lastScore, attempts.length)}`}>{lastScore}%</div>
-                        <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">Last</div>
+                        <div className="text-[11px] font-medium text-white/60 uppercase tracking-wider mt-1">Last</div>
                     </div>
                     <div>
                         <div className={`text-[24px] font-bold ${getScoreColor(bestScore, attempts.length)}`}>{bestScore}%</div>
-                        <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">Best</div>
+                        <div className="text-[11px] font-medium text-white/60 uppercase tracking-wider mt-1">Best</div>
                     </div>
                     <div>
                         <div className="text-[24px] font-bold text-white">{attempts.length}</div>
-                        <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">Attempts</div>
+                        <div className="text-[11px] font-medium text-white/60 uppercase tracking-wider mt-1">Attempts</div>
                     </div>
                 </div>
                 
                 {/* Buttons */}
-                <div className="flex gap-[12px]">
+                <div className="flex gap-[12px] relative z-10">
                     <button 
                         onClick={() => setShowPracticeSheet(true)}
                         disabled={set.mcqs.length === 0}
-                        className="flex-1 bg-emerald-600 text-white py-[14px] rounded-[14px] font-semibold text-[15px] active:scale-[0.98] transition-transform disabled:opacity-50 hover:bg-emerald-500 shadow-lg shadow-emerald-900/20"
+                        className="flex-1 bg-indigo-500 text-white py-[14px] rounded-xl font-bold text-[15px] active:scale-[0.98] transition-all disabled:opacity-50 hover:bg-indigo-400 shadow-lg shadow-indigo-500/30 flex justify-center items-center gap-2"
                     >
-                        Practice
+                        <Icon name="play" size="sm" /> Practice
                     </button>
                     <button 
                         onClick={() => navigate(`/live-mcq/exam/${set.id}`)}
                         disabled={set.mcqs.length === 0}
-                        className="flex-1 bg-white/10 border border-white/15 text-white py-[14px] rounded-[14px] font-medium text-[15px] active:scale-[0.98] transition-transform disabled:opacity-50 hover:bg-white/20"
+                        className="flex-1 bg-white/10 border border-white/20 text-white py-[14px] rounded-xl font-bold text-[15px] active:scale-[0.98] transition-all disabled:opacity-50 hover:bg-white/20 backdrop-blur-sm flex justify-center items-center gap-2"
                     >
-                        Exam
+                        <Icon name="clock" size="sm" /> Exam
                     </button>
                 </div>
+                
+                {/* Decorative Elements */}
+                <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+                <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl"></div>
             </div>
 
             {/* MCQs Section Header */}
             <div>
-                <div className="flex items-center justify-between mb-3.5">
-                    <h3 className="text-[13px] font-semibold text-slate-400 tracking-wide uppercase px-1">MCQs</h3>
+                <div className="flex items-center justify-between mb-4 px-1">
+                    <h3 className="text-[14px] font-bold text-slate-800">MCQs</h3>
                     <div className="flex gap-2">
                         <button 
                             onClick={() => navigate(`/create?mode=export&source=set&sourceId=${set.id}`)}
-                            className="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[13px] font-medium active:scale-95 transition-all hover:bg-slate-50 shadow-sm"
+                            className="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[13px] font-bold active:scale-95 transition-all hover:bg-slate-50 shadow-sm flex items-center gap-1.5"
                         >
-                            Export PDF
+                            <Icon name="share" size="xs" /> Export PDF
                         </button>
                         <button 
                             onClick={() => setShowAddMenu(true)}
-                            className="bg-emerald-600 text-white px-4 py-2 rounded-xl text-[13px] font-medium active:scale-95 transition-all hover:bg-emerald-500 shadow-sm"
+                            className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-[13px] font-bold active:scale-95 transition-all hover:bg-indigo-500 shadow-sm flex items-center gap-1.5"
                         >
-                            + Add
+                            <Icon name="plus" size="xs" /> Add
                         </button>
                     </div>
                 </div>
@@ -381,7 +385,7 @@ const SetDetailPage: React.FC = () => {
                                 {!isSelectionMode && (
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); setEditingMCQ(mcq); setShowSingleMCQ(true); }}
-                                        className="absolute top-3 right-3 text-slate-300 hover:text-emerald-600 transition-colors"
+                                        className="absolute top-3 right-3 text-slate-300 hover:text-indigo-600 transition-colors"
                                     >
                                         <Icon name="edit-3" size="xs" />
                                     </button>
@@ -390,22 +394,22 @@ const SetDetailPage: React.FC = () => {
                                 {/* Selection Checkbox */}
                                 {isSelectionMode && (
                                     <div className="absolute top-3 right-3">
-                                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${selectedIds.has(mcq.id) ? 'bg-emerald-500 border-emerald-500' : 'border-slate-300 bg-white'}`}>
-                                            {selectedIds.has(mcq.id) && <Icon name="check" size="xs" className="text-white w-3 h-3" />}
+                                        <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${selectedIds.has(mcq.id) ? 'bg-indigo-500 border-indigo-500' : 'border-slate-300 bg-white'}`}>
+                                            {selectedIds.has(mcq.id) && <Icon name="check" size="xs" className="text-white w-3.5 h-3.5" />}
                                         </div>
                                     </div>
                                 )}
 
                                 {/* Question */}
-                                <div className="mb-2.5 pr-6">
-                                    <span className="text-emerald-600 font-bold mr-1.5 text-[13px]">{index + 1}.</span>
-                                    <span className="text-[14px] font-semibold text-slate-900 leading-snug">
+                                <div className="mb-3 pr-8">
+                                    <span className="text-indigo-600 font-bold mr-1.5 text-[14px]">{index + 1}.</span>
+                                    <span className="text-[15px] font-bold text-slate-800 leading-snug">
                                         {mcq.question}
                                     </span>
                                 </div>
 
                                 {/* Options Grid */}
-                                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mt-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
                                     {['A', 'B', 'C', 'D'].map((opt) => {
                                         const isCorrect = mcq.answer === opt;
                                         const text = mcq[`option${opt}` as keyof MCQ] as string;
@@ -413,13 +417,13 @@ const SetDetailPage: React.FC = () => {
                                         return (
                                             <div 
                                                 key={opt}
-                                                className={`text-[13px] flex items-start gap-1.5 ${
+                                                className={`text-[14px] flex items-start gap-2 p-2 rounded-xl border ${
                                                     isCorrect 
-                                                        ? 'bg-emerald-50 text-emerald-700 font-semibold px-1.5 py-0.5 -ml-1.5 rounded-md' 
-                                                        : 'text-slate-600 font-normal py-0.5'
+                                                        ? 'bg-emerald-50 border-emerald-100 text-emerald-700 font-semibold' 
+                                                        : 'bg-slate-50 border-slate-100 text-slate-600 font-medium'
                                                 }`}
                                             >
-                                                <span className={`font-medium ${isCorrect ? 'text-emerald-700' : 'text-slate-400'}`}>{opt})</span>
+                                                <span className={`font-bold ${isCorrect ? 'text-emerald-600' : 'text-slate-400'}`}>{opt})</span>
                                                 <span className="leading-tight">{text}</span>
                                             </div>
                                         );
@@ -444,7 +448,7 @@ const SetDetailPage: React.FC = () => {
                     <div className="flex justify-center mt-6">
                         <button
                             onClick={() => setVisibleCount(prev => prev + 30)}
-                            className="px-6 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-xl text-sm font-bold transition-colors"
+                            className="px-6 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl text-sm font-bold transition-colors"
                         >
                             Load More
                         </button>

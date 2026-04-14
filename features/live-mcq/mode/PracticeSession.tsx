@@ -314,12 +314,12 @@ const PracticeSession: React.FC = () => {
             <button onClick={() => setShowExitConfirm(true)} className="text-slate-400 p-2 -ml-2 hover:bg-slate-50 hover:text-slate-700 rounded-full transition-colors active:scale-95">
                 <Icon name="x" size="md" />
             </button>
-            <div className="font-semibold text-[16px] text-slate-900">
-                Practice <span className="text-emerald-600">{currentIndex + 1}</span><span className="text-slate-400">/{sessionMCQs.length}</span>
+            <div className="font-bold text-[16px] text-slate-900">
+                Practice <span className="text-indigo-600">{currentIndex + 1}</span><span className="text-slate-400">/{sessionMCQs.length}</span>
             </div>
             {/* Date Filter for Review Mode (Task 6) */}
             {customState?.source === 'review' ? (
-                <div className="text-xs text-slate-500 font-medium bg-slate-100 px-2 py-1 rounded">
+                <div className="text-xs text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded-md">
                     Review Mode
                 </div>
             ) : (
@@ -328,8 +328,8 @@ const PracticeSession: React.FC = () => {
         </div>
 
         {/* Progress Bar */}
-        <div className="h-[3px] bg-slate-100 w-full">
-            <div className="h-full bg-emerald-500 rounded-r-[4px] transition-all duration-300 ease-out" style={{ width: `${((currentIndex + 1) / sessionMCQs.length) * 100}%` }}></div>
+        <div className="h-[4px] bg-slate-100 w-full">
+            <div className="h-full bg-indigo-500 rounded-r-[4px] transition-all duration-300 ease-out" style={{ width: `${((currentIndex + 1) / sessionMCQs.length) * 100}%` }}></div>
         </div>
 
         {/* Question Area */}
@@ -357,9 +357,13 @@ const PracticeSession: React.FC = () => {
         <div className="fixed bottom-0 left-0 right-0 px-5 py-4 bg-white/80 backdrop-blur-md z-20 border-t border-slate-100">
             <div className="max-w-xl mx-auto">
                 {hasAnswered ? (
-                    <PremiumButton fullWidth onClick={nextQuestion} disabled={isFinished} size="lg" className="shadow-lg shadow-emerald-900/10">
+                    <button 
+                        onClick={nextQuestion} 
+                        disabled={isFinished} 
+                        className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-[16px] shadow-xl shadow-indigo-500/20 active:scale-[0.98] transition-all disabled:opacity-50 hover:bg-indigo-500"
+                    >
                         {isFinished ? 'Saving...' : (currentIndex === sessionMCQs.length - 1 ? 'Finish Practice' : 'Next Question →')}
-                    </PremiumButton>
+                    </button>
                 ) : (
                     <div className="text-center text-[14px] font-medium text-slate-400 pb-[20px]">
                         Select an answer to continue

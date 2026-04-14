@@ -125,7 +125,7 @@ const ResultPage: React.FC = () => {
                         {/* Progress Circle */}
                         <circle 
                             cx="96" cy="96" r="82" 
-                            stroke={attempt.percentage >= 70 ? '#10B981' : attempt.percentage >= 40 ? '#F59E0B' : '#EF4444'} 
+                            stroke={attempt.percentage >= 70 ? '#4F46E5' : attempt.percentage >= 40 ? '#F59E0B' : '#EF4444'} 
                             strokeWidth="12" 
                             fill="none" 
                             strokeDasharray={circumference}
@@ -142,9 +142,9 @@ const ResultPage: React.FC = () => {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100 shadow-sm">
-                        <div className="text-xl font-bold text-emerald-600">{correctCount}</div>
-                        <div className="text-[10px] uppercase text-emerald-600/70 font-bold tracking-wider mt-0.5">Correct</div>
+                    <div className="bg-indigo-50 p-3 rounded-xl border border-indigo-100 shadow-sm">
+                        <div className="text-xl font-bold text-indigo-600">{correctCount}</div>
+                        <div className="text-[10px] uppercase text-indigo-600/70 font-bold tracking-wider mt-0.5">Correct</div>
                     </div>
                     <div className="bg-red-50 p-3 rounded-xl border border-red-100 shadow-sm">
                         <div className="text-xl font-bold text-red-600">{wrongCount}</div>
@@ -158,7 +158,7 @@ const ResultPage: React.FC = () => {
 
                 <div className="space-y-3 pt-6">
                     {set && (
-                        <PremiumButton fullWidth onClick={() => setShowReview(true)} className="bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-900/20 py-4 text-[16px]">Review Answers</PremiumButton>
+                        <PremiumButton fullWidth onClick={() => setShowReview(true)} className="bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 py-4 text-[16px]">Review Answers</PremiumButton>
                     )}
                     <PremiumButton fullWidth variant="secondary" onClick={() => set ? navigate(`/live-mcq/set/${set.id}`) : navigate('/live-mcq/topics')} className="bg-white border-slate-200 text-slate-600 hover:bg-slate-50 py-4 text-[16px]">
                         {set ? 'Back to Set' : 'Back Home'}
@@ -169,7 +169,7 @@ const ResultPage: React.FC = () => {
             <div className="max-w-2xl mx-auto p-5 space-y-5">
                 <div className="flex justify-between items-center mb-2 px-1">
                     <h2 className="font-bold text-xl text-slate-800">Review Answers</h2>
-                    <button onClick={() => setShowReview(false)} className="text-sm font-medium text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors">Back to Score</button>
+                    <button onClick={() => setShowReview(false)} className="text-sm font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded-lg transition-colors">Back to Score</button>
                 </div>
 
                 {set?.mcqs.map((mcq, i) => {
@@ -180,7 +180,7 @@ const ResultPage: React.FC = () => {
                     return (
                         <div key={mcq.id} className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 space-y-3">
                             <div className="flex gap-3">
-                                <div className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold shadow-sm mt-0.5 ${isSkipped ? 'bg-slate-400' : isCorrect ? 'bg-emerald-500' : 'bg-red-500'}`}>
+                                <div className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold shadow-sm mt-0.5 ${isSkipped ? 'bg-slate-400' : isCorrect ? 'bg-indigo-500' : 'bg-rose-500'}`}>
                                     {isSkipped ? '?' : isCorrect ? '✓' : '✕'}
                                 </div>
                                 <div className="flex-1">
@@ -198,18 +198,18 @@ const ResultPage: React.FC = () => {
                                             let icon = null;
 
                                             if (isAnswer) {
-                                                cls = "bg-emerald-50 border-emerald-200 text-emerald-800 font-medium text-[13px]";
-                                                icon = <CheckmarkIcon size={14} color="#059669" />;
+                                                cls = "bg-indigo-50 border-indigo-200 text-indigo-800 font-medium text-[13px]";
+                                                icon = <CheckmarkIcon size={14} color="#4F46E5" />;
                                             } else if (isSelected) {
-                                                cls = "bg-red-50 border-red-200 text-red-800 line-through decoration-red-400 opacity-80 text-[13px]";
-                                                icon = <span className="text-red-500 font-bold text-[12px]">✕</span>;
+                                                cls = "bg-rose-50 border-rose-200 text-rose-800 line-through decoration-rose-400 opacity-80 text-[13px]";
+                                                icon = <span className="text-rose-500 font-bold text-[12px]">✕</span>;
                                             } else {
                                                 cls = "bg-slate-50 text-slate-500 border-slate-100 text-[13px]";
                                             }
 
                                             return (
                                                 <div key={opt} className={cls}>
-                                                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${isAnswer ? 'bg-emerald-200 text-emerald-800' : isSelected ? 'bg-red-200 text-red-800' : 'bg-white border border-slate-200 text-slate-400'}`}>{opt}</span>
+                                                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${isAnswer ? 'bg-indigo-200 text-indigo-800' : isSelected ? 'bg-rose-200 text-rose-800' : 'bg-white border border-slate-200 text-slate-400'}`}>{opt}</span>
                                                     <span className="flex-1">{mcq[optionKey] as string}</span>
                                                     {icon}
                                                 </div>

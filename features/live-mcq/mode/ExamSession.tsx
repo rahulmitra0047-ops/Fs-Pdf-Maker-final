@@ -153,10 +153,10 @@ const ExamSession: React.FC = () => {
                 <button onClick={() => setShowExitConfirm(true)} className="text-slate-400 hover:text-white p-2 -ml-2 transition-colors">✕</button>
                 <span className="font-bold tracking-tight">Exam Mode</span>
             </div>
-            <div className={`font-mono text-lg font-bold ${timeLeft < 60 ? 'text-red-400 animate-pulse' : 'text-emerald-400'}`}>
+            <div className={`font-mono text-lg font-bold ${timeLeft < 60 ? 'text-rose-400 animate-pulse' : 'text-indigo-400'}`}>
                 ⏱️ {formatTime(timeLeft)}
             </div>
-            <button onClick={() => setShowSubmitConfirm(true)} disabled={isSubmitting} className="text-xs bg-emerald-600 px-3 py-1.5 rounded-lg hover:bg-emerald-500 disabled:opacity-50 font-semibold shadow-lg shadow-emerald-900/20 transition-all active:scale-95">
+            <button onClick={() => setShowSubmitConfirm(true)} disabled={isSubmitting} className="text-xs bg-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-500 disabled:opacity-50 font-semibold shadow-lg shadow-indigo-900/20 transition-all active:scale-95">
                 {isSubmitting ? '...' : 'Submit'}
             </button>
         </div>
@@ -206,7 +206,7 @@ const ExamSession: React.FC = () => {
                     
                     if (i === currentIndex) statusClass = "bg-slate-800 text-white border-slate-800 ring-2 ring-slate-200";
                     else if (mk) statusClass = "bg-amber-100 text-amber-600 border-amber-200";
-                    else if (ans) statusClass = "bg-emerald-50 text-emerald-600 border-emerald-200";
+                    else if (ans) statusClass = "bg-indigo-50 text-indigo-600 border-indigo-200";
 
                     return (
                         <button 
@@ -268,12 +268,12 @@ const ExamSession: React.FC = () => {
                     <span className="text-sm font-bold text-slate-700">Shuffle Questions</span>
                     <div className="relative flex items-center">
                         <input type="checkbox" checked={options.shuffleQuestions} onChange={e => setOptions({...options, shuffleQuestions: e.target.checked})} className="peer sr-only" />
-                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
                     </div>
                 </label>
 
                 <div className="pt-2">
-                    <PremiumButton fullWidth onClick={startExam} className="bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-900/20">Start Exam</PremiumButton>
+                    <PremiumButton fullWidth onClick={startExam} className="bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-900/20">Start Exam</PremiumButton>
                 </div>
             </div>
         </PremiumModal>
@@ -284,7 +284,7 @@ const ExamSession: React.FC = () => {
                 <div className="bg-slate-50 p-5 rounded-2xl space-y-3 text-sm border border-slate-100">
                     <div className="flex justify-between items-center">
                         <span className="text-slate-500 font-medium">Answered</span>
-                        <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">{Object.keys(answers).length}</span>
+                        <span className="font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">{Object.keys(answers).length}</span>
                     </div>
                     <div className="flex justify-between items-center">
                         <span className="text-slate-500 font-medium">Marked</span>
@@ -298,7 +298,7 @@ const ExamSession: React.FC = () => {
                 <p className="text-xs text-slate-400 text-center">You cannot change answers after submitting.</p>
                 <div className="flex gap-3">
                     <PremiumButton variant="ghost" onClick={() => setShowSubmitConfirm(false)}>Continue</PremiumButton>
-                    <PremiumButton onClick={() => finishExam()} className="bg-emerald-600 hover:bg-emerald-500">Submit Now</PremiumButton>
+                    <PremiumButton onClick={() => finishExam()} className="bg-indigo-600 hover:bg-indigo-500">Submit Now</PremiumButton>
                 </div>
             </div>
         </PremiumModal>

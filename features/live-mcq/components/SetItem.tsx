@@ -30,30 +30,40 @@ const SetItem: React.FC<SetItemProps> = memo(({
     return (
         <div 
             onClick={() => onNavigate(set.id)}
-            className="relative group bg-white border border-slate-100 rounded-xl p-3 shadow-sm hover:shadow-md hover:border-slate-200 active:scale-[0.98] transition-all duration-150 cursor-pointer"
+            className="relative group bg-white border border-slate-100 rounded-[20px] p-4 shadow-sm hover:shadow-lg hover:shadow-indigo-500/5 hover:border-indigo-500/30 active:scale-[0.98] transition-all duration-300 cursor-pointer"
         >
             <div className="flex items-center justify-between">
                 {/* Left Content */}
-                <div>
-                    <h3 className={`text-sm font-semibold mb-0.5 ${set.isArchived ? 'text-slate-400' : 'text-slate-900'}`}>
-                        {set.name}
-                        {set.isArchived && <span className="ml-2 text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 font-normal align-middle">Archived</span>}
-                    </h3>
-                    <div className="text-xs font-normal text-slate-500">
-                        {set.mcqs.length} MCQs • {new Date(set.updatedAt).toLocaleDateString()}
+                <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center shadow-sm border ${set.isArchived ? 'bg-slate-50 text-slate-400 border-slate-200' : 'bg-indigo-50 text-indigo-600 border-indigo-100/50 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300'}`}>
+                        <Icon name={set.isArchived ? "folder" : "file-text"} size="md" />
+                    </div>
+                    <div>
+                        <h3 className={`text-[16px] font-bold mb-1 ${set.isArchived ? 'text-slate-400' : 'text-slate-800 group-hover:text-indigo-600 transition-colors'}`}>
+                            {set.name}
+                            {set.isArchived && <span className="ml-2 text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 font-bold uppercase tracking-wider align-middle">Archived</span>}
+                        </h3>
+                        <div className="flex items-center gap-2 text-[12px] font-medium text-slate-500">
+                            <div className="flex items-center gap-1">
+                                <Icon name="list" size="xs" className="text-slate-400" />
+                                <span>{set.mcqs.length} MCQs</span>
+                            </div>
+                            <div className="w-1 h-1 rounded-full bg-slate-200"></div>
+                            <span>{new Date(set.updatedAt).toLocaleDateString()}</span>
+                        </div>
                     </div>
                 </div>
                 
                 {/* Right Actions */}
-                <div className="flex items-center gap-0.5">
+                <div className="flex items-center gap-1">
                     <button 
                         onClick={(e) => onMenuToggle(set.id, e)}
-                        className="p-1.5 text-slate-300 hover:text-slate-900 transition-colors rounded-full relative z-10"
+                        className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-all rounded-full relative z-10"
                     >
-                        <Icon name="more-vertical" size="sm" className="w-4 h-4" />
+                        <Icon name="more-vertical" size="sm" />
                     </button>
-                    <div className="text-slate-300">
-                        <Icon name="chevron-right" size="sm" className="w-4 h-4" />
+                    <div className="text-slate-300 group-hover:text-indigo-400 transition-colors">
+                        <Icon name="chevron-right" size="sm" />
                     </div>
                 </div>
             </div>

@@ -226,16 +226,14 @@ const PracticeFilterSheet: React.FC<PracticeFilterSheetProps> = ({
 
             {/* Sticky Footer */}
             <div className="p-6 pt-4 border-t border-slate-100 bg-white rounded-b-[32px] flex-shrink-0 z-10 space-y-3">
-              <PremiumButton 
+              <button 
                 onClick={handleStart} 
                 disabled={loading}
-                size="lg" 
-                fullWidth
-                className="shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2"
+                className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-[16px] shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-2 active:scale-[0.98] transition-all disabled:opacity-50 hover:bg-indigo-500"
               >
                 <span>Start Practice</span>
                 <Icon name="arrow-right" size="sm" />
-              </PremiumButton>
+              </button>
             </div>
           </motion.div>
         </>

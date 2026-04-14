@@ -218,16 +218,12 @@ const TopicListPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-24 pt-[60px] font-sans">
         {/* Custom Header */}
-        <header className="fixed top-0 left-0 right-0 h-[60px] bg-[#F8FAFC]/80 backdrop-blur-xl z-50 px-6 flex items-center justify-between transition-all">
-            <div className="flex items-center gap-2">
-                <div className="w-7 h-7 bg-slate-700 rounded-lg flex items-center justify-center transform rotate-45 shadow-lg">
-                    <Icon name="book-open" size="sm" className="text-white transform -rotate-45" />
+        <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 z-50 px-5 flex items-center justify-between transition-all">
+            <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
+                    <Icon name="book-open" size="sm" className="text-white" />
                 </div>
-                <h1 className="text-xl font-bold tracking-tight text-slate-700">Live MCQ</h1>
-            </div>
-            
-            <div className="flex items-center gap-2">
-                {/* Settings button removed or moved if needed, keeping layout consistent */}
+                <h1 className="text-[18px] font-bold tracking-tight text-slate-900">Live MCQ</h1>
             </div>
         </header>
 
@@ -242,19 +238,27 @@ const TopicListPage: React.FC = () => {
             ) : (
                 <div className="mt-4">
                     {/* Dashboard Stats */}
-                    <div className="grid grid-cols-2 gap-3 mb-4">
-                        <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm flex flex-col items-center justify-center text-center">
-                            <span className="text-2xl font-bold text-slate-700">{enhancedTopics.length}</span>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Topics</span>
-                        </div>
-                        <div className="bg-white p-3 rounded-xl border border-slate-200/60 shadow-sm flex flex-col items-center justify-center text-center">
-                            <span className="text-2xl font-bold text-emerald-600">{totalMCQs}</span>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Questions</span>
+                    <div className="rounded-[24px] p-6 shadow-xl mb-6" style={{ background: 'linear-gradient(135deg, #0F172A 0%, #334155 100%)' }}>
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <h2 className="text-white/60 text-[13px] font-medium uppercase tracking-wider mb-1">Total Topics</h2>
+                                <div className="text-white text-3xl font-bold">{enhancedTopics.length}</div>
+                            </div>
+                            <div className="h-12 w-px bg-white/10"></div>
+                            <div className="text-right">
+                                <h2 className="text-white/60 text-[13px] font-medium uppercase tracking-wider mb-1">Total MCQs</h2>
+                                <div className="text-[#34D399] text-3xl font-bold">{totalMCQs}</div>
+                            </div>
                         </div>
                     </div>
 
+                    {/* Section Header */}
+                    <div className="flex items-center justify-between mb-4 px-1">
+                        <h3 className="text-[14px] font-bold text-slate-800">All Topics</h3>
+                    </div>
+
                     {/* Grid List */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-20">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-20">
                         {visibleTopics.map(topic => (
                             <TopicItem 
                                 key={topic.id}
@@ -291,8 +295,8 @@ const TopicListPage: React.FC = () => {
                         onClick={() => handleFabAction('mcq')}
                         className="flex items-center gap-3 group"
                     >
-                        <span className="bg-white px-3 py-1.5 rounded-xl shadow-lg border border-slate-100 text-xs font-bold text-slate-600">Add MCQ</span>
-                        <div className="w-10 h-10 bg-white text-emerald-600 border border-slate-100 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform">
+                        <span className="bg-white px-3 py-2 rounded-xl shadow-lg border border-slate-100 text-[13px] font-bold text-slate-700">Add MCQ</span>
+                        <div className="w-12 h-12 bg-white text-indigo-600 border border-slate-100 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform">
                             <Icon name="file-text" size="sm" />
                         </div>
                     </button>
@@ -300,8 +304,8 @@ const TopicListPage: React.FC = () => {
                         onClick={() => handleFabAction('topic')}
                         className="flex items-center gap-3 group"
                     >
-                        <span className="bg-white px-3 py-1.5 rounded-xl shadow-lg border border-slate-100 text-xs font-bold text-slate-600">Add Topic</span>
-                        <div className="w-10 h-10 bg-white text-emerald-600 border border-slate-100 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform">
+                        <span className="bg-white px-3 py-2 rounded-xl shadow-lg border border-slate-100 text-[13px] font-bold text-slate-700">Add Topic</span>
+                        <div className="w-12 h-12 bg-white text-indigo-600 border border-slate-100 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform">
                             <Icon name="folder" size="sm" />
                         </div>
                     </button>
@@ -310,7 +314,7 @@ const TopicListPage: React.FC = () => {
             
             <button 
                 onClick={() => setIsFabOpen(!isFabOpen)}
-                className={`w-14 h-14 rounded-2xl shadow-xl shadow-emerald-900/20 flex items-center justify-center transition-all duration-300 active:scale-90 ${isFabOpen ? 'bg-emerald-700 text-white rotate-45' : 'bg-emerald-600 text-white'}`}
+                className={`w-14 h-14 rounded-full shadow-xl shadow-indigo-500/30 flex items-center justify-center transition-all duration-300 active:scale-90 ${isFabOpen ? 'bg-slate-800 text-white rotate-45' : 'bg-indigo-600 text-white'}`}
             >
                 <Icon name="plus" size="lg" />
             </button>
