@@ -10,6 +10,8 @@ import { useToast } from '../../../shared/context/ToastContext';
 import Icon from '../../../shared/components/Icon';
 import { aiManager } from '../../../core/ai/aiManager';
 import { getVisitorId, saveMcqAttempts, MCQAttempt } from '../services/mcqTrackingService';
+import { soundService } from '../services/soundService';
+import confetti from 'canvas-confetti';
 import QuestionCard from '../components/QuestionCard';
 import PracticeSettings from '../components/PracticeSettings';
 
@@ -198,8 +200,15 @@ const PracticeSession: React.FC = () => {
       setAnswers(prev => ({ ...prev, [currentMCQ.id]: optionKey }));
       setResults(prev => ({ ...prev, [currentMCQ.id]: isCorrect }));
 
-      if (!isCorrect && options.vibrationEnabled && navigator.vibrate) {
-          navigator.vibrate(200);
+      // Feedback
+      if (options.soundEnabled) {
+          if (isCorrect) soundService.playCorrect();
+          else soundService.playIncorrect();
+      }
+
+      if (options.vibrationEnabled && navigator.vibrate) {
+          if (isCorrect) navigator.vibrate(50);
+          else navigator.vibrate([100, 50, 100]);
       }
       
       console.log(`[PracticeSession] Answered: MCQ=${currentMCQ.id}, Correct=${isCorrect}, SetID=${resolvedSetId}`);
@@ -248,6 +257,22 @@ const PracticeSession: React.FC = () => {
 
   const finishSession = async () => {
       setIsFinished(true);
+      
+      // Calculate score
+      const correctCount = Object.values(results).filter(Boolean).length;
+      const totalCount = sessionMCQs.length;
+      const score = Math.round((correctCount / totalCount) * 100);
+
+      if (score >= 80) {
+          confetti({
+              particleCount: 150,
+              spread: 70,
+              origin: { y: 0.6 },
+              colors: ['#6366F1', '#10B981', '#FBBF24']
+          });
+          if (options.soundEnabled) soundService.playSuccess();
+      }
+
       toast.info("Saving results...");
       
       // Save attempts immediately

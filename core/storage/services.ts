@@ -230,6 +230,36 @@ class MCQSetFirestoreService extends FirestoreService<MCQSet> {
     }
   }
 
+  public async fetchMCQsForSets(setIds: string[]): Promise<MCQ[]> {
+    if (setIds.length === 0) return [];
+    try {
+      // Firestore 'in' query supports up to 10 items. We need to chunk it.
+      const chunks = [];
+      for (let i = 0; i < setIds.length; i += 10) {
+        chunks.push(setIds.slice(i, i + 10));
+      }
+      
+      const promises = chunks.map(chunk => {
+        const q = query(collection(dbFirestore, 'live_mcqs'), where('setId', 'in', chunk));
+        return getDocs(q);
+      });
+      
+      const snaps = await Promise.all(promises);
+      const allMcqs: MCQ[] = [];
+      snaps.forEach(snap => {
+        snap.docs.forEach(d => {
+          const m = d.data() as MCQ;
+          if (!(m as any).isDeleted) allMcqs.push(m);
+        });
+      });
+      
+      return allMcqs.sort((a: any, b: any) => (a.createdAt || 0) - (b.createdAt || 0));
+    } catch (e) {
+      console.error("Error fetching MCQs for sets", e);
+      return [];
+    }
+  }
+
   async getById(id: string): Promise<MCQSet | undefined> {
     const set = await super.getById(id);
     if (!set) return undefined;
@@ -414,7 +444,7 @@ class CachedFirestoreService<T extends { id: string }> extends FirestoreService<
 class CachedMCQSetService extends MCQSetFirestoreService {
   private cacheKey = 'live_sets_all';
 
-  subscribeGetAll(callback: SubscribeCallback<MCQSet>): () => void {
+  subscribeGetAll(callback: (data: MCQSet[], source: 'cache' | 'network' | 'network-partial') => void): () => void {
     let isSubscribed = true;
     const run = async () => {
       // 1. Load Cache
@@ -452,45 +482,58 @@ class CachedMCQSetService extends MCQSetFirestoreService {
 
         // 4. Batch Fetch needed MCQs
         if (idsToFetch.size > 0) {
-            // Optimization: If many sets need update (e.g. initial load), fetch ALL MCQs
-            // If few sets (delta), fetch individually or using 'in' query.
-            // Using threshold of 5 for switch.
-            
-            let fetchedMCQs: MCQ[] = [];
-            
-            if (idsToFetch.size > 5) {
-                // Fetch all active MCQs
-                const allMcqsQ = query(collection(dbFirestore, 'live_mcqs'));
-                const allSnap = await getDocs(allMcqsQ);
-                fetchedMCQs = allSnap.docs.map(d => d.data() as MCQ).filter((m: any) => !m.isDeleted);
-            } else {
-                // Fetch individually (Promise.all)
-                const fetchPromises = Array.from(idsToFetch).map(id => this.fetchMCQs(id));
-                const results = await Promise.all(fetchPromises);
-                fetchedMCQs = results.flat();
-            }
-
-            // Map back to sets
-            const mcqsBySetId: Record<string, MCQ[]> = {};
-            fetchedMCQs.forEach(m => {
-                const sid = (m as any).setId;
-                if(sid) {
-                    if(!mcqsBySetId[sid]) mcqsBySetId[sid] = [];
-                    mcqsBySetId[sid].push(m);
-                }
-            });
-
+            // PROGRESSIVE LOADING: Return sets immediately with empty MCQs so UI doesn't block
             mergedSets.forEach(s => {
                 if (idsToFetch.has(s.id)) {
-                    s.mcqs = mcqsBySetId[s.id] || [];
-                    s.mcqs.sort((a: any, b: any) => (a.createdAt || 0) - (b.createdAt || 0));
+                    s.mcqs = []; 
                 }
             });
-        }
+            
+            if (isSubscribed) {
+                callback([...mergedSets], 'network-partial'); // First pass: metadata only
+            }
 
-        if (isSubscribed) {
-          await saveToCache(this.cacheKey, mergedSets);
-          callback(mergedSets, 'network');
+            // Now fetch MCQs in background
+            try {
+                let fetchedMCQs: MCQ[] = [];
+                if (idsToFetch.size > 5) {
+                    const allMcqsQ = query(collection(dbFirestore, 'live_mcqs'));
+                    const allSnap = await getDocs(allMcqsQ);
+                    fetchedMCQs = allSnap.docs.map(d => d.data() as MCQ).filter((m: any) => !m.isDeleted);
+                } else {
+                    const fetchPromises = Array.from(idsToFetch).map(id => this.fetchMCQs(id));
+                    const results = await Promise.all(fetchPromises);
+                    fetchedMCQs = results.flat();
+                }
+
+                const mcqsBySetId: Record<string, MCQ[]> = {};
+                fetchedMCQs.forEach(m => {
+                    const sid = (m as any).setId;
+                    if(sid) {
+                        if(!mcqsBySetId[sid]) mcqsBySetId[sid] = [];
+                        mcqsBySetId[sid].push(m);
+                    }
+                });
+
+                mergedSets.forEach(s => {
+                    if (idsToFetch.has(s.id)) {
+                        s.mcqs = mcqsBySetId[s.id] || [];
+                        s.mcqs.sort((a: any, b: any) => (a.createdAt || 0) - (b.createdAt || 0));
+                    }
+                });
+
+                if (isSubscribed) {
+                    await saveToCache(this.cacheKey, mergedSets);
+                    callback([...mergedSets], 'network'); // Second pass: full data
+                }
+            } catch (e) {
+                console.warn("Background MCQ fetch failed", e);
+            }
+        } else {
+            if (isSubscribed) {
+                await saveToCache(this.cacheKey, mergedSets);
+                callback(mergedSets, 'network');
+            }
         }
       } catch (e) {
         console.warn(`Delta sync failed for sets`, e);
@@ -500,7 +543,7 @@ class CachedMCQSetService extends MCQSetFirestoreService {
     return () => { isSubscribed = false; };
   }
 
-  subscribeGetById(id: string, callback: (data: MCQSet | null, source: 'cache' | 'network') => void): () => void {
+  subscribeGetById(id: string, callback: (data: MCQSet | null, source: 'cache' | 'network' | 'network-partial') => void): () => void {
       let isSubscribed = true;
       const run = async () => {
           const cachedList = await getFromCache<MCQSet>(this.cacheKey);
@@ -511,16 +554,32 @@ class CachedMCQSetService extends MCQSetFirestoreService {
           }
 
           try {
-              const fresh = await super.getById(id);
-              if (isSubscribed && fresh) {
+              // 1. Fetch Set Metadata
+              const setDoc = await getDoc(doc(dbFirestore, this.collectionName, id));
+              if (!setDoc.exists() || (setDoc.data() as any).isDeleted) {
+                  if (isSubscribed) callback(null, 'network');
+                  return;
+              }
+              
+              const freshSet = setDoc.data() as MCQSet;
+              
+              // 2. Progressive callback
+              if (isSubscribed) {
+                  freshSet.mcqs = cachedItem?.mcqs || [];
+                  callback(freshSet, 'network-partial');
+              }
+
+              // 3. Fetch MCQs
+              const mcqs = await this.fetchMCQs(id);
+              freshSet.mcqs = mcqs;
+
+              if (isSubscribed) {
                   const currentList = (await getFromCache<MCQSet>(this.cacheKey)) || [];
-                  const newList = currentList.some((i: any) => i.id === fresh.id) 
-                      ? currentList.map((i: any) => i.id === fresh.id ? fresh : i)
-                      : [...currentList, fresh];
+                  const newList = currentList.some((i: any) => i.id === freshSet.id) 
+                      ? currentList.map((i: any) => i.id === freshSet.id ? freshSet : i)
+                      : [...currentList, freshSet];
                   await saveToCache(this.cacheKey, newList.filter((i: any) => !i.isDeleted));
-                  callback(fresh, 'network');
-              } else if (isSubscribed && !fresh && cachedItem) {
-                  callback(null, 'network');
+                  callback(freshSet, 'network');
               }
           } catch(e) {
               console.warn(`GetById sync failed for set ${id}`, e);

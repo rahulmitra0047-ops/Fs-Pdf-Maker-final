@@ -58,13 +58,12 @@ const TopicListPage: React.FC = () => {
     const unsubTopics = topicService.subscribeGetAll((data, source) => {
         setTopics(data);
         if (data.length > 0 || source === 'network') setInitialLoading(false);
-        setIsSyncing(source === 'cache');
     });
     
     const unsubSubtopics = subtopicService.subscribeGetAll((data) => setSubtopics(data));
     const unsubSets = mcqSetService.subscribeGetAll((data, source) => {
         setSets(data);
-        setIsSyncing(source === 'cache');
+        setIsSyncing(source === 'cache' || source === 'network-partial');
     });
 
     return () => {
@@ -129,7 +128,10 @@ const TopicListPage: React.FC = () => {
       const tSets = sets.filter(s => tSubtopics.includes(s.subtopicId));
       const allMcqs = tSets.flatMap(s => s.mcqs);
       
-      if (allMcqs.length === 0) return toast.error("No MCQs in this topic");
+      if (allMcqs.length === 0) {
+          if (isSyncing) return toast.error("Still loading MCQs, please wait a moment...");
+          return toast.error("No MCQs in this topic");
+      }
       
       setActivePracticeTopicId(topicId);
   };
@@ -140,7 +142,10 @@ const TopicListPage: React.FC = () => {
       const tSets = sets.filter(s => tSubtopics.includes(s.subtopicId));
       const allMcqsCount = tSets.reduce((acc, s) => acc + s.mcqs.length, 0);
 
-      if (allMcqsCount === 0) return toast.error("No MCQs to export");
+      if (allMcqsCount === 0) {
+          if (isSyncing) return toast.error("Still loading MCQs, please wait a moment...");
+          return toast.error("No MCQs to export");
+      }
 
       navigate(`/create?mode=export&source=topic&sourceId=${topicId}`);
   };
@@ -247,7 +252,9 @@ const TopicListPage: React.FC = () => {
                             <div className="h-12 w-px bg-white/10"></div>
                             <div className="text-right">
                                 <h2 className="text-white/60 text-[13px] font-medium uppercase tracking-wider mb-1">Total MCQs</h2>
-                                <div className="text-[#34D399] text-3xl font-bold">{totalMCQs}</div>
+                                <div className="text-[#34D399] text-3xl font-bold">
+                                    {isSyncing ? <span className="animate-pulse text-white/50 text-xl">Loading...</span> : totalMCQs}
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -67,7 +67,7 @@ const SubtopicDetailPage: React.FC = () => {
           const relevant = allSets.filter(s => s.subtopicId === subtopicId);
           setSets(relevant.sort((a, b) => b.updatedAt - a.updatedAt));
           
-          if (source === 'cache') setIsSyncing(true);
+          if (source === 'cache' || source === 'network-partial') setIsSyncing(true);
           else setIsSyncing(false);
           
           if (relevant.length > 0 || source === 'network') setInitialLoading(false);
@@ -183,13 +183,19 @@ const SubtopicDetailPage: React.FC = () => {
 
   const handlePracticeAll = () => {
       const allMcqs = sets.flatMap(s => s.mcqs);
-      if (allMcqs.length === 0) return toast.error("No MCQs found");
+      if (allMcqs.length === 0) {
+          if (isSyncing) return toast.error("Still loading MCQs, please wait a moment...");
+          return toast.error("No MCQs found");
+      }
       setShowPracticeSheet(true);
   };
 
   const handleExport = () => {
       const totalMCQs = sets.reduce((acc, s) => acc + s.mcqs.length, 0);
-      if (totalMCQs === 0) return toast.error("No MCQs to export");
+      if (totalMCQs === 0) {
+          if (isSyncing) return toast.error("Still loading MCQs, please wait a moment...");
+          return toast.error("No MCQs to export");
+      }
       navigate(`/create?mode=export&source=subtopic&sourceId=${subtopicId}`);
   };
 
@@ -278,7 +284,7 @@ const SubtopicDetailPage: React.FC = () => {
                         <div className="w-1 h-1 rounded-full bg-white/30"></div>
                         <div className="flex items-center gap-1.5">
                             <Icon name="file-text" size="xs" />
-                            <span>{sets.reduce((acc, s) => acc + s.mcqs.length, 0)} MCQs</span>
+                            <span>{isSyncing ? '...' : sets.reduce((acc, s) => acc + s.mcqs.length, 0)} MCQs</span>
                         </div>
                     </div>
                 </div>

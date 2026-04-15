@@ -5,6 +5,7 @@ import PremiumButton from '../../shared/components/PremiumButton';
 import PremiumModal from '../../shared/components/PremiumModal';
 import PremiumInput from '../../shared/components/PremiumInput';
 import { mcqSetService, attemptService, subtopicService } from '../../core/storage/services';
+import { Virtuoso } from 'react-virtuoso';
 import { MCQSet, MCQ, Attempt } from '../../types';
 import { useToast } from '../../shared/context/ToastContext';
 import SingleMCQModal from '../create-pdf/components/SingleMCQModal';
@@ -41,7 +42,8 @@ const SetDetailPage: React.FC = () => {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(30);
+
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     if (!setId) return;
@@ -51,8 +53,13 @@ const SetDetailPage: React.FC = () => {
         if (data) {
             setSet(data);
             setInitialLoading(false);
-            if (source === 'cache') loadExtras(data);
-            else loadExtras(data);
+            if (source === 'cache' || source === 'network-partial') {
+                setIsSyncing(true);
+                loadExtras(data);
+            } else {
+                setIsSyncing(false);
+                loadExtras(data);
+            }
         } else if (source === 'network') {
             toast.error("Set not found");
             navigate('/live-mcq/topics');
@@ -287,15 +294,25 @@ const SetDetailPage: React.FC = () => {
                 {/* Buttons */}
                 <div className="flex gap-[12px] relative z-10">
                     <button 
-                        onClick={() => setShowPracticeSheet(true)}
-                        disabled={set.mcqs.length === 0}
+                        onClick={() => {
+                            if (set.mcqs.length === 0) {
+                                if (isSyncing) return toast.error("Still loading MCQs, please wait a moment...");
+                            }
+                            setShowPracticeSheet(true);
+                        }}
+                        disabled={set.mcqs.length === 0 && !isSyncing}
                         className="flex-1 bg-indigo-500 text-white py-[14px] rounded-xl font-bold text-[15px] active:scale-[0.98] transition-all disabled:opacity-50 hover:bg-indigo-400 shadow-lg shadow-indigo-500/30 flex justify-center items-center gap-2"
                     >
                         <Icon name="play" size="sm" /> Practice
                     </button>
                     <button 
-                        onClick={() => navigate(`/live-mcq/exam/${set.id}`)}
-                        disabled={set.mcqs.length === 0}
+                        onClick={() => {
+                            if (set.mcqs.length === 0) {
+                                if (isSyncing) return toast.error("Still loading MCQs, please wait a moment...");
+                            }
+                            navigate(`/live-mcq/exam/${set.id}`);
+                        }}
+                        disabled={set.mcqs.length === 0 && !isSyncing}
                         className="flex-1 bg-white/10 border border-white/20 text-white py-[14px] rounded-xl font-bold text-[15px] active:scale-[0.98] transition-all disabled:opacity-50 hover:bg-white/20 backdrop-blur-sm flex justify-center items-center gap-2"
                     >
                         <Icon name="clock" size="sm" /> Exam
@@ -313,7 +330,13 @@ const SetDetailPage: React.FC = () => {
                     <h3 className="text-[14px] font-bold text-slate-800">MCQs</h3>
                     <div className="flex gap-2">
                         <button 
-                            onClick={() => navigate(`/create?mode=export&source=set&sourceId=${set.id}`)}
+                            onClick={() => {
+                                if (set.mcqs.length === 0) {
+                                    if (isSyncing) return toast.error("Still loading MCQs, please wait a moment...");
+                                    return toast.error("No MCQs to export");
+                                }
+                                navigate(`/create?mode=export&source=set&sourceId=${set.id}`);
+                            }}
                             className="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[13px] font-bold active:scale-95 transition-all hover:bg-slate-50 shadow-sm flex items-center gap-1.5"
                         >
                             <Icon name="share" size="xs" /> Export PDF
@@ -370,90 +393,89 @@ const SetDetailPage: React.FC = () => {
                 <div className="flex flex-col gap-[8px]">
                     {set.mcqs.length === 0 ? (
                         <div className="text-center py-8 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
-                            <p className="text-[13px] text-slate-400">No MCQs added yet</p>
+                            {isSyncing ? (
+                                <p className="text-[13px] text-slate-400 animate-pulse">Loading MCQs...</p>
+                            ) : (
+                                <p className="text-[13px] text-slate-400">No MCQs added yet</p>
+                            )}
                         </div>
                     ) : (
-                        set.mcqs.slice(0, visibleCount).map((mcq, index) => (
-                            <div 
-                                key={mcq.id}
-                                className={`relative bg-white border rounded-xl p-4 shadow-sm transition-all ${
-                                    isSelectionMode && selectedIds.has(mcq.id) ? 'border-emerald-500 bg-emerald-50/10 ring-1 ring-emerald-500' : 'border-slate-100 hover:border-slate-200 hover:shadow-md'
-                                }`}
-                                onClick={isSelectionMode ? () => toggleSelect(mcq.id) : undefined}
-                            >
-                                {/* Edit Icon (Absolute) */}
-                                {!isSelectionMode && (
-                                    <button 
-                                        onClick={(e) => { e.stopPropagation(); setEditingMCQ(mcq); setShowSingleMCQ(true); }}
-                                        className="absolute top-3 right-3 text-slate-300 hover:text-indigo-600 transition-colors"
+                        <Virtuoso
+                            useWindowScroll
+                            data={set.mcqs}
+                            itemContent={(index, mcq) => (
+                                <div className="pb-2">
+                                    <div 
+                                        key={mcq.id}
+                                        className={`relative bg-white border rounded-xl p-4 shadow-sm transition-all ${
+                                            isSelectionMode && selectedIds.has(mcq.id) ? 'border-emerald-500 bg-emerald-50/10 ring-1 ring-emerald-500' : 'border-slate-100 hover:border-slate-200 hover:shadow-md'
+                                        }`}
+                                        onClick={isSelectionMode ? () => toggleSelect(mcq.id) : undefined}
                                     >
-                                        <Icon name="edit-3" size="xs" />
-                                    </button>
-                                )}
-
-                                {/* Selection Checkbox */}
-                                {isSelectionMode && (
-                                    <div className="absolute top-3 right-3">
-                                        <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${selectedIds.has(mcq.id) ? 'bg-indigo-500 border-indigo-500' : 'border-slate-300 bg-white'}`}>
-                                            {selectedIds.has(mcq.id) && <Icon name="check" size="xs" className="text-white w-3.5 h-3.5" />}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Question */}
-                                <div className="mb-3 pr-8">
-                                    <span className="text-indigo-600 font-bold mr-1.5 text-[14px]">{index + 1}.</span>
-                                    <span className="text-[15px] font-bold text-slate-800 leading-snug">
-                                        {mcq.question}
-                                    </span>
-                                </div>
-
-                                {/* Options Grid */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
-                                    {['A', 'B', 'C', 'D'].map((opt) => {
-                                        const isCorrect = mcq.answer === opt;
-                                        const text = mcq[`option${opt}` as keyof MCQ] as string;
-                                        
-                                        return (
-                                            <div 
-                                                key={opt}
-                                                className={`text-[14px] flex items-start gap-2 p-2 rounded-xl border ${
-                                                    isCorrect 
-                                                        ? 'bg-emerald-50 border-emerald-100 text-emerald-700 font-semibold' 
-                                                        : 'bg-slate-50 border-slate-100 text-slate-600 font-medium'
-                                                }`}
+                                        {/* Edit Icon (Absolute) */}
+                                        {!isSelectionMode && (
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); setEditingMCQ(mcq); setShowSingleMCQ(true); }}
+                                                className="absolute top-3 right-3 text-slate-300 hover:text-indigo-600 transition-colors"
                                             >
-                                                <span className={`font-bold ${isCorrect ? 'text-emerald-600' : 'text-slate-400'}`}>{opt})</span>
-                                                <span className="leading-tight">{text}</span>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                                                <Icon name="edit-3" size="xs" />
+                                            </button>
+                                        )}
 
-                                {/* Tag / Source */}
-                                {mcq.source && (
-                                    <div className="mt-2 pt-2 border-t border-slate-50 flex items-center gap-1.5">
-                                        <div className="text-slate-300">
-                                            <Icon name="check-circle" size="xs" className="w-3 h-3" />
+                                        {/* Selection Checkbox */}
+                                        {isSelectionMode && (
+                                            <div className="absolute top-3 right-3">
+                                                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${selectedIds.has(mcq.id) ? 'bg-indigo-500 border-indigo-500' : 'border-slate-300 bg-white'}`}>
+                                                    {selectedIds.has(mcq.id) && <Icon name="check" size="xs" className="text-white w-3.5 h-3.5" />}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Question */}
+                                        <div className="mb-3 pr-8">
+                                            <span className="text-indigo-600 font-bold mr-1.5 text-[14px]">{index + 1}.</span>
+                                            <span className="text-[15px] font-bold text-slate-800 leading-snug">
+                                                {mcq.question}
+                                            </span>
                                         </div>
-                                        <span className="text-[11px] font-normal text-slate-400">{mcq.source}</span>
+
+                                        {/* Options Grid */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+                                            {['A', 'B', 'C', 'D'].map((opt) => {
+                                                const isCorrect = mcq.answer === opt;
+                                                const text = mcq[`option${opt}` as keyof MCQ] as string;
+                                                
+                                                return (
+                                                    <div 
+                                                        key={opt}
+                                                        className={`text-[14px] flex items-start gap-2 p-2 rounded-xl border ${
+                                                            isCorrect 
+                                                                ? 'bg-emerald-50 border-emerald-100 text-emerald-700 font-semibold' 
+                                                                : 'bg-slate-50 border-slate-100 text-slate-600 font-medium'
+                                                        }`}
+                                                    >
+                                                        <span className={`font-bold ${isCorrect ? 'text-emerald-600' : 'text-slate-400'}`}>{opt})</span>
+                                                        <span className="leading-tight">{text}</span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* Tag / Source */}
+                                        {mcq.source && (
+                                            <div className="mt-2 pt-2 border-t border-slate-50 flex items-center gap-1.5">
+                                                <div className="text-slate-300">
+                                                    <Icon name="check-circle" size="xs" className="w-3 h-3" />
+                                                </div>
+                                                <span className="text-[11px] font-normal text-slate-400">{mcq.source}</span>
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                            </div>
-                        ))
+                                </div>
+                            )}
+                        />
                     )}
                 </div>
-                
-                {visibleCount < set.mcqs.length && (
-                    <div className="flex justify-center mt-6">
-                        <button
-                            onClick={() => setVisibleCount(prev => prev + 30)}
-                            className="px-6 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl text-sm font-bold transition-colors"
-                        >
-                            Load More
-                        </button>
-                    </div>
-                )}
             </div>
         </div>
 

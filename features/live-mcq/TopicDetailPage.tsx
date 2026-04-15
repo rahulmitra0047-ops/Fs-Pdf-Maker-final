@@ -57,14 +57,12 @@ const TopicDetailPage: React.FC = () => {
     // Subscribe to Subtopics (List Snapshot)
     const unsubSubtopics = subtopicService.subscribeGetAll((data, source) => {
         setSubtopics(data.filter(s => s.topicId === topicId));
-        if (source === 'cache') setIsSyncing(true);
-        else setIsSyncing(false);
     });
 
     // Subscribe to Sets (List Snapshot for Stats)
     const unsubSets = mcqSetService.subscribeGetAll((data, source) => {
         setSets(data); // We filter later
-        if (source === 'cache') setIsSyncing(true);
+        if (source === 'cache' || source === 'network-partial') setIsSyncing(true);
         else setIsSyncing(false);
     });
 
@@ -179,13 +177,23 @@ const TopicDetailPage: React.FC = () => {
   };
 
   const handlePracticeAll = () => {
-      if (allTopicMcqs.length === 0) return toast.error("No MCQs found");
+      if (allTopicMcqs.length === 0) {
+          if (isSyncing) {
+              return toast.error("Still loading MCQs, please wait a moment...");
+          }
+          return toast.error("No MCQs found");
+      }
       setShowPracticeSheet(true);
   };
 
   const handleExport = () => {
       if (!topic) return;
-      if (topicStats.mcqs === 0) return toast.error("No MCQs to export");
+      if (topicStats.mcqs === 0) {
+          if (isSyncing) {
+              return toast.error("Still loading MCQs, please wait a moment...");
+          }
+          return toast.error("No MCQs to export");
+      }
       navigate(`/create?mode=export&source=topic&sourceId=${topic.id}`);
   };
 
@@ -250,10 +258,10 @@ const TopicDetailPage: React.FC = () => {
                     {[
                         { label: 'Subtopics', value: topicStats.subtopics },
                         { label: 'Sets', value: topicStats.sets },
-                        { label: 'Questions', value: topicStats.mcqs }
+                        { label: 'Questions', value: isSyncing ? '...' : topicStats.mcqs }
                     ].map((stat, i) => (
                         <div key={i} className="bg-white/5 border border-white/10 rounded-[14px] p-3.5 text-center backdrop-blur-sm">
-                            <div className="text-[22px] font-bold text-white leading-none mb-1">{stat.value}</div>
+                            <div className={`text-[22px] font-bold text-white leading-none mb-1 ${stat.value === '...' ? 'animate-pulse' : ''}`}>{stat.value}</div>
                             <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">{stat.label}</div>
                         </div>
                     ))}

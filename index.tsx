@@ -1,6 +1,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { registerSW } from 'virtual:pwa-register';
 
 // Polyfill for Google GenAI SDK to prevent crash on launch
 // This must run before App import to ensure @google/genai finds process.env
@@ -16,32 +17,15 @@ if (typeof window !== 'undefined') {
 import App from './App';
 import './index.css';
 
-// PWA Service Worker Registration with Update Detection
-const meta = import.meta as any;
-const isProduction = meta.env ? meta.env.PROD : false;
-
-if (isProduction && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then((registration) => {
-        // Check for updates
-        registration.onupdatefound = () => {
-          const installingWorker = registration.installing;
-          if (installingWorker) {
-            installingWorker.onstatechange = () => {
-              if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // New update available
-                window.dispatchEvent(new Event('pwa-update-available'));
-              }
-            };
-          }
-        };
-      })
-      .catch((registrationError) => {
-        console.log('SW registration failed: ', registrationError);
-      });
-  });
-}
+// PWA Service Worker Registration with vite-plugin-pwa
+const updateSW = registerSW({
+  onNeedRefresh() {
+    window.dispatchEvent(new Event('pwa-update-available'));
+  },
+  onOfflineReady() {
+    console.log('App ready to work offline');
+  },
+});
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

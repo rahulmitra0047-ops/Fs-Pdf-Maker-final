@@ -247,6 +247,7 @@ export interface MCQSet {
   subtopicId: string;
   name: string;
   mcqs: MCQ[];
+  mcqCount?: number;
   createdAt: number;
   updatedAt: number;
   isArchived?: boolean; // Feature C
