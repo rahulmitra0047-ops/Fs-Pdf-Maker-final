@@ -1,0 +1,1 @@
+import{g as e}from"./index-gTc9NsbL.js";const c=async()=>{const t=await e.documents.orderBy("id").last();if(!t)return"FS_00001";const r=t.id.split("_");if(r.length!==2)return`FS_${Date.now().toString().slice(-5)}`;const n=parseInt(r[1],10);return isNaN(n)?"FS_00001":`FS_${(n+1).toString().padStart(5,"0")}`},i=()=>crypto.randomUUID();export{i as a,c as g};

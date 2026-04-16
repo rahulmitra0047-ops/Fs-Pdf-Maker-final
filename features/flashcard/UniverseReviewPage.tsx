@@ -7,11 +7,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import FlashcardCard from './components/FlashcardCard';
 import { useTheme } from './context/ThemeContext';
 import ThemeIcon from './components/ThemeIcon';
+import { universeService } from './services/universeService';
 
 const UniverseReviewPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const universeId = searchParams.get('universeId');
+  const category = searchParams.get('category');
+  const count = searchParams.get('count');
+  const shuffle = searchParams.get('shuffle') === 'true';
   const { currentTheme } = useTheme();
   
   const [words, setWords] = useState<FlashcardWord[]>([]);
@@ -27,50 +31,90 @@ const UniverseReviewPage: React.FC = () => {
   useEffect(() => {
     if (universeId) {
       loadWords(universeId);
+    } else if (category) {
+      loadCategoryWords(category, count, shuffle);
     } else {
       setError(true);
       setLoading(false);
     }
-  }, [universeId]);
+  }, [universeId, category, count, shuffle]);
+
+  const mapNodeToFlashcard = (w: any, basicWord: string): FlashcardWord => ({
+    id: w.id,
+    word: w.word,
+    meaning: w.meaning,
+    type: (w.partOfSpeech as any) || 'Other',
+    verbForms: null,
+    examples: [w.exampleSentence],
+    synonyms: [basicWord],
+    pronunciation: '',
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    confidenceLevel: 0,
+    nextReviewDate: Date.now(),
+    lastReviewedAt: 0,
+    totalReviews: 0,
+    correctCount: 0,
+    wrongCount: 0,
+    isFavorite: false
+  });
+
+  const loadCategoryWords = async (cat: string, limitStr: string | null, doShuffle: boolean) => {
+    setLoading(true);
+    setError(false);
+    try {
+      const universes = await universeService.getAllSaved();
+      let allNodes: FlashcardWord[] = [];
+
+      universes.forEach(universe => {
+        if (cat === 'all' || cat === 'advancedWords') {
+          (universe.advancedWords || []).forEach(w => allNodes.push(mapNodeToFlashcard(w, universe.basicWord)));
+        }
+        if (cat === 'all' || cat === 'greWords') {
+          (universe.greWords || []).forEach(w => allNodes.push(mapNodeToFlashcard(w, universe.basicWord)));
+        }
+        if (cat === 'all' || cat === 'idioms') {
+          (universe.idioms || []).forEach(w => allNodes.push(mapNodeToFlashcard(w, universe.basicWord)));
+        }
+        if (cat === 'all' || cat === 'oneWordSubstitutes') {
+          (universe.oneWordSubstitutes || []).forEach(w => allNodes.push(mapNodeToFlashcard(w, universe.basicWord)));
+        }
+      });
+
+      if (doShuffle) {
+        allNodes = allNodes.sort(() => Math.random() - 0.5);
+      }
+
+      if (limitStr && limitStr !== 'all') {
+        const limit = parseInt(limitStr, 10);
+        if (!isNaN(limit)) {
+          allNodes = allNodes.slice(0, limit);
+        }
+      }
+
+      setWords(allNodes);
+    } catch (error) {
+      console.error(error);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadWords = async (id: string) => {
     setLoading(true);
     setError(false);
     try {
-      const savedUniverses = localStorage.getItem('saved_word_universes');
-      if (savedUniverses) {
-        const universes = JSON.parse(savedUniverses);
-        const universe = universes.find((u: any) => u.id === id);
-        if (universe) {
-          const allNodes = [
-            ...(universe.advancedWords || []),
-            ...(universe.greWords || []),
-            ...(universe.idioms || []),
-            ...(universe.oneWordSubstitutes || [])
-          ];
-          const mappedWords: FlashcardWord[] = allNodes.map((w: any) => ({
-            id: w.id,
-            word: w.word,
-            meaning: w.meaning,
-            type: (w.partOfSpeech as any) || 'Other',
-            verbForms: null,
-            examples: [w.exampleSentence],
-            synonyms: [universe.basicWord],
-            pronunciation: '',
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-            confidenceLevel: 0,
-            nextReviewDate: Date.now(),
-            lastReviewedAt: 0,
-            totalReviews: 0,
-            correctCount: 0,
-            wrongCount: 0,
-            isFavorite: false
-          }));
-          setWords(mappedWords);
-        } else {
-          setError(true);
-        }
+      const universe = await universeService.getById(id);
+      if (universe) {
+        const allNodes = [
+          ...(universe.advancedWords || []),
+          ...(universe.greWords || []),
+          ...(universe.idioms || []),
+          ...(universe.oneWordSubstitutes || [])
+        ];
+        const mappedWords: FlashcardWord[] = allNodes.map((w: any) => mapNodeToFlashcard(w, universe.basicWord));
+        setWords(mappedWords);
       } else {
         setError(true);
       }

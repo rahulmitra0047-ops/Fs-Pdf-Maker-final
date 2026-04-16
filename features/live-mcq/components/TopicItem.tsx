@@ -28,6 +28,9 @@ const TopicItem: React.FC<TopicItemProps> = memo(({
             onClick={() => onNavigate(topic.id)}
             className="relative group bg-white rounded-[24px] p-5 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-slate-100 active:scale-[0.98] transition-all duration-300 cursor-pointer hover:border-indigo-500/20 hover:shadow-[0_20px_25px_-5px_rgba(79,70,229,0.1),0_10px_10px_-5px_rgba(79,70,229,0.04)] flex flex-col h-full overflow-hidden"
         >
+            {/* Shimmer Effect */}
+            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-[shimmer_1.5s_infinite] z-20 pointer-events-none"></div>
+
             {/* Background Accent */}
             <div className="absolute -right-4 -top-4 w-24 h-24 bg-indigo-50/50 rounded-full blur-2xl group-hover:bg-indigo-100/50 transition-colors duration-500"></div>
 

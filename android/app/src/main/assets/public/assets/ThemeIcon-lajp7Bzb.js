@@ -1,0 +1,6 @@
+import{G as r,a as t,H as a,j as o}from"./index-gTc9NsbL.js";/**
+ * @license lucide-react v0.563.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const l=[["path",{d:"M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z",key:"e79jfc"}],["circle",{cx:"13.5",cy:"6.5",r:".5",fill:"currentColor",key:"1okk4w"}],["circle",{cx:"17.5",cy:"10.5",r:".5",fill:"currentColor",key:"f64h9f"}],["circle",{cx:"6.5",cy:"12.5",r:".5",fill:"currentColor",key:"qy21gx"}],["circle",{cx:"8.5",cy:"7.5",r:".5",fill:"currentColor",key:"fotxhn"}]],n=r("palette",l),i=()=>{const c=t(),{currentTheme:e}=a();return o.jsxDEV("button",{onClick:()=>c("/flashcards/themes"),className:"fixed bottom-6 right-6 z-50 p-3 rounded-full shadow-lg transition-transform active:scale-95 hover:scale-105",style:{backgroundColor:e.buttonBg,color:e.buttonText,boxShadow:e.shadow},children:o.jsxDEV(n,{size:20},void 0,!1,{fileName:"/app/applet/features/flashcard/components/ThemeIcon.tsx",lineNumber:20,columnNumber:7},void 0)},void 0,!1,{fileName:"/app/applet/features/flashcard/components/ThemeIcon.tsx",lineNumber:11,columnNumber:5},void 0)};export{i as T};

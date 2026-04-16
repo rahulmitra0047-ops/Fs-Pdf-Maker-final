@@ -48,3 +48,9 @@ body {
 
 /* Animation Utilities Helper for Tailwind Arbitrary Matches */
 .animate-in { animation-duration: 0.3s; animation-fill-mode: forwards; }
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
