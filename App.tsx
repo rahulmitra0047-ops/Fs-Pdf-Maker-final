@@ -3,7 +3,6 @@
 
 import React, { useEffect } from 'react';
 import { HashRouter, useNavigate } from 'react-router-dom';
-import { SplashScreen } from '@capacitor/splash-screen';
 import RootErrorBoundary from './shared/components/RootErrorBoundary';
 import { ToastProvider } from './shared/context/ToastContext';
 import AppRoutes from './app/routes/AppRoutes';
@@ -30,19 +29,6 @@ const AppLogicHandler = () => {
   useEffect(() => {
     // 0. Trigger Migration
     migrateLearnData();
-
-    // Hide Capacitor Native Splash Screen precisely now (since React/DOM is ready)
-    // This perfectly reveals our identical HTML/CSS splash screen underneath without any flash
-    SplashScreen.hide().catch(console.error);
-
-    // Remove the CSS-only native splash screen once the app is loaded
-    const splashScreen = document.getElementById('native-splash');
-    if (splashScreen) {
-      setTimeout(() => {
-        splashScreen.classList.add('splash-exit');
-        setTimeout(() => splashScreen.remove(), 400); // Remove from DOM after fade out
-      }, 1000); // Wait 1s so the user can enjoy the splash animation before the app reveals
-    }
 
     // 1. Handle Share Target (URL Params -> App State)
     const params = new URLSearchParams(window.location.search);
