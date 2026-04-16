@@ -1,20 +1,84 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#4F46E5" />
-      <stop offset="100%" stop-color="#9333EA" />
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4338CA" />
+      <stop offset="100%" stop-color="#312E81" />
     </linearGradient>
+
+    <!-- Book Cover Gradient -->
+    <linearGradient id="bookCover" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366F1" />
+      <stop offset="100%" stop-color="#4F46E5" />
+    </linearGradient>
+    
+    <!-- Book Pages Gradient -->
+    <linearGradient id="bookPages" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#E0E7FF" />
+    </linearGradient>
+
+    <!-- Cap Top Gradient -->
+    <linearGradient id="capTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E1B4B" />
+      <stop offset="100%" stop-color="#312E81" />
+    </linearGradient>
+
+    <!-- Gold Gradient -->
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE68A" />
+      <stop offset="50%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+
+    <!-- Drop Shadow for 3D effect -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="20" stdDeviation="20" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+    
+    <filter id="lightShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000000" flood-opacity="0.25" />
+    </filter>
   </defs>
-  <rect width="1024" height="1024" fill="url(#grad)" rx="220" />
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bgGrad)" rx="220" />
   
-  <!-- Graduation Cap -->
-  <path d="M512 280 L200 420 L512 560 L824 420 Z" fill="#ffffff" />
-  <path d="M300 465 L300 650 Q512 750 724 650 L724 465 L512 560 Z" fill="#E0E7FF" />
-  
-  <!-- Tassel -->
-  <path d="M824 420 L824 600" stroke="#FBBF24" stroke-width="24" stroke-linecap="round" />
-  <circle cx="824" cy="620" r="30" fill="#FBBF24" />
-  
-  <!-- Checkmark -->
-  <path d="M430 600 L490 660 L620 500" fill="none" stroke="#4F46E5" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" />
+  <!-- Glow behind icon -->
+  <circle cx="512" cy="512" r="350" fill="#6366F1" opacity="0.4" filter="blur(40px)" />
+
+  <g transform="translate(0, 40)">
+    <!-- 3D Book Base (Pages) -->
+    <path d="M250 620 L512 720 L774 620 L774 680 L512 780 L250 680 Z" fill="url(#bookPages)" filter="url(#shadow)" />
+    <path d="M250 580 L512 680 L774 580 L774 640 L512 740 L250 640 Z" fill="#F3F4F6" />
+    
+    <!-- 3D Book Cover (Top) -->
+    <path d="M220 560 L512 680 L804 560 L512 440 Z" fill="url(#bookCover)" filter="url(#lightShadow)" />
+    
+    <!-- Book Cover Highlight -->
+    <path d="M240 560 L512 670 L512 450 L240 540 Z" fill="#818CF8" opacity="0.5" />
+
+    <!-- Graduation Cap Base (Skull cap) -->
+    <path d="M380 400 L380 500 Q512 580 644 500 L644 400 Z" fill="#1E1B4B" filter="url(#shadow)" />
+    
+    <!-- Graduation Cap Top (Board) -->
+    <path d="M512 250 L200 380 L512 510 L824 380 Z" fill="url(#capTop)" filter="url(#lightShadow)" />
+    
+    <!-- Cap Board Highlight -->
+    <path d="M512 260 L220 380 L512 380 Z" fill="#4338CA" opacity="0.6" />
+
+    <!-- Tassel Button -->
+    <ellipse cx="512" cy="380" rx="20" ry="15" fill="url(#gold)" filter="url(#lightShadow)" />
+
+    <!-- Tassel String -->
+    <path d="M512 380 Q650 390 750 480" fill="none" stroke="url(#gold)" stroke-width="8" stroke-linecap="round" />
+    
+    <!-- Tassel End -->
+    <path d="M740 480 L730 560 L770 560 L760 480 Z" fill="url(#gold)" filter="url(#lightShadow)" />
+    <circle cx="750" cy="570" r="15" fill="url(#gold)" />
+
+    <!-- Sparkles -->
+    <path d="M250 300 L260 250 L310 240 L260 230 L250 180 L240 230 L190 240 L240 250 Z" fill="url(#gold)" filter="url(#lightShadow)" />
+    <path d="M800 250 L805 220 L835 215 L805 210 L800 180 L795 210 L765 215 L795 220 Z" fill="url(#gold)" opacity="0.8" />
+  </g>
 </svg>

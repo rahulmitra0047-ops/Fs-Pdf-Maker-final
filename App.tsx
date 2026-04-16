@@ -1,8 +1,9 @@
 
 
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { HashRouter, useNavigate } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import RootErrorBoundary from './shared/components/RootErrorBoundary';
 import { ToastProvider } from './shared/context/ToastContext';
 import AppRoutes from './app/routes/AppRoutes';
@@ -11,6 +12,7 @@ import { useSettings } from './shared/hooks/useSettings';
 import { aiManager } from './core/ai/aiManager';
 import { migrateLearnData } from './core/migration/learnMigration';
 import { ThemeProvider } from './features/flashcard/context/ThemeContext';
+import AnimatedSplashScreen from './shared/components/AnimatedSplashScreen';
 
 // Module-level flag to track if we've handled the initial redirect.
 let isInitialLoad = true;
@@ -59,11 +61,18 @@ const AppLogicHandler = () => {
 };
 
 const App: React.FC = () => {
+  const [showSplash, setShowSplash] = useState(true);
+
   return (
     <RootErrorBoundary>
       <ToastProvider>
         <ThemeProvider>
           <OfflineIndicator />
+          <AnimatePresence>
+            {showSplash && (
+              <AnimatedSplashScreen onComplete={() => setShowSplash(false)} />
+            )}
+          </AnimatePresence>
           <HashRouter>
             <AppLogicHandler />
             <AppRoutes />
