@@ -40,6 +40,9 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+      - name: Generate Icons and Splash
+        run: npx capacitor-assets generate --android
+
       - name: Fix Corrupt Gradle Wrapper
         working-directory: ./android
         run: gradle wrapper --gradle-version 8.14.3
