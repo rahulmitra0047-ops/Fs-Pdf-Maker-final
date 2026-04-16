@@ -1,9 +1,8 @@
 
 
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { HashRouter, useNavigate } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
 import RootErrorBoundary from './shared/components/RootErrorBoundary';
 import { ToastProvider } from './shared/context/ToastContext';
 import AppRoutes from './app/routes/AppRoutes';
@@ -12,7 +11,6 @@ import { useSettings } from './shared/hooks/useSettings';
 import { aiManager } from './core/ai/aiManager';
 import { migrateLearnData } from './core/migration/learnMigration';
 import { ThemeProvider } from './features/flashcard/context/ThemeContext';
-import AnimatedSplashScreen from './shared/components/AnimatedSplashScreen';
 
 // Module-level flag to track if we've handled the initial redirect.
 let isInitialLoad = true;
@@ -31,6 +29,15 @@ const AppLogicHandler = () => {
   useEffect(() => {
     // 0. Trigger Migration
     migrateLearnData();
+
+    // Remove the CSS-only native splash screen once the app is loaded
+    const splashScreen = document.getElementById('native-splash');
+    if (splashScreen) {
+      setTimeout(() => {
+        splashScreen.classList.add('splash-exit');
+        setTimeout(() => splashScreen.remove(), 400); // Remove from DOM after fade out
+      }, 1000); // Wait 1s so the user can enjoy the splash animation before the app reveals
+    }
 
     // 1. Handle Share Target (URL Params -> App State)
     const params = new URLSearchParams(window.location.search);
@@ -61,18 +68,11 @@ const AppLogicHandler = () => {
 };
 
 const App: React.FC = () => {
-  const [showSplash, setShowSplash] = useState(true);
-
   return (
     <RootErrorBoundary>
       <ToastProvider>
         <ThemeProvider>
           <OfflineIndicator />
-          <AnimatePresence>
-            {showSplash && (
-              <AnimatedSplashScreen onComplete={() => setShowSplash(false)} />
-            )}
-          </AnimatePresence>
           <HashRouter>
             <AppLogicHandler />
             <AppRoutes />
