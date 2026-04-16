@@ -1,14 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <defs>
     <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#6366f1" />
-      <stop offset="100%" stop-color="#4338ca" />
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="100%" stop-color="#9333EA" />
     </linearGradient>
   </defs>
-  <rect width="1024" height="1024" fill="url(#grad)" rx="256" ry="256"/>
-  <g transform="translate(256, 256) scale(2)">
-    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M10 10h6" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M10 6h6" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  </g>
+  <rect width="1024" height="1024" fill="url(#grad)" rx="220" />
+  
+  <!-- Graduation Cap -->
+  <path d="M512 280 L200 420 L512 560 L824 420 Z" fill="#ffffff" />
+  <path d="M300 465 L300 650 Q512 750 724 650 L724 465 L512 560 Z" fill="#E0E7FF" />
+  
+  <!-- Tassel -->
+  <path d="M824 420 L824 600" stroke="#FBBF24" stroke-width="24" stroke-linecap="round" />
+  <circle cx="824" cy="620" r="30" fill="#FBBF24" />
+  
+  <!-- Checkmark -->
+  <path d="M430 600 L490 660 L620 500" fill="none" stroke="#4F46E5" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" />
 </svg>

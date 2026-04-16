@@ -1,14 +1,34 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2732 2732" width="2732" height="2732">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2732 2732">
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#6366f1" />
-      <stop offset="100%" stop-color="#4338ca" />
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#312E81" />
+      <stop offset="50%" stop-color="#4F46E5" />
+      <stop offset="100%" stop-color="#9333EA" />
     </linearGradient>
   </defs>
-  <rect width="2732" height="2732" fill="url(#grad)"/>
-  <g transform="translate(1110, 1110) scale(2)">
-    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M10 10h6" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M10 6h6" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect width="2732" height="2732" fill="url(#bg)" />
+  
+  <!-- Decorative background circles -->
+  <circle cx="400" cy="400" r="300" fill="#ffffff" opacity="0.05" />
+  <circle cx="2300" cy="2200" r="500" fill="#ffffff" opacity="0.05" />
+  <circle cx="2400" cy="500" r="200" fill="#ffffff" opacity="0.05" />
+  <circle cx="500" cy="2400" r="400" fill="#ffffff" opacity="0.05" />
+
+  <!-- Icon Group -->
+  <g transform="translate(854, 800) scale(1)">
+    <!-- Graduation Cap -->
+    <path d="M512 280 L200 420 L512 560 L824 420 Z" fill="#ffffff" />
+    <path d="M300 465 L300 650 Q512 750 724 650 L724 465 L512 560 Z" fill="#E0E7FF" />
+    <!-- Tassel -->
+    <path d="M824 420 L824 600" stroke="#FBBF24" stroke-width="24" stroke-linecap="round" />
+    <circle cx="824" cy="620" r="30" fill="#FBBF24" />
+    <!-- Checkmark -->
+    <path d="M430 600 L490 660 L620 500" fill="none" stroke="#4F46E5" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" />
   </g>
+
+  <!-- App Name -->
+  <text x="1366" y="1950" font-family="sans-serif" font-size="180" font-weight="bold" fill="#ffffff" text-anchor="middle" letter-spacing="5">Mcq Guru</text>
+  
+  <!-- Tagline -->
+  <text x="1366" y="2100" font-family="sans-serif" font-size="60" font-weight="normal" fill="#A5B4FC" text-anchor="middle" letter-spacing="8">MASTER YOUR KNOWLEDGE</text>
 </svg>
