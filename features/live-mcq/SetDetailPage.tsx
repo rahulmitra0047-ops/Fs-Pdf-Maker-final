@@ -235,64 +235,64 @@ const SetDetailPage: React.FC = () => {
       return 'text-[#F87171]';
   };
 
-  if (initialLoading || !set) return <div className="p-10 text-center text-gray-500">Loading Set...</div>;
+    if (initialLoading || !set) return <div className="p-10 text-center font-sans uppercase tracking-widest text-xs text-text-secondary mt-10">Loading Set...</div>;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-20 pt-[60px]">
+    <div className="min-h-screen bg-background pb-20 pt-[60px] font-sans">
         {/* Custom Header */}
-        <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 z-50 px-5 flex items-center justify-between transition-all">
+        <header className="fixed top-0 left-0 right-0 h-[60px] bg-background/90 backdrop-blur-md border-b border-border z-50 px-5 flex items-center justify-between transition-all">
             <div className="flex items-center gap-3">
                 <button 
                     onClick={() => navigate(backPath)} 
-                    className="p-2 -ml-2 text-slate-500 hover:text-slate-900 rounded-full transition-colors active:scale-95"
+                    className="p-2 -ml-2 text-text-primary hover:bg-[#EBE7DF] rounded-none transition-colors"
                 >
                     <Icon name="arrow-left" size="md" />
                 </button>
             </div>
-            <h1 className="text-[18px] font-bold text-slate-900 absolute left-1/2 -translate-x-1/2 tracking-tight">
+            <h1 className="font-sans text-[11px] font-semibold uppercase tracking-[0.1em] text-text-primary absolute left-1/2 -translate-x-1/2">
                 {set.name}
             </h1>
             <div className="flex items-center gap-1">
                  <button 
                     onClick={initiateRename}
-                    className="p-2 text-slate-400 hover:text-indigo-600 transition-colors rounded-full"
+                    className="p-2 text-text-secondary hover:text-text-primary transition-colors rounded-none"
                 >
                     <Icon name="edit-3" size="sm" />
                 </button>
                 <button 
                     onClick={handleDeleteSetTrigger}
-                    className="p-2 text-slate-400 hover:text-rose-600 transition-colors rounded-full"
+                    className="p-2 text-text-secondary hover:text-text-primary transition-colors rounded-none"
                 >
                     <Icon name="trash-2" size="sm" />
                 </button>
             </div>
         </header>
 
-        <div className="max-w-3xl mx-auto px-5 mt-4 space-y-7">
+        <div className="max-w-3xl mx-auto px-6 mt-6 space-y-8">
             
             {/* Dark Stats Bar (Hero) */}
-            <div className="rounded-[24px] p-6 shadow-xl relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0F172A 0%, #334155 100%)' }}>
+            <div className="p-6 border border-border bg-surface relative overflow-hidden rounded-none shadow-none">
                 <div className="grid grid-cols-4 gap-2 text-center mb-6 relative z-10">
                     <div>
-                        <div className="text-[24px] font-bold text-white">{set.mcqs.length}</div>
-                        <div className="text-[11px] font-medium text-white/60 uppercase tracking-wider mt-1">MCQs</div>
+                        <div className="text-[26px] font-serif text-text-primary">{set.mcqs.length}</div>
+                        <div className="font-sans text-[9px] text-text-secondary uppercase tracking-[0.1em] mt-1 font-semibold">MCQs</div>
                     </div>
                     <div>
-                        <div className={`text-[24px] font-bold ${getScoreColor(lastScore, attempts.length)}`}>{lastScore}%</div>
-                        <div className="text-[11px] font-medium text-white/60 uppercase tracking-wider mt-1">Last</div>
+                        <div className={`text-[26px] font-serif text-text-primary ${lastScore >= 80 ? 'text-primary' : ''}`}>{lastScore}%</div>
+                        <div className="font-sans text-[9px] text-text-secondary uppercase tracking-[0.1em] mt-1 font-semibold">Last</div>
                     </div>
                     <div>
-                        <div className={`text-[24px] font-bold ${getScoreColor(bestScore, attempts.length)}`}>{bestScore}%</div>
-                        <div className="text-[11px] font-medium text-white/60 uppercase tracking-wider mt-1">Best</div>
+                        <div className={`text-[26px] font-serif text-text-primary ${bestScore >= 80 ? 'text-primary' : ''}`}>{bestScore}%</div>
+                        <div className="font-sans text-[9px] text-text-secondary uppercase tracking-[0.1em] mt-1 font-semibold">Best</div>
                     </div>
                     <div>
-                        <div className="text-[24px] font-bold text-white">{attempts.length}</div>
-                        <div className="text-[11px] font-medium text-white/60 uppercase tracking-wider mt-1">Attempts</div>
+                        <div className="text-[26px] font-serif text-text-primary">{attempts.length}</div>
+                        <div className="font-sans text-[9px] text-text-secondary uppercase tracking-[0.1em] mt-1 font-semibold">Attempts</div>
                     </div>
                 </div>
                 
                 {/* Buttons */}
-                <div className="flex gap-[12px] relative z-10">
+                <div className="flex gap-3 relative z-10">
                     <button 
                         onClick={() => {
                             if (set.mcqs.length === 0) {
@@ -301,7 +301,7 @@ const SetDetailPage: React.FC = () => {
                             setShowPracticeSheet(true);
                         }}
                         disabled={set.mcqs.length === 0 && !isSyncing}
-                        className="flex-1 bg-indigo-500 text-white py-[14px] rounded-xl font-bold text-[15px] active:scale-[0.98] transition-all disabled:opacity-50 hover:bg-indigo-400 shadow-lg shadow-indigo-500/30 flex justify-center items-center gap-2"
+                        className="flex-1 bg-text-primary text-surface border border-text-primary py-3 px-6 rounded-none font-sans font-semibold text-[11px] uppercase tracking-widest transition-all disabled:opacity-50 hover:bg-text-primary/90 flex justify-center items-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-text-primary"
                     >
                         <Icon name="play" size="sm" /> Practice
                     </button>
@@ -313,21 +313,17 @@ const SetDetailPage: React.FC = () => {
                             navigate(`/live-mcq/exam/${set.id}`);
                         }}
                         disabled={set.mcqs.length === 0 && !isSyncing}
-                        className="flex-1 bg-white/10 border border-white/20 text-white py-[14px] rounded-xl font-bold text-[15px] active:scale-[0.98] transition-all disabled:opacity-50 hover:bg-white/20 backdrop-blur-sm flex justify-center items-center gap-2"
+                        className="flex-1 bg-background border border-border text-text-primary py-3 px-6 rounded-none font-sans font-semibold text-[11px] uppercase tracking-widest transition-all disabled:opacity-50 hover:bg-surface hover:border-text-primary flex justify-center items-center gap-2"
                     >
-                        <Icon name="clock" size="sm" /> Exam
+                        <Icon name="clock" size="sm" /> Exam Mode
                     </button>
                 </div>
-                
-                {/* Decorative Elements */}
-                <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
-                <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl"></div>
             </div>
 
             {/* MCQs Section Header */}
             <div>
-                <div className="flex items-center justify-between mb-4 px-1">
-                    <h3 className="text-[14px] font-bold text-slate-800">MCQs</h3>
+                <div className="flex items-center justify-between mb-4 px-1 border-b border-border/50 pb-3">
+                    <h3 className="font-sans text-[11px] font-semibold uppercase tracking-[0.1em] text-text-primary">Questions Array</h3>
                     <div className="flex gap-2">
                         <button 
                             onClick={() => {
@@ -337,44 +333,44 @@ const SetDetailPage: React.FC = () => {
                                 }
                                 navigate(`/create?mode=export&source=set&sourceId=${set.id}`);
                             }}
-                            className="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[13px] font-bold active:scale-95 transition-all hover:bg-slate-50 shadow-sm flex items-center gap-1.5"
+                            className="bg-surface border border-border text-text-primary px-3 py-1.5 rounded-none text-[10px] font-sans font-semibold tracking-widest uppercase transition-all hover:bg-surface-hover flex items-center gap-1.5"
                         >
                             <Icon name="share" size="xs" /> Export PDF
                         </button>
                         <button 
                             onClick={() => setShowAddMenu(true)}
-                            className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-[13px] font-bold active:scale-95 transition-all hover:bg-indigo-500 shadow-sm flex items-center gap-1.5"
+                            className="bg-text-primary text-surface px-4 py-1.5 rounded-none text-[10px] font-sans font-semibold tracking-widest uppercase transition-all hover:bg-text-primary/90 flex items-center gap-1.5"
                         >
-                            <Icon name="plus" size="xs" /> Add
+                            <Icon name="plus" size="xs" /> Add Question
                         </button>
                     </div>
                 </div>
 
                 {/* Count & Select Row */}
-                <div className="flex items-center justify-between mb-3 px-1">
-                    <span className="text-[13px] font-medium text-slate-500">
-                        {set.mcqs.length} MCQs
+                <div className="flex items-center justify-between mb-4 px-1">
+                    <span className="font-sans text-[10px] text-text-secondary uppercase tracking-[0.1em] font-semibold">
+                        {set.mcqs.length} Total
                     </span>
                     
                     {isSelectionMode ? (
                         <div className="flex items-center gap-3">
                             <button 
                                 onClick={selectAll}
-                                className="text-[13px] font-medium text-emerald-600 hover:underline"
+                                className="font-sans text-[10px] font-semibold text-text-primary uppercase tracking-widest hover:text-text-primary/70 transition-colors"
                             >
                                 {selectedIds.size === set.mcqs.length ? 'Unselect All' : 'Select All'}
                             </button>
                             {selectedIds.size > 0 && (
                                 <button 
                                     onClick={confirmBulkDelete}
-                                    className="text-[13px] font-medium text-red-500 hover:underline"
+                                    className="font-sans text-[10px] font-semibold text-primary uppercase tracking-widest hover:text-primary/80 transition-colors"
                                 >
                                     Delete ({selectedIds.size})
                                 </button>
                             )}
                             <button 
                                 onClick={toggleSelectionMode}
-                                className="text-[13px] font-medium text-slate-500 hover:text-slate-900"
+                                className="font-sans text-[10px] font-semibold text-text-secondary uppercase tracking-widest hover:text-text-primary transition-colors"
                             >
                                 Done
                             </button>
@@ -382,7 +378,7 @@ const SetDetailPage: React.FC = () => {
                     ) : (
                         <button 
                             onClick={toggleSelectionMode}
-                            className="text-[13px] font-medium text-emerald-600 hover:text-emerald-700 transition-colors flex items-center gap-1"
+                            className="font-sans text-[10px] font-semibold text-text-primary uppercase tracking-widest hover:text-text-primary/70 transition-colors flex items-center gap-1"
                         >
                             <Icon name="check-circle" size="sm" /> Select
                         </button>
@@ -390,13 +386,14 @@ const SetDetailPage: React.FC = () => {
                 </div>
 
                 {/* Custom MCQ List */}
-                <div className="flex flex-col gap-[8px]">
+                <div className="flex flex-col gap-3">
                     {set.mcqs.length === 0 ? (
-                        <div className="text-center py-8 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+                        <div className="text-center py-12 border border-border bg-surface rounded-none">
+                            <div className="text-text-secondary mb-3"><Icon name="file-text" size="lg" /></div>
                             {isSyncing ? (
-                                <p className="text-[13px] text-slate-400 animate-pulse">Loading MCQs...</p>
+                                <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.1em] text-text-secondary animate-pulse">Loading Dataset...</p>
                             ) : (
-                                <p className="text-[13px] text-slate-400">No MCQs added yet</p>
+                                <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.1em] text-text-secondary">No questions appended</p>
                             )}
                         </div>
                     ) : (
@@ -404,11 +401,11 @@ const SetDetailPage: React.FC = () => {
                             useWindowScroll
                             data={set.mcqs}
                             itemContent={(index, mcq) => (
-                                <div className="pb-2">
+                                <div className="pb-3">
                                     <div 
                                         key={mcq.id}
-                                        className={`relative bg-white border rounded-xl p-4 shadow-sm transition-all ${
-                                            isSelectionMode && selectedIds.has(mcq.id) ? 'border-emerald-500 bg-emerald-50/10 ring-1 ring-emerald-500' : 'border-slate-100 hover:border-slate-200 hover:shadow-md'
+                                        className={`relative bg-surface border p-6 transition-all duration-200 ${
+                                            isSelectionMode && selectedIds.has(mcq.id) ? 'border-text-primary bg-text-primary/5' : 'border-border hover:border-text-primary/50'
                                         }`}
                                         onClick={isSelectionMode ? () => toggleSelect(mcq.id) : undefined}
                                     >
@@ -416,7 +413,7 @@ const SetDetailPage: React.FC = () => {
                                         {!isSelectionMode && (
                                             <button 
                                                 onClick={(e) => { e.stopPropagation(); setEditingMCQ(mcq); setShowSingleMCQ(true); }}
-                                                className="absolute top-3 right-3 text-slate-300 hover:text-indigo-600 transition-colors"
+                                                className="absolute top-4 right-4 text-text-secondary hover:text-text-primary transition-colors bg-background border border-border hover:border-text-primary p-2 active:scale-95"
                                             >
                                                 <Icon name="edit-3" size="xs" />
                                             </button>
@@ -424,23 +421,23 @@ const SetDetailPage: React.FC = () => {
 
                                         {/* Selection Checkbox */}
                                         {isSelectionMode && (
-                                            <div className="absolute top-3 right-3">
-                                                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${selectedIds.has(mcq.id) ? 'bg-indigo-500 border-indigo-500' : 'border-slate-300 bg-white'}`}>
-                                                    {selectedIds.has(mcq.id) && <Icon name="check" size="xs" className="text-white w-3.5 h-3.5" />}
+                                            <div className="absolute top-4 right-4">
+                                                <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${selectedIds.has(mcq.id) ? 'bg-text-primary border-text-primary' : 'border-border bg-background'}`}>
+                                                    {selectedIds.has(mcq.id) && <Icon name="check" size="xs" className="text-surface border-surface w-3.5 h-3.5" strokeWidth={1.5} />}
                                                 </div>
                                             </div>
                                         )}
 
                                         {/* Question */}
-                                        <div className="mb-3 pr-8">
-                                            <span className="text-indigo-600 font-bold mr-1.5 text-[14px]">{index + 1}.</span>
-                                            <span className="text-[15px] font-bold text-slate-800 leading-snug">
+                                        <div className="mb-5 pr-10">
+                                            <span className="font-sans font-semibold text-text-secondary mr-3 text-[11px] tracking-widest">{String(index + 1).padStart(2, '0')}.</span>
+                                            <span className="text-[16px] font-serif font-medium text-text-primary leading-[1.6]">
                                                 {mcq.question}
                                             </span>
                                         </div>
 
                                         {/* Options Grid */}
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
                                             {['A', 'B', 'C', 'D'].map((opt) => {
                                                 const isCorrect = mcq.answer === opt;
                                                 const text = mcq[`option${opt}` as keyof MCQ] as string;
@@ -448,14 +445,14 @@ const SetDetailPage: React.FC = () => {
                                                 return (
                                                     <div 
                                                         key={opt}
-                                                        className={`text-[14px] flex items-start gap-2 p-2 rounded-xl border ${
+                                                        className={`text-[14px] font-serif flex items-start gap-4 p-4 border ${
                                                             isCorrect 
-                                                                ? 'bg-emerald-50 border-emerald-100 text-emerald-700 font-semibold' 
-                                                                : 'bg-slate-50 border-slate-100 text-slate-600 font-medium'
+                                                                ? 'bg-surface border-text-primary text-text-primary font-medium' 
+                                                                : 'bg-background border-border text-text-primary'
                                                         }`}
                                                     >
-                                                        <span className={`font-bold ${isCorrect ? 'text-emerald-600' : 'text-slate-400'}`}>{opt})</span>
-                                                        <span className="leading-tight">{text}</span>
+                                                        <span className={`font-sans font-semibold text-[10px] mt-[3px] ${isCorrect ? 'text-text-primary' : 'text-text-secondary'}`}>{opt})</span>
+                                                        <span className="leading-[1.5]">{text}</span>
                                                     </div>
                                                 );
                                             })}
@@ -463,11 +460,11 @@ const SetDetailPage: React.FC = () => {
 
                                         {/* Tag / Source */}
                                         {mcq.source && (
-                                            <div className="mt-2 pt-2 border-t border-slate-50 flex items-center gap-1.5">
-                                                <div className="text-slate-300">
-                                                    <Icon name="check-circle" size="xs" className="w-3 h-3" />
+                                            <div className="mt-5 pt-4 border-t border-border flex items-center gap-2">
+                                                <div className="text-primary">
+                                                    <Icon name="bookmark" size="xs" className="w-3 h-3" />
                                                 </div>
-                                                <span className="text-[11px] font-normal text-slate-400">{mcq.source}</span>
+                                                <span className="font-sans text-[10px] font-semibold text-text-primary uppercase tracking-[0.1em]">{mcq.source}</span>
                                             </div>
                                         )}
                                     </div>
@@ -480,26 +477,30 @@ const SetDetailPage: React.FC = () => {
         </div>
 
         {/* Modals */}
-        <PremiumModal isOpen={showAddMenu} onClose={() => setShowAddMenu(false)} title="Add MCQs" size="sm">
+        <PremiumModal isOpen={showAddMenu} onClose={() => setShowAddMenu(false)} title="Add Questions" size="sm">
             <div className="grid grid-cols-1 gap-3">
                 <button 
                     onClick={() => { setShowAddMenu(false); setEditingMCQ(null); setShowSingleMCQ(true); }}
-                    className="p-4 border rounded-xl hover:bg-gray-50 text-left flex items-center gap-3"
+                    className="p-5 border border-border bg-surface hover:bg-surface-hover text-left flex items-center gap-5 transition-colors group"
                 >
-                    <span className="text-2xl">📝</span>
+                    <div className="w-10 h-10 border border-border bg-background flex items-center justify-center text-text-primary group-hover:bg-text-primary group-hover:text-surface transition-colors">
+                        <Icon name="edit-3" size="sm" />
+                    </div>
                     <div>
-                        <div className="font-medium text-[var(--text-primary)]">Add Manually</div>
-                        <div className="text-xs text-[var(--text-secondary)]">Create one by one</div>
+                        <div className="font-serif text-[16px] font-medium text-text-primary">Add Manually</div>
+                        <div className="font-sans text-[10px] font-semibold text-text-secondary uppercase tracking-[0.1em] mt-1">Create one by one</div>
                     </div>
                 </button>
                 <button 
                     onClick={() => { setShowAddMenu(false); setShowBulkImport(true); }}
-                    className="p-4 border rounded-xl hover:bg-gray-50 text-left flex items-center gap-3"
+                    className="p-5 border border-border bg-surface hover:bg-surface-hover text-left flex items-center gap-5 transition-colors group"
                 >
-                    <span className="text-2xl">📋</span>
+                    <div className="w-10 h-10 border border-border bg-background flex items-center justify-center text-text-primary group-hover:bg-text-primary group-hover:text-surface transition-colors">
+                        <Icon name="file-text" size="sm" />
+                    </div>
                     <div>
-                        <div className="font-medium text-[var(--text-primary)]">Bulk Import</div>
-                        <div className="text-xs text-[var(--text-secondary)]">Paste text to import many</div>
+                        <div className="font-serif text-[16px] font-medium text-text-primary">Bulk Import</div>
+                        <div className="font-sans text-[10px] font-semibold text-text-secondary uppercase tracking-[0.1em] mt-1">Paste text to import many</div>
                     </div>
                 </button>
             </div>
@@ -539,54 +540,45 @@ const SetDetailPage: React.FC = () => {
         />
 
         <PremiumModal isOpen={showRenameModal} onClose={() => setShowRenameModal(false)} title="Rename Set" size="sm">
-            <div className="space-y-4">
+            <div className="space-y-6">
                 <PremiumInput 
-                    label="Set Name"
+                    label="SET NAME"
                     value={renameValue}
                     onChange={setRenameValue}
                 />
-                <div className="flex justify-end gap-3">
-                    <PremiumButton variant="ghost" onClick={() => setShowRenameModal(false)}>Cancel</PremiumButton>
-                    <PremiumButton onClick={performRename}>Save</PremiumButton>
+                <div className="flex justify-end gap-3 mt-4">
+                    <PremiumButton variant="ghost" onClick={() => setShowRenameModal(false)}>CANCEL</PremiumButton>
+                    <PremiumButton onClick={performRename}>SAVE</PremiumButton>
                 </div>
             </div>
         </PremiumModal>
 
-        <PremiumModal 
-            isOpen={!!deleteTarget} 
-            onClose={() => setDeleteTarget(null)} 
-            title="Delete Set?" 
-            size="sm"
-        >
-            <div className="space-y-6 text-center pt-2">
-                <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto">
-                    <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                </div>
-                <div className="space-y-2">
-                    <h3 className="text-lg font-bold text-gray-900">
-                        Delete "{deleteTarget?.name}"?
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                        This action cannot be undone.
+        <PremiumModal isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Delete Set?" size="sm">
+            <div className="space-y-6 pt-2">
+                <div className="bg-surface p-5 border border-border">
+                    <p className="font-serif text-[15px] text-text-primary text-center leading-relaxed">
+                        Are you sure you want to delete <br/><b className="font-medium">"{deleteTarget?.name}"</b>? <br/>
+                        <span className="text-text-secondary italic">This action cannot be undone.</span>
                     </p>
                 </div>
-                <div className="flex gap-3 justify-center">
-                    <PremiumButton variant="ghost" onClick={() => setDeleteTarget(null)}>Cancel</PremiumButton>
-                    <PremiumButton variant="danger" onClick={performDelete}>Delete</PremiumButton>
+                <div className="flex gap-3 justify-end items-center mt-6">
+                    <button onClick={() => setDeleteTarget(null)} className="flex-1 py-3 bg-background border border-border text-text-primary font-sans text-[10px] font-semibold tracking-widest uppercase hover:bg-surface transition-colors">Cancel</button>
+                    <button onClick={performDelete} className="flex-1 py-3 bg-text-primary text-surface font-sans text-[10px] font-semibold tracking-widest uppercase hover:bg-text-primary/90 transition-colors">Delete</button>
                 </div>
             </div>
         </PremiumModal>
 
         <PremiumModal isOpen={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} title="Delete MCQs?" size="sm">
-            <div className="space-y-4">
-                <p className="text-[var(--text-secondary)]">
-                    Are you sure you want to delete <b>{selectedIds.size}</b> MCQs? This action cannot be undone.
-                </p>
-                <div className="flex justify-end gap-3">
-                    <PremiumButton variant="ghost" onClick={() => setShowDeleteConfirm(false)}>Cancel</PremiumButton>
-                    <PremiumButton variant="danger" onClick={performBulkDelete}>Delete</PremiumButton>
+            <div className="space-y-6 pt-2">
+                <div className="bg-surface p-5 border border-border">
+                    <p className="font-serif text-[15px] text-text-primary text-center leading-relaxed">
+                        Are you sure you want to delete <br/><b className="font-medium">{selectedIds.size}</b> MCQs? <br/>
+                        <span className="text-text-secondary italic">This action cannot be undone.</span>
+                    </p>
+                </div>
+                <div className="flex gap-3 justify-end items-center mt-6">
+                    <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 py-3 bg-background border border-border text-text-primary font-sans text-[10px] font-semibold tracking-widest uppercase hover:bg-surface transition-colors">Cancel</button>
+                    <button onClick={performBulkDelete} className="flex-1 py-3 bg-text-primary text-surface font-sans text-[10px] font-semibold tracking-widest uppercase hover:bg-text-primary/90 transition-colors">Delete</button>
                 </div>
             </div>
         </PremiumModal>

@@ -24,29 +24,29 @@ const PremiumButton: React.FC<Props> = ({
   className = '',
   icon,
 }) => {
-  const baseStyles = "relative inline-flex items-center justify-center font-semibold transition-all duration-200 active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:pointer-events-none disabled:shadow-none overflow-hidden select-none tracking-tight";
+  const baseStyles = "relative inline-flex items-center justify-center font-sans tracking-widest uppercase font-semibold transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50 disabled:pointer-events-none select-none";
   
   const variants = {
-    // Primary: Modern Slate
-    primary: "bg-slate-700 text-white shadow-lg shadow-slate-700/20 hover:bg-slate-800 hover:shadow-xl hover:shadow-slate-700/30 border-none",
+    // Primary: Scholarly Terracotta
+    primary: "bg-primary text-surface border border-primary hover:opacity-90",
     
-    // Gradient: Slate
-    gradient: "bg-gradient-to-r from-slate-700 to-slate-800 text-white shadow-lg shadow-slate-500/25 hover:shadow-xl hover:shadow-slate-500/35 border-none",
+    // Gradient: Maps to Primary in Scholarly theme
+    gradient: "bg-primary text-surface border border-primary hover:opacity-90",
     
-    // Secondary: Clean Outline
-    secondary: "bg-white border border-slate-200 text-slate-700 hover:border-slate-700 hover:text-slate-900 hover:bg-slate-50 shadow-sm",
+    // Secondary: Page/Background
+    secondary: "bg-background border border-border text-text-primary hover:bg-[#EBE7DF]",
     
-    // Ghost: Minimal
-    ghost: "bg-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900",
+    // Ghost: No background initially
+    ghost: "bg-transparent text-text-secondary hover:text-text-primary hover:bg-[#EBE7DF]",
     
-    // Danger: Soft Red
-    danger: "bg-red-50 text-red-600 hover:bg-red-100 border border-transparent",
+    // Danger: Outlined Terracotta / Filled hover
+    danger: "bg-surface border border-primary text-primary hover:bg-primary hover:text-surface",
   };
 
   const sizes = {
-    sm: "h-9 px-3 text-xs rounded-xl gap-1.5",
-    md: "h-12 px-6 text-sm rounded-2xl gap-2",
-    lg: "h-14 px-8 text-base rounded-2xl gap-2.5",
+    sm: "h-10 px-4 text-[10px] gap-2",
+    md: "h-12 px-6 text-[11px] gap-2.5",
+    lg: "h-14 px-8 text-xs gap-3",
   };
 
   const widthStyle = fullWidth ? "w-full" : "";

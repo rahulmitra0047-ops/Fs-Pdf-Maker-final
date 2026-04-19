@@ -218,50 +218,48 @@ const TopicListPage: React.FC = () => {
       setActiveMenuId(null);
   };
 
-  if (initialLoading && topics.length === 0) return <div className="p-10 text-center text-gray-500">Loading Topics...</div>;
+  if (initialLoading && topics.length === 0) return <div className="p-10 text-center text-text-secondary font-serif">Loading Topics...</div>;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-24 pt-[60px] font-sans">
+    <div className="min-h-screen bg-background pb-24 pt-[60px] font-sans">
         {/* Custom Header */}
-        <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 z-50 px-5 flex items-center justify-between transition-all">
+        <header className="fixed top-0 left-0 right-0 h-[60px] bg-background/90 backdrop-blur-md border-b border-border z-50 px-5 flex items-center justify-between transition-all">
             <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
-                    <Icon name="book-open" size="sm" className="text-white" />
+                <div className="w-8 h-8 flex items-center justify-center border border-border bg-surface text-text-primary">
+                    <Icon name="book-open" size="sm" />
                 </div>
-                <h1 className="text-[18px] font-bold tracking-tight text-slate-900">Live MCQ</h1>
+                <h1 className="font-serif text-lg font-medium text-text-primary">Topics</h1>
             </div>
         </header>
 
         <div className="max-w-md mx-auto px-6">
             {!initialLoading && enhancedTopics.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-[24px] shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-slate-100 mt-4">
-                    <div className="text-4xl mb-4 opacity-20 grayscale">📚</div>
-                    <h3 className="text-lg font-bold text-slate-700 mb-1">No Topics Found</h3>
-                    <p className="text-sm text-slate-400 mb-6">Create a topic to start organizing MCQs</p>
+                <div className="text-center py-12 bg-surface rounded-none border border-border mt-4">
+                    <div className="text-4xl mb-4 opacity-50 grayscale font-serif italic text-text-secondary">T</div>
+                    <h3 className="font-serif text-lg font-medium text-text-primary mb-1">No Topics Found</h3>
+                    <p className="font-sans text-[11px] text-text-secondary mb-6 uppercase tracking-widest">Create a topic to organize</p>
                     <PremiumButton onClick={() => setShowCreateTopic(true)}>Create First Topic</PremiumButton>
                 </div>
             ) : (
                 <div className="mt-4">
                     {/* Dashboard Stats */}
-                    <div className="rounded-[24px] p-6 shadow-xl mb-6" style={{ background: 'linear-gradient(135deg, #0F172A 0%, #334155 100%)' }}>
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <h2 className="text-white/60 text-[13px] font-medium uppercase tracking-wider mb-1">Total Topics</h2>
-                                <div className="text-white text-3xl font-bold">{enhancedTopics.length}</div>
-                            </div>
-                            <div className="h-12 w-px bg-white/10"></div>
-                            <div className="text-right">
-                                <h2 className="text-white/60 text-[13px] font-medium uppercase tracking-wider mb-1">Total MCQs</h2>
-                                <div className="text-[#34D399] text-3xl font-bold">
-                                    {isSyncing ? <span className="animate-pulse text-white/50 text-xl">Loading...</span> : totalMCQs}
-                                </div>
+                    <div className="bg-surface border border-border p-6 mb-8 flex justify-between items-center rounded-none shadow-none">
+                        <div>
+                            <h2 className="text-text-secondary text-[10px] uppercase tracking-[0.1em] font-semibold mb-1">Total Topics</h2>
+                            <div className="text-text-primary text-3xl font-serif font-medium">{enhancedTopics.length}</div>
+                        </div>
+                        <div className="h-12 w-px bg-border"></div>
+                        <div className="text-right">
+                            <h2 className="text-text-secondary text-[10px] uppercase tracking-[0.1em] font-semibold mb-1">Total MCQs</h2>
+                            <div className="text-text-primary text-3xl font-serif font-medium">
+                                {isSyncing ? <span className="animate-pulse text-text-secondary text-sm italic">Loading...</span> : totalMCQs}
                             </div>
                         </div>
                     </div>
 
                     {/* Section Header */}
                     <div className="flex items-center justify-between mb-4 px-1">
-                        <h3 className="text-[14px] font-bold text-slate-800">All Topics</h3>
+                        <h3 className="font-sans text-xs uppercase tracking-widest font-semibold text-text-primary">All Topics</h3>
                     </div>
 
                     {/* Grid List */}
@@ -285,7 +283,7 @@ const TopicListPage: React.FC = () => {
                     {visibleCount < enhancedTopics.length && (
                         <button 
                             onClick={() => setVisibleCount(prev => prev + PAGE_SIZE)}
-                            className="w-full py-2.5 mt-2 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
+                            className="w-full py-4 mt-4 font-sans uppercase tracking-widest text-[11px] font-semibold text-text-primary bg-surface border border-border rounded-none hover:bg-[#EBE7DF] transition-colors"
                         >
                             Load More ({enhancedTopics.length - visibleCount} remaining)
                         </button>
@@ -297,13 +295,13 @@ const TopicListPage: React.FC = () => {
         {/* Floating Action Button (FAB) */}
         <div className="fixed bottom-[100px] right-6 z-40 flex flex-col items-end gap-3">
             {isFabOpen && (
-                <div className="flex flex-col items-end gap-3 animate-in slide-in-from-bottom-2 duration-200">
+                <div className="flex flex-col items-end gap-3 animate-in fade-in slide-in-from-bottom-5 duration-200">
                     <button 
                         onClick={() => handleFabAction('mcq')}
                         className="flex items-center gap-3 group"
                     >
-                        <span className="bg-white px-3 py-2 rounded-xl shadow-lg border border-slate-100 text-[13px] font-bold text-slate-700">Add MCQ</span>
-                        <div className="w-12 h-12 bg-white text-indigo-600 border border-slate-100 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform">
+                        <span className="bg-text-primary px-4 py-2 border border-border font-sans uppercase tracking-[0.1em] text-[10px] font-semibold text-surface hidden sm:block">Add MCQ</span>
+                        <div className="w-14 h-14 bg-surface text-text-primary border border-border flex items-center justify-center hover:bg-text-primary hover:text-surface transition-colors shadow-none rounded-none active:scale-95">
                             <Icon name="file-text" size="sm" />
                         </div>
                     </button>
@@ -311,8 +309,8 @@ const TopicListPage: React.FC = () => {
                         onClick={() => handleFabAction('topic')}
                         className="flex items-center gap-3 group"
                     >
-                        <span className="bg-white px-3 py-2 rounded-xl shadow-lg border border-slate-100 text-[13px] font-bold text-slate-700">Add Topic</span>
-                        <div className="w-12 h-12 bg-white text-indigo-600 border border-slate-100 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform">
+                        <span className="bg-text-primary px-4 py-2 border border-border font-sans uppercase tracking-[0.1em] text-[10px] font-semibold text-surface hidden sm:block">Add Topic</span>
+                        <div className="w-14 h-14 bg-surface text-text-primary border border-border flex items-center justify-center hover:bg-text-primary hover:text-surface transition-colors shadow-none rounded-none active:scale-95">
                             <Icon name="folder" size="sm" />
                         </div>
                     </button>
@@ -321,7 +319,7 @@ const TopicListPage: React.FC = () => {
             
             <button 
                 onClick={() => setIsFabOpen(!isFabOpen)}
-                className={`w-14 h-14 rounded-full shadow-xl shadow-indigo-500/30 flex items-center justify-center transition-all duration-300 active:scale-90 ${isFabOpen ? 'bg-slate-800 text-white rotate-45' : 'bg-indigo-600 text-white'}`}
+                className={`w-14 h-14 border border-border flex items-center justify-center transition-all duration-300 shadow-none rounded-none active:scale-95 ${isFabOpen ? 'bg-text-primary text-surface rotate-45' : 'bg-surface text-text-primary hover:bg-[#EBE7DF]'}`}
             >
                 <Icon name="plus" size="lg" />
             </button>
@@ -362,14 +360,17 @@ const TopicListPage: React.FC = () => {
             </div>
         </PremiumModal>
 
-        <PremiumModal isOpen={!!topicToDelete} onClose={() => setTopicToDelete(null)} title="Delete Topic?" size="sm">
-            <div className="space-y-4">
-                <p className="text-sm text-slate-600">
-                    Are you sure you want to delete <b>{topicToDelete?.name}</b>? This will delete all subtopics and MCQs inside it.
-                </p>
-                <div className="flex justify-end pt-2 gap-3">
-                    <PremiumButton variant="ghost" onClick={() => setTopicToDelete(null)}>Cancel</PremiumButton>
-                    <PremiumButton variant="danger" onClick={performDelete}>Delete Forever</PremiumButton>
+        <PremiumModal isOpen={!!topicToDelete} onClose={() => setTopicToDelete(null)} title="Delete Theme" size="sm">
+            <div className="space-y-6 pt-2">
+                <div className="bg-surface p-5 border border-border">
+                    <p className="font-serif text-[15px] text-text-primary text-center leading-relaxed">
+                        Are you sure you want to delete <br/><b className="font-medium">"{topicToDelete?.name}"</b>?<br/>
+                        <span className="text-secondary italic">This will delete all content inside it.</span>
+                    </p>
+                </div>
+                <div className="flex gap-3 justify-end items-center">
+                    <button onClick={() => setTopicToDelete(null)} className="flex-1 py-3 bg-background border border-border text-text-primary font-sans text-[10px] font-semibold tracking-widest uppercase hover:bg-surface transition-colors">Cancel</button>
+                    <button onClick={performDelete} className="flex-1 py-3 bg-text-primary text-surface font-sans text-[10px] font-semibold tracking-widest uppercase hover:bg-text-primary/90 transition-colors">Delete</button>
                 </div>
             </div>
         </PremiumModal>

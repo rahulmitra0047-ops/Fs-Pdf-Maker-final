@@ -43,12 +43,12 @@ const TopBar: React.FC<Props> = ({
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-[60px] bg-[#F8FAFC]/80 backdrop-blur-xl border-b border-slate-100 flex items-center justify-between px-6 z-header transition-all duration-300 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-      <div className="flex items-center gap-2 min-w-[80px]">
+    <div className="fixed top-0 left-0 right-0 h-[64px] bg-background border-b border-border flex items-center justify-between px-4 z-header">
+      <div className="flex items-center gap-1 min-w-[60px]">
         {showBack && (
           <button 
             onClick={handleBack}
-            className="p-2 rounded-full hover:bg-slate-200/50 text-slate-400 hover:text-slate-700 active:scale-95 transition-all"
+            className="p-2 text-text-secondary hover:text-text-primary transition-colors"
             aria-label="Back"
           >
             <Icon name="arrow-left" size="md" />
@@ -58,7 +58,7 @@ const TopBar: React.FC<Props> = ({
         {showHome && (
           <button
             onClick={handleHome}
-            className="p-2 rounded-full hover:bg-slate-200/50 text-slate-400 hover:text-slate-700 active:scale-95 transition-all"
+            className="p-2 text-text-secondary hover:text-text-primary transition-colors"
             aria-label="Home"
           >
             <Icon name="home" size="md" />
@@ -66,11 +66,11 @@ const TopBar: React.FC<Props> = ({
         )}
       </div>
       
-      <h1 className="text-lg font-bold text-slate-700 truncate text-center flex-1 px-2 tracking-tight">
+      <h1 className="text-xl font-serif font-medium text-text-primary truncate text-center flex-1 tracking-tight">
         {title}
       </h1>
 
-      <div className="min-w-[80px] flex justify-end items-center gap-2">
+      <div className="min-w-[60px] flex justify-end items-center gap-1">
         {rightAction}
       </div>
     </div>

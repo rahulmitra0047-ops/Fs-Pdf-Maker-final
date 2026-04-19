@@ -7,7 +7,7 @@ import {
   Trash2, Pencil, ClipboardList, Play, Pause, Save, Folder,
   Lock, Eye, EyeOff, AlertTriangle, Info, XCircle, CheckCircle,
   PartyPopper, Sparkles, MoreVertical, LayoutGrid, List,
-  Printer, LogOut, RefreshCw, Download
+  Printer, LogOut, RefreshCw, Download, Award, Layers, User
 } from 'lucide-react';
 
 export type IconName = 
@@ -20,7 +20,7 @@ export type IconName =
   | 'eye-off' | 'alert-triangle' | 'info' | 'x-circle' 
   | 'check-circle' | 'party-popper' | 'sparkles' | 'more-vertical'
   | 'layout-grid' | 'list' | 'printer' | 'log-out' | 'refresh-cw'
-  | 'download';
+  | 'download' | 'award' | 'layers' | 'user';
 
 interface IconProps {
   name: IconName;
@@ -73,7 +73,10 @@ const iconMap: Record<IconName, React.ElementType> = {
   'printer': Printer,
   'log-out': LogOut,
   'refresh-cw': RefreshCw,
-  'download': Download
+  'download': Download,
+  'award': Award,
+  'layers': Layers,
+  'user': User
 };
 
 const sizeMap = {

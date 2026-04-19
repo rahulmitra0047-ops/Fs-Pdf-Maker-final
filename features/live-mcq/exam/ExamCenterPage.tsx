@@ -140,84 +140,83 @@ const ExamCenterPage: React.FC = () => {
             
             {/* 2. Hero Card */}
             <div 
-                className="relative overflow-hidden rounded-[24px] p-6 shadow-lg" 
-                style={{ background: 'linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)' }}
+                className="relative overflow-hidden rounded-none p-6 border border-border bg-text-primary" 
             >
                 <div>
-                    <h2 className="text-[22px] font-bold text-white leading-tight">Create Custom Exam</h2>
-                    <p className="text-[14px] text-white/60 mt-1 font-normal">Select topics, sets, and configure your exam</p>
+                    <h2 className="text-[22px] font-bold text-surface font-serif leading-tight">Create Custom Exam</h2>
+                    <p className="text-[14px] text-surface/60 mt-1 font-sans">Select topics, sets, and configure your exam</p>
                 </div>
                 <button 
                     onClick={() => navigate('/live-mcq/exam-center/create')}
-                    className="mt-5 w-full py-[14px] bg-white/15 border border-white/20 text-white rounded-[14px] text-[15px] font-medium active:scale-[0.98] transition-transform hover:bg-white/20 backdrop-blur-sm"
+                    className="mt-5 w-full py-[14px] bg-background border border-border text-text-primary rounded-none font-sans font-semibold text-[13px] uppercase tracking-widest transition-all hover:bg-surface"
                 >
                     + Create New Exam
                 </button>
             </div>
 
             {/* 3. Smart Practice */}
-            <h3 className="text-[13px] font-semibold text-[#9CA3AF] tracking-[0.5px] mt-[28px] mb-[14px]">Smart Practice</h3>
+            <h3 className="font-sans text-[11px] font-semibold text-text-secondary uppercase tracking-widest mt-8 mb-4">Smart Practice</h3>
             <div className="grid grid-cols-2 gap-3">
                 <button 
                     onClick={handleRandomMix}
-                    className="bg-white p-4 rounded-xl border border-[#F3F4F6] shadow-sm flex flex-col items-center justify-center gap-1.5 active:scale-[0.98] transition-transform hover:border-indigo-100"
+                    className="bg-surface p-4 rounded-none border border-border flex flex-col items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-[#EBE7DF]"
                 >
-                    <div className="text-[#6366F1]">
-                        <Icon name="shuffle" size="lg" />
+                    <div className="text-secondary">
+                        <Icon name="shuffle" size="sm" />
                     </div>
-                    <span className="text-[13px] font-medium text-[#374151]">Random Mix</span>
+                    <span className="font-sans text-[10px] uppercase font-semibold text-text-primary tracking-widest mt-1">Random Mix</span>
                 </button>
                 <button 
                     onClick={handleWeakAreas}
-                    className="bg-white p-4 rounded-xl border border-[#F3F4F6] shadow-sm flex flex-col items-center justify-center gap-1.5 active:scale-[0.98] transition-transform hover:border-indigo-100"
+                    className="bg-surface p-4 rounded-none border border-border flex flex-col items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-[#EBE7DF]"
                 >
-                    <div className="text-[#6366F1]">
-                        <Icon name="bar-chart-3" size="lg" />
+                    <div className="text-secondary">
+                        <Icon name="bar-chart-3" size="sm" />
                     </div>
-                    <span className="text-[13px] font-medium text-[#374151]">Weak Topics</span>
+                    <span className="font-sans text-[10px] uppercase font-semibold text-text-primary tracking-widest mt-1">Weak Topics</span>
                 </button>
                 <button 
                     onClick={handleSpacedRepetition}
-                    className="bg-white p-4 rounded-xl border border-[#F3F4F6] shadow-sm flex flex-col items-center justify-center gap-1.5 active:scale-[0.98] transition-transform hover:border-indigo-100"
+                    className="bg-surface p-4 rounded-none border border-border flex flex-col items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-[#EBE7DF]"
                 >
-                    <div className="text-[#6366F1]">
-                        <Icon name="alert-triangle" size="lg" />
+                    <div className="text-secondary">
+                        <Icon name="alert-triangle" size="sm" />
                     </div>
-                    <span className="text-[13px] font-medium text-[#374151]">Mistakes</span>
+                    <span className="font-sans text-[10px] uppercase font-semibold text-text-primary tracking-widest mt-1">Mistakes</span>
                 </button>
                 <button 
                     onClick={handleUnattempted}
-                    className="bg-white p-4 rounded-xl border border-[#F3F4F6] shadow-sm flex flex-col items-center justify-center gap-1.5 active:scale-[0.98] transition-transform hover:border-indigo-100"
+                    className="bg-surface p-4 rounded-none border border-border flex flex-col items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-[#EBE7DF]"
                 >
-                    <div className="text-[#6366F1]">
-                        <Icon name="sparkles" size="lg" />
+                    <div className="text-secondary">
+                        <Icon name="sparkles" size="sm" />
                     </div>
-                    <span className="text-[13px] font-medium text-[#374151]">Unattempted</span>
+                    <span className="font-sans text-[10px] uppercase font-semibold text-text-primary tracking-widest mt-1">Unattempted</span>
                 </button>
             </div>
 
             {/* 4. Saved Templates */}
-            <h3 className="text-[13px] font-semibold text-[#9CA3AF] tracking-[0.5px] mt-[28px] mb-[14px]">Saved Templates</h3>
+            <h3 className="font-sans text-[11px] font-semibold text-text-secondary uppercase tracking-widest mt-8 mb-4">Saved Templates</h3>
             {templates.length === 0 ? (
-                <div className="text-center py-4 bg-[#F9FAFB] rounded-xl border border-dashed border-[#E5E7EB]">
-                    <p className="text-[13px] text-[#9CA3AF]">No templates saved yet</p>
+                <div className="text-center py-6 bg-surface border border-dashed border-border mb-8">
+                    <p className="font-sans text-[11px] uppercase tracking-widest text-secondary font-semibold">No templates saved yet</p>
                 </div>
             ) : (
-                <div className="space-y-2.5">
+                <div className="space-y-3 mb-8">
                     {templates.map(temp => (
                         <div 
                             key={temp.id} 
-                            className="bg-white border border-[#F3F4F6] rounded-xl p-3 shadow-sm flex justify-between items-center"
+                            className="bg-surface border border-border p-4 flex justify-between items-center transition-colors hover:border-text-primary group"
                         >
                             <div>
-                                <div className="font-semibold text-[14px] text-[#111827]">{temp.name}</div>
-                                <div className="text-[11px] text-[#9CA3AF] mt-0.5">
+                                <div className="font-serif text-[17px] font-medium text-text-primary">{temp.name}</div>
+                                <div className="font-sans text-[10px] uppercase tracking-widest text-text-secondary font-semibold mt-1">
                                     {temp.settings.totalQuestions} MCQs • {temp.settings.timeLimit}m
                                 </div>
                             </div>
                             <button 
                                 onClick={() => startFromTemplate(temp)}
-                                className="bg-[#F3F4F6] text-[#374151] hover:bg-[#E5E7EB] px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors"
+                                className="bg-background text-text-primary font-sans text-[10px] font-semibold tracking-widest uppercase border border-border group-hover:border-text-primary px-4 py-2 transition-colors hover:bg-[#EBE7DF]"
                             >
                                 Start
                             </button>
@@ -227,30 +226,30 @@ const ExamCenterPage: React.FC = () => {
             )}
 
             {/* 5. Recent History */}
-            <h3 className="text-[13px] font-semibold text-[#9CA3AF] tracking-[0.5px] mt-[28px] mb-[14px]">Recent History</h3>
+            <h3 className="font-sans text-[11px] font-semibold text-text-secondary uppercase tracking-widest mt-8 mb-4">Recent History</h3>
             {recentAttempts.length === 0 ? (
-                <div className="text-center py-4 bg-[#F9FAFB] rounded-xl border border-dashed border-[#E5E7EB]">
-                    <p className="text-[13px] text-[#9CA3AF]">No recent exam history</p>
+                <div className="text-center py-6 bg-surface border border-dashed border-border mb-8">
+                    <p className="font-sans text-[11px] uppercase tracking-widest text-secondary font-semibold">No recent exam history</p>
                 </div>
             ) : (
-                <div className="space-y-2.5">
+                <div className="space-y-3 mb-10">
                     {recentAttempts.map(attempt => (
                         <div 
                             key={attempt.id} 
                             onClick={() => navigate(`/live-mcq/exam-center/result/${attempt.id}`)}
-                            className="bg-white border border-[#F3F4F6] rounded-xl p-0 overflow-hidden shadow-sm active:scale-[0.99] transition-transform cursor-pointer"
+                            className="bg-surface border border-border p-0 overflow-hidden shadow-none active:scale-[0.99] transition-transform cursor-pointer group hover:border-text-primary"
                         >
-                            <div className="p-3 flex justify-between items-center relative">
+                            <div className="p-4 flex justify-between items-center relative">
                                 <div 
-                                    className="absolute left-0 top-0 bottom-0 bg-[#EEF2FF] z-0"
+                                    className="absolute left-0 top-0 bottom-0 bg-[#EBE7DF] z-0 opacity-50"
                                     style={{ width: `${attempt.percentage}%` }}
                                 ></div>
                                 
                                 <div className="relative z-10">
-                                    <div className="font-semibold text-[14px] text-[#111827]">Exam Result</div>
-                                    <div className="text-[11px] text-[#6B7280] mt-0.5">{getTimeAgo(attempt.completedAt)}</div>
+                                    <div className="font-serif text-[15px] font-medium text-text-primary">Custom Exam</div>
+                                    <div className="font-sans text-[10px] uppercase tracking-widest text-text-secondary font-semibold mt-1">{getTimeAgo(attempt.completedAt)}</div>
                                 </div>
-                                <div className={`relative z-10 font-bold text-[14px] ${attempt.percentage >= 60 ? 'text-[#059669]' : 'text-orange-500'}`}>
+                                <div className={`relative z-10 font-sans text-sm font-bold ${attempt.percentage >= 80 ? 'text-[#34D399]' : attempt.percentage >= 50 ? 'text-[#FBBF24]' : 'text-primary'}`}>
                                     {attempt.percentage}%
                                 </div>
                             </div>

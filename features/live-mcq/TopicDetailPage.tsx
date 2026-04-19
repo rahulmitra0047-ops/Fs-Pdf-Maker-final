@@ -205,50 +205,50 @@ const TopicDetailPage: React.FC = () => {
   if (!topic) return null;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-20 pt-[60px]">
+    <div className="min-h-screen bg-background pb-20 pt-[60px] font-sans">
         {/* Custom Header replacing TopBar */}
-        <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 z-50 px-5 flex items-center justify-between transition-all">
+        <header className="fixed top-0 left-0 right-0 h-[60px] bg-background border-b border-border z-50 px-5 flex items-center justify-between transition-all">
             <div className="flex items-center gap-3">
                 <button 
                     onClick={() => navigate('/live-mcq/topics')} 
-                    className="p-2 -ml-2 text-slate-500 hover:text-slate-900 rounded-full transition-colors active:scale-95"
+                    className="p-2 -ml-2 text-text-secondary hover:text-text-primary transition-colors active:scale-95 rounded-none"
                 >
                     <Icon name="arrow-left" size="md" />
                 </button>
             </div>
-            <h1 className="text-[18px] font-semibold text-slate-900 absolute left-1/2 -translate-x-1/2 tracking-tight">
+            <h1 className="text-[18px] font-serif font-medium text-text-primary absolute left-1/2 -translate-x-1/2 tracking-tight">
                 {topic.name}
             </h1>
             <div className="flex items-center gap-1">
                  <button 
                     onClick={(e) => initiateRename('topic', topic, e)}
-                    className="p-2 text-slate-400 hover:text-slate-900 transition-colors rounded-full"
+                    className="p-2 text-text-secondary hover:text-text-primary transition-colors rounded-none"
                 >
                     <Icon name="edit-3" size="sm" />
                 </button>
                 <button 
                     onClick={handleDeleteTopic}
-                    className="p-2 text-slate-400 hover:text-red-600 transition-colors rounded-full"
+                    className="p-2 text-text-secondary hover:text-text-primary transition-colors rounded-none"
                 >
                     <Icon name="trash-2" size="sm" />
                 </button>
             </div>
         </header>
 
-        <div className="max-w-3xl mx-auto px-5 mt-4 space-y-8">
+        <div className="max-w-md mx-auto px-6 mt-6 space-y-8">
             {/* Hero Card */}
-            <div className="relative overflow-hidden rounded-[24px] p-6 shadow-xl" style={{ background: 'linear-gradient(135deg, #0F172A 0%, #334155 100%)' }}>
+            <div className="relative overflow-hidden rounded-none p-6 bg-surface border border-border shadow-none">
                 
                 <div className="flex items-start gap-5 mb-6">
                     {/* Letter Avatar */}
-                    <div className="w-12 h-12 rounded-[14px] bg-white/10 flex items-center justify-center text-[22px] font-bold text-white shadow-inner flex-shrink-0 border border-white/10">
+                    <div className="w-12 h-12 rounded-none bg-background flex items-center justify-center text-[22px] font-bold text-text-primary font-serif border border-border">
                         {topic.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                        <h2 className="text-[24px] font-bold text-white leading-tight">{topic.name}</h2>
+                        <h2 className="text-[24px] font-serif font-bold text-text-primary leading-tight">{topic.name}</h2>
                         <div className="flex items-center gap-2 mt-1">
-                            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                            <p className="text-[13px] font-normal text-slate-300">Ready to Practice</p>
+                            <span className="w-2 h-2 rounded-none bg-text-secondary"></span>
+                            <p className="text-[11px] font-sans uppercase tracking-widest font-semibold text-text-secondary">Ready to Practice</p>
                         </div>
                     </div>
                 </div>
@@ -258,11 +258,11 @@ const TopicDetailPage: React.FC = () => {
                     {[
                         { label: 'Subtopics', value: topicStats.subtopics },
                         { label: 'Sets', value: topicStats.sets },
-                        { label: 'Questions', value: isSyncing ? '...' : topicStats.mcqs }
+                        { label: 'MCQs', value: isSyncing ? '...' : topicStats.mcqs }
                     ].map((stat, i) => (
-                        <div key={i} className="bg-white/5 border border-white/10 rounded-[14px] p-3.5 text-center backdrop-blur-sm">
-                            <div className={`text-[22px] font-bold text-white leading-none mb-1 ${stat.value === '...' ? 'animate-pulse' : ''}`}>{stat.value}</div>
-                            <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">{stat.label}</div>
+                        <div key={i} className="bg-background border border-border rounded-none p-3.5 text-center">
+                            <div className={`text-[22px] font-serif font-medium text-text-primary leading-none mb-1 ${stat.value === '...' ? 'animate-pulse' : ''}`}>{stat.value}</div>
+                            <div className="text-[9px] font-sans font-semibold text-text-secondary uppercase tracking-[0.1em]">{stat.label}</div>
                         </div>
                     ))}
                 </div>
@@ -271,43 +271,43 @@ const TopicDetailPage: React.FC = () => {
                 <div className="grid grid-cols-2 gap-3">
                     <button 
                         onClick={handlePracticeAll}
-                        className="bg-emerald-600 text-white font-semibold py-3.5 px-6 rounded-[14px] text-[15px] active:scale-[0.98] transition-transform shadow-lg shadow-emerald-900/20 hover:bg-emerald-500"
+                        className="bg-surface border border-border text-text-primary font-sans font-semibold py-3 px-6 rounded-none text-[12px] uppercase tracking-widest active:scale-[0.98] transition-transform hover:bg-[#EBE7DF]"
                     >
                         Practice
                     </button>
                     <button 
                         onClick={handleExport}
-                        className="bg-white/10 border border-white/15 text-white font-medium py-3.5 px-6 rounded-[14px] text-[15px] active:scale-[0.98] transition-transform hover:bg-white/20"
+                        className="bg-background border border-border text-text-primary font-sans font-semibold py-3 px-6 rounded-none text-[12px] uppercase tracking-widest active:scale-[0.98] transition-transform hover:bg-[#EBE7DF]"
                     >
-                        Export PDF
+                        Export
                     </button>
                 </div>
             </div>
 
             {/* Subtopics List */}
             <div>
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-[13px] font-semibold text-slate-400 tracking-wide uppercase px-1">
+                <div className="flex items-center justify-between mb-4 px-1">
+                    <h3 className="text-[11px] font-sans font-semibold text-text-secondary tracking-[0.1em] uppercase">
                         Subtopics
                     </h3>
                     <button 
                         onClick={() => setShowCreateSubtopic(true)}
-                        className="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[13px] font-bold active:scale-95 transition-all hover:bg-slate-50 shadow-sm"
+                        className="bg-surface border border-border text-text-primary px-3 py-2 rounded-none text-[10px] font-semibold uppercase tracking-widest active:scale-95 transition-all hover:bg-[#EBE7DF]"
                     >
-                        + Add Subtopic
+                        Add Subtopic
                     </button>
                 </div>
 
                 {enhancedSubtopics.length === 0 ? (
                     // Empty state
-                    <div className="text-center py-8 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
-                        <div className="text-slate-300 mb-2 opacity-50">
+                    <div className="text-center py-10 border border-border rounded-none bg-surface">
+                        <div className="text-text-secondary mb-3">
                             <Icon name="folder" size="lg" />
                         </div>
-                        <p className="text-[13px] text-slate-400 font-medium">No subtopics yet</p>
+                        <p className="text-[11px] uppercase tracking-widest text-text-secondary font-semibold font-sans">No subtopics yet</p>
                     </div>
                 ) : (
-                    <div className="flex flex-col gap-[8px]">
+                    <div className="flex flex-col gap-3">
                         {enhancedSubtopics.map((sub) => (
                             <SubtopicItem 
                                 key={sub.id}
@@ -324,7 +324,7 @@ const TopicDetailPage: React.FC = () => {
 
         <PremiumModal isOpen={showCreateSubtopic} onClose={() => setShowCreateSubtopic(false)} title="Add Subtopic" size="sm">
             <div className="space-y-5">
-                <p className="text-sm text-gray-500">Create a new sub-category for <b>{topic.name}</b>.</p>
+                <p className="font-serif text-sm text-text-secondary">Create a new sub-category for <b className="font-medium text-text-primary">{topic.name}</b>.</p>
                 <PremiumInput 
                     label="Subtopic Name"
                     placeholder="e.g. Mechanics"
@@ -333,7 +333,7 @@ const TopicDetailPage: React.FC = () => {
                 />
                 <div className="flex justify-end gap-3 pt-2">
                     <PremiumButton variant="ghost" onClick={() => setShowCreateSubtopic(false)}>Cancel</PremiumButton>
-                    <PremiumButton onClick={handleCreateSubtopic} disabled={!newSubtopicName.trim()}>Create Subtopic</PremiumButton>
+                    <PremiumButton onClick={handleCreateSubtopic} disabled={!newSubtopicName.trim()}>Create</PremiumButton>
                 </div>
             </div>
         </PremiumModal>
@@ -348,18 +348,17 @@ const TopicDetailPage: React.FC = () => {
             </div>
         </PremiumModal>
 
-        <PremiumModal isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Delete?" size="sm">
-            <div className="space-y-6 text-center pt-2">
-                <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto">
-                    <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+        <PremiumModal isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Delete" size="sm">
+            <div className="space-y-6 pt-2">
+                <div className="bg-surface p-5 border border-border">
+                    <p className="font-serif text-[15px] text-text-primary text-center leading-relaxed">
+                        Are you sure you want to delete <br/><b className="font-medium">"{deleteTarget?.name}"</b>? <br/>
+                        <span className="text-secondary italic">This action cannot be undone.</span>
+                    </p>
                 </div>
-                <div className="space-y-2">
-                    <h3 className="text-lg font-bold text-gray-900">Delete "{deleteTarget?.name}"?</h3>
-                    <p className="text-sm text-gray-500">This action cannot be undone.</p>
-                </div>
-                <div className="flex gap-3 justify-center">
-                    <PremiumButton variant="ghost" onClick={() => setDeleteTarget(null)}>Cancel</PremiumButton>
-                    <PremiumButton variant="danger" onClick={performDelete}>Delete</PremiumButton>
+                <div className="flex gap-3 justify-end items-center">
+                    <button onClick={() => setDeleteTarget(null)} className="flex-1 py-3 bg-background border border-border text-text-primary font-sans text-[10px] font-semibold tracking-widest uppercase hover:bg-surface transition-colors">Cancel</button>
+                    <button onClick={performDelete} className="flex-1 py-3 bg-text-primary text-surface font-sans text-[10px] font-semibold tracking-widest uppercase hover:bg-text-primary/90 transition-colors">Delete</button>
                 </div>
             </div>
         </PremiumModal>

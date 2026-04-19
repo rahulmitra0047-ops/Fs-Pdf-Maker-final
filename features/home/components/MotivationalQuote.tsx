@@ -64,39 +64,29 @@ const MotivationalQuote: React.FC = () => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="w-full bg-white rounded-[24px] p-5 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] relative overflow-hidden mb-4"
+      className="w-full text-center px-4 py-2"
     >
-      {/* Quote Icons */}
-      <div className="absolute top-4 left-4 text-emerald-100">
-        <Icon name="quote" size="lg" className="w-8 h-8 transform -scale-x-100" />
-      </div>
-      <div className="absolute bottom-12 right-4 text-emerald-100">
-        <Icon name="quote" size="lg" className="w-8 h-8 transform rotate-180" />
-      </div>
-
-      <div className="relative z-10 flex flex-col items-center text-center space-y-4 py-2">
-        {/* Decorative Line */}
-        <div className="w-1 h-12 bg-gradient-to-b from-emerald-500/0 via-emerald-500/50 to-emerald-500/0 absolute left-0 top-1/2 -translate-y-1/2 rounded-full opacity-50 hidden sm:block"></div>
+      <div className="relative z-10 flex flex-col items-center text-center space-y-4">
         
-        <p className={`font-serif italic text-xl leading-relaxed text-slate-700 max-w-xs mx-auto ${quote.lang === 'bn' ? 'font-bengali' : ''}`}>
-          {displayedText}
+        <p className={`font-serif italic text-[20px] leading-[1.4] text-text-primary tracking-[-0.02em] font-medium max-w-sm mx-auto ${quote.lang === 'bn' ? 'font-bengali' : ''}`}>
+          "{displayedText}
           <motion.span 
             animate={{ opacity: [1, 0] }}
             transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
-            className="inline-block w-[2px] h-[1em] bg-emerald-500 ml-1 align-middle rounded-full"
-          />
+            className="inline-block w-[2px] h-[1em] bg-text-primary ml-1 align-middle rounded-full"
+          />"
         </p>
 
         <AnimatePresence>
           {!isTyping && (
             <motion.div 
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="flex items-center gap-2 w-full justify-end pt-1"
+              className="flex items-center gap-3 justify-center"
             >
-              <div className="h-[1px] w-8 bg-emerald-500/30"></div>
-              <span className={`text-[10px] font-bold tracking-widest text-emerald-500 uppercase ${quote.lang === 'bn' ? 'font-bengali' : ''}`}>
+              <div className="w-6 h-[1px] bg-text-secondary"></div>
+              <span className={`font-sans text-[12px] uppercase tracking-[0.08em] font-semibold text-text-secondary ${quote.lang === 'bn' ? 'font-bengali' : ''}`}>
                 {quote.author}
               </span>
             </motion.div>

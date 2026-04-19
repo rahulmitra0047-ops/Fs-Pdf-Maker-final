@@ -50,9 +50,8 @@ const PremiumModal: React.FC<Props> = ({
           relative 
           w-full 
           ${sizeClasses[size]} 
-          bg-[var(--color-surface)] 
-          rounded-[var(--radius-xl)] 
-          shadow-2xl 
+          bg-background 
+          border border-border 
           transform 
           transition-all 
           animate-in fade-in zoom-in-95 duration-200
@@ -60,14 +59,14 @@ const PremiumModal: React.FC<Props> = ({
           max-h-[90vh]
         `}
       >
-        <div className="flex items-center justify-between p-4 border-b border-[var(--color-divider)]">
-          <h3 className="text-lg font-semibold text-[var(--color-text)]">{title}</h3>
+        <div className="flex items-center justify-between p-4 border-b border-border/50">
+          <h3 className="font-sans text-xs font-semibold uppercase tracking-widest text-text-primary">{title}</h3>
           <button 
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-[var(--color-bg)] text-[var(--color-text-secondary)] transition-colors"
+            className="p-2 hover:bg-[#EBE7DF] text-text-secondary transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>

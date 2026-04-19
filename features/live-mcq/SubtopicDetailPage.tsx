@@ -222,34 +222,34 @@ const SubtopicDetailPage: React.FC = () => {
       initiateRename('set', set, e);
   };
 
-  if (initialLoading && !subtopic) return <div className="p-10 text-center text-gray-500">Loading...</div>;
+  if (initialLoading && !subtopic) return <div className="p-10 text-center font-sans tracking-widest uppercase text-xs text-secondary mt-10">Loading...</div>;
   if (!subtopic || !topic) return null;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-20 pt-[60px]">
+    <div className="min-h-screen bg-background pb-20 pt-[60px]">
         {/* Custom Header */}
-        <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 z-50 px-5 flex items-center justify-between transition-all">
+        <header className="fixed top-0 left-0 right-0 h-[60px] bg-background/90 backdrop-blur-md border-b border-border z-50 px-5 flex items-center justify-between">
             <div className="flex items-center gap-3">
                 <button 
                     onClick={() => navigate(`/live-mcq/topic/${topicId}`)} 
-                    className="p-2 -ml-2 text-slate-500 hover:text-slate-900 rounded-full transition-colors active:scale-95"
+                    className="p-2 -ml-2 text-text-primary hover:bg-[#EBE7DF] rounded-none transition-colors"
                 >
                     <Icon name="arrow-left" size="md" />
                 </button>
             </div>
-            <h1 className="text-[18px] font-bold text-slate-900 absolute left-1/2 -translate-x-1/2 tracking-tight">
+            <h1 className="font-sans text-xs font-semibold uppercase tracking-widest text-text-primary absolute left-1/2 -translate-x-1/2">
                 {subtopic.name}
             </h1>
             <div className="flex items-center gap-1">
                  <button 
                     onClick={(e) => initiateRename('subtopic', subtopic, e)}
-                    className="p-2 text-slate-400 hover:text-indigo-600 transition-colors rounded-full"
+                    className="p-2 text-text-secondary hover:text-text-primary transition-colors rounded-none"
                 >
                     <Icon name="edit-3" size="sm" />
                 </button>
                 <button 
                     onClick={handleDeleteSubtopic}
-                    className="p-2 text-slate-400 hover:text-rose-600 transition-colors rounded-full"
+                    className="p-2 text-text-secondary hover:text-text-primary transition-colors rounded-none"
                 >
                     <Icon name="trash-2" size="sm" />
                 </button>
@@ -259,81 +259,77 @@ const SubtopicDetailPage: React.FC = () => {
         <div className="max-w-3xl mx-auto px-5 mt-4">
             
             {/* Breadcrumb */}
-            <div className="flex items-center text-[13px] font-medium mb-4">
+            <div className="flex items-center font-sans text-[10px] font-semibold uppercase tracking-widest mb-6">
                 <span 
                     onClick={() => navigate(`/live-mcq/topic/${topicId}`)}
-                    className="text-indigo-600 cursor-pointer hover:underline"
+                    className="text-text-primary cursor-pointer hover:text-text-primary/90 transition-colors"
                 >
                     {topic.name}
                 </span>
-                <span className="text-slate-300 mx-1.5">/</span>
-                <span className="text-slate-500">
+                <span className="text-text-secondary mx-3">/</span>
+                <span className="text-text-secondary">
                     {subtopic.name}
                 </span>
             </div>
 
             {/* Info Card */}
-            <div className="rounded-[24px] p-6 shadow-xl mb-6 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0F172A 0%, #334155 100%)' }}>
+            <div className="p-6 border border-border bg-surface mb-6 relative overflow-hidden">
                 <div className="relative z-10">
-                    <h2 className="text-[22px] font-bold text-white mb-1">{subtopic.name}</h2>
-                    <div className="flex items-center gap-3 text-white/70 text-[13px] font-medium">
-                        <div className="flex items-center gap-1.5">
+                    <h2 className="text-[26px] font-serif font-medium text-text-primary mb-2">{subtopic.name}</h2>
+                    <div className="flex items-center gap-4 font-sans text-[10px] text-text-secondary font-semibold uppercase tracking-widest">
+                        <div className="flex items-center gap-2">
                             <Icon name="folder" size="xs" />
                             <span>{sets.length} Sets</span>
                         </div>
-                        <div className="w-1 h-1 rounded-full bg-white/30"></div>
-                        <div className="flex items-center gap-1.5">
+                        <div className="w-1 h-1 rounded-none bg-border"></div>
+                        <div className="flex items-center gap-2">
                             <Icon name="file-text" size="xs" />
                             <span>{isSyncing ? '...' : sets.reduce((acc, s) => acc + s.mcqs.length, 0)} MCQs</span>
                         </div>
                     </div>
                 </div>
                 
-                <div className="flex gap-3 mt-6 relative z-10">
+                <div className="flex gap-[12px] mt-8 relative z-10">
                     <button 
                         onClick={handlePracticeAll}
-                        className="flex-1 bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl text-[14px] active:scale-[0.98] transition-all flex justify-center items-center gap-2 shadow-lg shadow-indigo-500/30 hover:bg-indigo-400"
+                        className="flex-1 bg-text-primary text-background border border-text-primary py-[14px] rounded-none font-sans font-semibold text-[13px] uppercase tracking-widest transition-all disabled:opacity-50 hover:bg-background hover:text-text-primary flex justify-center items-center gap-2"
                     >
-                        <Icon name="play" size="sm" /> Practice All
+                        <Icon name="play" size="sm" /> PRACTICE ALL
                     </button>
                     <button 
                         onClick={handleExport}
-                        className="flex-1 bg-white/10 border border-white/20 text-white font-bold py-3 px-4 rounded-xl text-[14px] active:scale-[0.98] transition-all flex justify-center items-center gap-2 hover:bg-white/20 backdrop-blur-sm"
+                        className="flex-1 bg-background border border-border text-text-primary py-[14px] rounded-none font-sans font-semibold text-[13px] uppercase tracking-widest transition-all disabled:opacity-50 hover:bg-[#EBE7DF] flex justify-center items-center gap-2"
                     >
-                        <Icon name="share" size="sm" /> Export PDF
+                        <Icon name="share" size="sm" /> EXPORT PDF
                     </button>
                 </div>
-                
-                {/* Decorative Elements */}
-                <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
-                <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl"></div>
             </div>
 
             {/* Sets Header */}
-            <div className="flex items-center justify-between mt-2 mb-4 px-1">
-                <div className="flex items-center gap-2">
-                    <h3 className="text-[14px] font-bold text-slate-800">MCQ Sets</h3>
+            <div className="flex items-center justify-between mt-2 mb-4 px-1 border-b border-border pb-2">
+                <div className="flex items-center gap-3">
+                    <h3 className="font-sans text-xs font-semibold uppercase tracking-widest text-text-primary">MCQ SETS</h3>
                     <button 
                         onClick={() => setShowArchived(!showArchived)} 
-                        className={`text-slate-400 hover:text-indigo-600 transition-colors ${showArchived ? 'text-indigo-600' : ''}`}
+                        className={`text-text-secondary hover:text-text-primary transition-colors ${showArchived ? 'text-text-primary' : ''}`}
                     >
                         <Icon name="folder" size="sm" />
                     </button>
                 </div>
                 <button 
                     onClick={() => setShowCreateSet(true)}
-                    className="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[13px] font-bold active:scale-95 transition-all hover:bg-slate-50 shadow-sm flex items-center gap-1.5"
+                    className="bg-text-primary text-background px-4 py-2 rounded-none text-[11px] font-sans font-semibold tracking-widest uppercase transition-all hover:bg-text-primary/90 flex items-center gap-1.5"
                 >
-                    <Icon name="plus" size="xs" /> New Set
+                    <Icon name="plus" size="xs" /> NEW SET
                 </button>
             </div>
 
-            {showArchived && <div className="text-xs text-center text-orange-600 bg-orange-50 p-2 rounded-xl border border-orange-100 mb-2">Viewing Archived Sets</div>}
+            {showArchived && <div className="font-sans text-[10px] font-semibold text-center text-text-primary uppercase tracking-widest bg-surface p-3 border border-border mb-4">Viewing Archived Sets</div>}
 
             {filteredSets.length === 0 ? (
-                <div className="text-center py-8 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
-                    <p className="text-[13px] text-slate-400 mb-1.5">No sets found</p>
-                    <button onClick={() => setShowCreateSet(true)} className="text-emerald-600 font-medium text-[13px] hover:underline">Create First Set</button>
+                <div className="text-center py-10 border border-dashed border-border bg-surface">
+                    <p className="font-sans text-xs font-semibold text-text-secondary uppercase tracking-widest mb-3">No sets found</p>
+                    <button onClick={() => setShowCreateSet(true)} className="text-text-primary font-sans text-[11px] font-bold uppercase tracking-widest hover:text-text-primary/90 transition-colors">CREATE FIRST SET</button>
                 </div>
             ) : (
                 <div className="flex flex-col gap-[8px]">
@@ -357,25 +353,38 @@ const SubtopicDetailPage: React.FC = () => {
         </div>
 
         <PremiumModal isOpen={showCreateSet} onClose={() => setShowCreateSet(false)} title="New MCQ Set">
-            <div className="space-y-4">
-                <PremiumInput label="Set Name" placeholder="e.g. Chapter 1 - Motion" value={newSetName} onChange={setNewSetName} />
-                <div className="space-y-2 pt-2">
-                    <p className="text-xs font-medium text-[var(--text-secondary)]">Initial Content:</p>
-                    <div className="grid grid-cols-2 gap-3">
-                        <button onClick={() => handleCreateSet([])} disabled={!newSetName.trim()} className="p-3 border rounded-lg hover:bg-gray-50 text-center"><div className="text-xl mb-1">📝</div><div className="text-sm font-medium">Empty Set</div></button>
-                        <button onClick={startBulkImportFlow} disabled={!newSetName.trim()} className="p-3 border rounded-lg hover:bg-gray-50 text-center"><div className="text-xl mb-1">📋</div><div className="text-sm font-medium">Bulk Import</div></button>
+            <div className="space-y-6">
+                <PremiumInput label="SET NAME" placeholder="e.g. Chapter 1 - Motion" value={newSetName} onChange={setNewSetName} />
+                <div className="space-y-4 pt-2">
+                    <p className="font-sans text-[10px] font-bold text-secondary uppercase tracking-widest">Initial Content:</p>
+                    <div className="grid grid-cols-2 gap-4">
+                        <button onClick={() => handleCreateSet([])} disabled={!newSetName.trim()} className="p-4 border border-border bg-background hover:bg-surface text-center transition-colors disabled:opacity-50"><div className="text-2xl mb-2 opacity-80">📝</div><div className="font-serif text-[15px] font-medium text-text-primary">Empty Set</div></button>
+                        <button onClick={startBulkImportFlow} disabled={!newSetName.trim()} className="p-4 border border-border bg-background hover:bg-surface text-center transition-colors disabled:opacity-50"><div className="text-2xl mb-2 opacity-80">📋</div><div className="font-serif text-[15px] font-medium text-text-primary">Bulk Import</div></button>
                     </div>
                 </div>
-                <div className="flex justify-end pt-2"><PremiumButton variant="ghost" onClick={() => setShowCreateSet(false)}>Cancel</PremiumButton></div>
+                <div className="flex justify-end pt-4"><PremiumButton variant="ghost" onClick={() => setShowCreateSet(false)}>CANCEL</PremiumButton></div>
             </div>
         </PremiumModal>
 
         <BulkImportModal isOpen={showBulkImport} onClose={() => setShowBulkImport(false)} onImport={handleCreateSet} />
+        
         <PremiumModal isOpen={showRenameModal} onClose={() => setShowRenameModal(false)} title="Rename" size="sm">
-            <div className="space-y-4"><PremiumInput label="Name" value={renameValue} onChange={setRenameValue} /><div className="flex justify-end gap-3"><PremiumButton variant="ghost" onClick={() => setShowRenameModal(false)}>Cancel</PremiumButton><PremiumButton onClick={performRename}>Save</PremiumButton></div></div>
+            <div className="space-y-6"><PremiumInput label="NAME" value={renameValue} onChange={setRenameValue} /><div className="flex justify-end gap-3 mt-4"><PremiumButton variant="ghost" onClick={() => setShowRenameModal(false)}>CANCEL</PremiumButton><PremiumButton onClick={performRename}>SAVE</PremiumButton></div></div>
         </PremiumModal>
+        
         <PremiumModal isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Delete?" size="sm">
-            <div className="space-y-6 text-center pt-2"><div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto"><svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></div><div className="space-y-2"><h3 className="text-lg font-bold text-gray-900">Delete "{deleteTarget?.name}"?</h3><p className="text-sm text-gray-500">This action cannot be undone.</p></div><div className="flex gap-3 justify-center"><PremiumButton variant="ghost" onClick={() => setDeleteTarget(null)}>Cancel</PremiumButton><PremiumButton variant="danger" onClick={performDelete}>Delete</PremiumButton></div></div>
+            <div className="space-y-6 pt-2">
+                <div className="bg-surface p-5 border border-border">
+                    <p className="font-serif text-[15px] text-text-primary text-center leading-relaxed">
+                        Are you sure you want to delete <br/><b className="font-medium">"{deleteTarget?.name}"</b>? <br/>
+                        <span className="text-text-secondary italic">This action cannot be undone.</span>
+                    </p>
+                </div>
+                <div className="flex gap-3 justify-end items-center mt-6">
+                    <button onClick={() => setDeleteTarget(null)} className="flex-1 py-3 bg-background border border-border text-text-primary font-sans text-[10px] font-semibold tracking-widest uppercase hover:bg-surface transition-colors">Cancel</button>
+                    <button onClick={performDelete} className="flex-1 py-3 bg-text-primary text-surface font-sans text-[10px] font-semibold tracking-widest uppercase hover:bg-text-primary/90 transition-colors">Delete</button>
+                </div>
+            </div>
         </PremiumModal>
 
         <PracticeFilterSheet

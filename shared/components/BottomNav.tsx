@@ -61,8 +61,8 @@ const BottomNav: React.FC = () => {
   ];
 
   return (
-    <div className="fixed bottom-6 left-6 right-6 z-50">
-      <div className="bg-white/95 backdrop-blur-xl rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/50 h-[60px] flex items-center justify-between px-6 relative">
+    <div className="fixed bottom-0 left-0 right-0 z-50">
+      <div className="bg-surface border-t border-border h-[64px] flex items-center justify-around px-2 min-w-full pb-safe">
         {tabs.map((tab) => {
           const active = isActive(tab.match);
           const Icon = tab.icon;
@@ -71,31 +71,22 @@ const BottomNav: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => navigate(tab.route)}
-              className="relative flex flex-col items-center justify-center w-12 h-full group"
+              className="relative flex flex-col items-center justify-center w-full h-full group py-2"
             >
-              <div className="relative z-10 flex flex-col items-center gap-1">
+              <div className="relative z-10 flex flex-col items-center gap-1.5">
                 <Icon 
-                  size={20}
-                  className={`transition-all duration-300 ${
-                    active ? 'text-[#6C63FF]' : 'text-slate-400 group-hover:text-slate-500'
+                  size={22}
+                  className={`transition-colors duration-200 ${
+                    active ? 'text-text-primary' : 'text-text-secondary group-hover:text-text-primary'
                   }`}
-                  fill={active ? "currentColor" : "none"}
-                  strokeWidth={active ? 2.5 : 2}
+                  strokeWidth={1.5}
                 />
-                <span className={`text-[9px] font-bold transition-colors duration-300 ${
-                  active ? 'text-[#6C63FF]' : 'text-slate-400 group-hover:text-slate-500'
-                }`}>
-                  {tab.label}
-                </span>
+                {/* 
+                  Hidden active indicator for minimal print style, 
+                  or we can just keep the color difference.
+                  The user requested active: Charcoal, inactive: Faded Ink 
+                */}
               </div>
-              
-              {active && (
-                <motion.div
-                  layoutId="activeTab"
-                  className="absolute inset-x-[-4px] inset-y-2 bg-[#6C63FF]/5 rounded-xl -z-0"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                />
-              )}
             </button>
           );
         })}

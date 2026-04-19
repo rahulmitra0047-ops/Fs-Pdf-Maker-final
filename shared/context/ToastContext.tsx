@@ -52,45 +52,45 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             key={t.id}
             className={`
               pointer-events-auto
-              bg-[var(--color-surface)] 
-              shadow-lg 
-              rounded-lg 
+              bg-surface 
+              shadow-none 
+              rounded-none 
               px-4 py-3 
               flex items-center gap-3 
               min-w-[300px] 
               max-w-md
               transform transition-all duration-300
               animate-in slide-in-from-top-2
-              border-l-4
-              ${t.type === 'success' ? 'border-[var(--color-success)]' : ''}
-              ${t.type === 'error' ? 'border-[var(--color-error)]' : ''}
-              ${t.type === 'info' ? 'border-[var(--color-primary)]' : ''}
+              border-l-4 border-y border-r border-border
+              ${t.type === 'success' ? 'border-l-emerald-500' : ''}
+              ${t.type === 'error' ? 'border-l-red-500' : ''}
+              ${t.type === 'info' ? 'border-l-primary' : ''}
             `}
           >
             {/* Icon */}
             <div className="flex-shrink-0">
               {t.type === 'success' && (
-                <svg className="w-5 h-5 text-[var(--color-success)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               )}
               {t.type === 'error' && (
-                <svg className="w-5 h-5 text-[var(--color-error)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               )}
               {t.type === 'info' && (
-                <svg className="w-5 h-5 text-[var(--color-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               )}
             </div>
             
-            <p className="text-sm font-medium text-[var(--color-text)] flex-1">{t.message}</p>
+            <p className="font-serif text-[15px] font-medium text-text-primary flex-1 tracking-tight">{t.message}</p>
             
             <button 
               onClick={() => removeToast(t.id)}
-              className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+              className="text-secondary hover:text-text-primary"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

@@ -127,42 +127,35 @@ const CreateExamPage: React.FC = () => {
   // --- Components ---
 
   const renderHeader = () => (
-    <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/90 backdrop-blur-md border-b border-gray-100 z-50 px-5 flex items-center justify-between transition-all">
+    <header className="fixed top-0 left-0 right-0 h-[60px] bg-background border-b border-border z-50 px-5 flex items-center justify-between transition-all">
         <div className="flex items-center gap-3">
             <button 
                 onClick={() => {
                     if (step > STEPS.SOURCES) setStep(step - 1);
                     else navigate('/live-mcq/exam-center');
                 }}
-                className="p-2 -ml-2 text-[#6B7280] hover:text-gray-900 rounded-full transition-colors active:scale-95"
+                className="p-2 -ml-2 text-text-secondary hover:text-text-primary rounded-none transition-colors active:scale-95"
             >
                 <Icon name="arrow-left" size="md" />
             </button>
         </div>
         <div className="flex items-center gap-1.5 absolute left-1/2 -translate-x-1/2">
-            <h1 className="text-[18px] font-semibold text-[#111827] tracking-tight">
-                Create Exam
+            <h1 className="font-sans text-[11px] uppercase tracking-widest font-semibold text-text-primary">
+                Create Exam <span className="text-text-secondary ml-1 font-normal opacity-80">({step}/3)</span>
             </h1>
-            <span className="text-[18px] font-normal text-[#9CA3AF]">({step}/3)</span>
         </div>
-        <button 
-            onClick={() => navigate('/')}
-            className="p-2 -mr-2 text-[#6B7280] hover:text-gray-900 rounded-full transition-colors active:scale-95"
-        >
-            <Icon name="home" size="md" />
-        </button>
     </header>
   );
 
   const renderSources = () => (
-      <div className="space-y-4 pb-32">
+      <div className="space-y-6 pb-32">
           {/* Instruction Card */}
-          <div className="bg-[#F9FAFB] rounded-[18px] p-[20px] animate-in fade-in slide-in-from-top-2">
-              <h3 className="text-[17px] font-semibold text-[#111827]">Select MCQ Sources</h3>
-              <p className="text-[14px] text-[#9CA3AF] mt-1">Choose topics or specific sets</p>
+          <div className="bg-surface border border-border p-6 rounded-none shadow-none animate-in fade-in slide-in-from-top-2">
+              <h3 className="font-serif text-[18px] font-medium text-text-primary">Select Sources</h3>
+              <p className="font-sans text-[10px] uppercase tracking-widest text-text-secondary font-semibold mt-1">Choose topics or specific sets</p>
           </div>
 
-          <div className="space-y-2.5">
+          <div className="space-y-4">
               {topics.map(topic => {
                   const relevantSubtopics = subtopics.filter(st => st.topicId === topic.id);
                   const isExpanded = expandedTopics.has(topic.id);
@@ -170,55 +163,47 @@ const CreateExamPage: React.FC = () => {
                   return (
                       <div 
                         key={topic.id} 
-                        className={`bg-white border border-[#F3F4F6] rounded-xl shadow-sm overflow-hidden transition-all duration-200 ${isExpanded ? 'ring-1 ring-[#F3F4F6]' : ''}`}
+                        className={`bg-background border rounded-none transition-all duration-200 ${isExpanded ? 'border-text-primary' : 'border-border'}`}
                       >
                           <div 
-                            className="flex items-center justify-between p-3 cursor-pointer hover:bg-[#F9FAFB] transition-colors" 
+                            className="flex items-center justify-between p-4 cursor-pointer hover:bg-surface transition-colors" 
                             onClick={() => toggleTopicExpand(topic.id)}
                           >
-                              <div className="flex items-center gap-2">
-                                  <span className={`text-[#6B7280] text-[10px] transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
+                              <div className="flex items-center gap-3">
+                                  <span className={`text-text-secondary text-[10px] transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
                                       ▼
                                   </span>
-                                  <span className="text-[14px] font-semibold text-[#111827]">{topic.name}</span>
+                                  <span className="font-serif text-[16px] font-medium text-text-primary">{topic.name}</span>
                               </div>
                               <button 
                                   onClick={(e) => { e.stopPropagation(); selectAllInTopic(topic.id); }}
-                                  className="text-[12px] font-medium text-[#6366F1] hover:text-indigo-700 active:scale-95 transition-transform"
+                                  className="font-sans text-[10px] uppercase font-semibold text-text-primary hover:text-text-secondary active:scale-95 transition-all tracking-widest"
                               >
                                   Select All
                               </button>
                           </div>
                           
                           {isExpanded && (
-                              <div className="pb-3 pt-0 px-3 space-y-3 animate-in slide-in-from-top-1 duration-150">
+                              <div className="pb-4 pt-0 px-4 space-y-4 animate-in slide-in-from-top-1 duration-150 border-t border-border">
                                   {relevantSubtopics.map(st => {
                                       const relevantSets = sets.filter(s => s.subtopicId === st.id);
                                       if (relevantSets.length === 0) return null;
 
                                       return (
-                                          <div key={st.id} className="pl-2">
-                                              <div className="text-[12px] font-medium text-[#6B7280] mb-1.5 pl-1">{st.name}</div>
-                                              <div className="space-y-1">
+                                          <div key={st.id} className="pt-2">
+                                              <div className="font-sans text-[10px] uppercase tracking-widest text-text-secondary font-semibold mb-2">{st.name}</div>
+                                              <div className="space-y-2">
                                                   {relevantSets.map(set => {
                                                       const isSelected = selectedSetIds.has(set.id);
                                                       return (
-                                                          <label key={set.id} className="flex items-center gap-2.5 cursor-pointer group p-1.5 rounded-lg hover:bg-gray-50 transition-colors">
-                                                              <div className="relative flex items-center">
-                                                                  <input 
-                                                                      type="checkbox" 
-                                                                      checked={isSelected}
-                                                                      onChange={() => toggleSetSelection(set.id)}
-                                                                      className="peer sr-only"
-                                                                  />
-                                                                  <div className={`w-4 h-4 border-2 rounded-[4px] transition-all duration-150 flex items-center justify-center ${isSelected ? 'bg-[#6366F1] border-[#6366F1]' : 'bg-white border-[#D1D5DB]'}`}>
-                                                                      <svg className={`w-3 h-3 text-white transform transition-transform ${isSelected ? 'scale-100' : 'scale-0'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                                                                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                                                      </svg>
+                                                          <label key={set.id} className={`flex items-center justify-between cursor-pointer group p-3 bg-surface border transition-colors ${isSelected ? 'border-text-primary bg-text-primary/5' : 'border-border hover:border-text-primary'}`}>
+                                                              <div className="flex items-center gap-3">
+                                                                  <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${isSelected ? 'bg-text-primary border-text-primary' : 'border-border bg-background group-hover:border-text-primary'}`}>
+                                                                      {isSelected && <Icon name="check" size="xs" className="text-surface" />}
                                                                   </div>
+                                                                  <div className="font-serif text-[16px] text-text-primary">{set.name}</div>
                                                               </div>
-                                                              <div className="flex-1 text-[13px] text-[#374151] font-medium">{set.name}</div>
-                                                              <div className="text-[11px] text-[#9CA3AF] font-medium">{set.mcqs.length}</div>
+                                                              <div className="font-sans text-[10px] uppercase tracking-widest text-text-secondary font-semibold">{set.mcqs.length} MCQs</div>
                                                           </label>
                                                       );
                                                   })}
@@ -236,44 +221,44 @@ const CreateExamPage: React.FC = () => {
   );
 
   const renderSettings = () => (
-      <div className="space-y-4 pb-32 animate-in fade-in slide-in-from-right-4 duration-300">
+      <div className="space-y-6 pb-32 animate-in fade-in slide-in-from-right-4 duration-300">
           {/* Question Count */}
-          <div className="bg-white border border-[#F3F4F6] rounded-[18px] p-[20px] shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-              <div className="flex justify-between items-center mb-4">
-                  <label className="text-[15px] font-semibold text-[#111827]">Number of Questions</label>
-                  <span className="text-[12px] font-medium text-[#9CA3AF]">Max: {totalSelectedMCQs}</span>
+          <div className="bg-surface border border-border p-6 rounded-none shadow-none">
+              <div className="flex justify-between items-center mb-6">
+                  <label className="font-serif text-[16px] font-medium text-text-primary">Number of Questions</label>
+                  <span className="font-sans text-[10px] uppercase tracking-widest text-text-secondary font-semibold">Max: {totalSelectedMCQs}</span>
               </div>
               
-              <div className="flex items-center gap-4">
-                  <div className="flex-1 relative h-6 flex items-center">
+              <div className="flex items-center gap-6">
+                  <div className="flex-1 relative h-6 flex items-center group">
                       <input 
                           type="range" 
                           min="5" 
                           max={totalSelectedMCQs} 
                           value={settings.totalQuestions} 
                           onChange={(e) => setSettings({...settings, totalQuestions: parseInt(e.target.value)})}
-                          className="w-full h-1 bg-[#F3F4F6] rounded-lg appearance-none cursor-pointer accent-[#6366F1]"
+                          className="w-full h-1 bg-border rounded-none appearance-none cursor-pointer accent-text-primary focus:outline-none"
                       />
                   </div>
-                  <div className="w-[60px] h-[40px] flex items-center justify-center bg-[#F9FAFB] border border-[#F3F4F6] rounded-[10px] text-[16px] font-bold text-[#111827]">
+                  <div className="font-serif text-[24px] font-medium text-text-primary min-w-[3ch] text-right">
                       {settings.totalQuestions}
                   </div>
               </div>
           </div>
 
           {/* Time Limit */}
-          <div className="bg-white border border-[#F3F4F6] rounded-[18px] p-[20px] shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-              <label className="block text-[15px] font-semibold text-[#111827] mb-3">Time Limit</label>
-              <div className="grid grid-cols-3 gap-[8px] mb-3">
+          <div className="bg-surface border border-border p-6 rounded-none shadow-none">
+              <label className="font-serif text-[16px] font-medium text-text-primary block mb-4">Time Limit</label>
+              <div className="grid grid-cols-3 gap-3 mb-4">
                   {[15, 20, 30, 45, 60, 90].map(t => (
                       <button 
                           key={t}
                           onClick={() => setSettings({...settings, timeLimit: t})}
                           className={`
-                              py-[10px] px-[16px] text-[14px] font-medium rounded-[12px] border transition-all duration-200
+                              py-3 font-sans text-[11px] font-semibold uppercase tracking-widest border transition-all duration-200
                               ${settings.timeLimit === t 
-                                  ? 'bg-[#6366F1] border-[#6366F1] text-white shadow-md shadow-indigo-200' 
-                                  : 'bg-white border-[#F3F4F6] text-[#6B7280] hover:bg-gray-50'
+                                  ? 'bg-text-primary border-text-primary text-surface' 
+                                  : 'bg-background border-border text-text-primary hover:bg-surface'
                               }
                           `}
                       >
@@ -281,43 +266,34 @@ const CreateExamPage: React.FC = () => {
                       </button>
                   ))}
               </div>
-              <div className="text-[12px] text-[#9CA3AF] text-center">
-                  Approx {Math.round((settings.timeLimit * 60) / settings.totalQuestions)} seconds per question
+              <div className="font-sans text-[10px] uppercase tracking-widest text-text-secondary font-semibold text-center border-t border-border pt-4">
+                  ~{Math.round((settings.timeLimit * 60) / settings.totalQuestions)} seconds per question
               </div>
           </div>
 
           {/* Negative Marking */}
-          <div className="bg-white border border-[#F3F4F6] rounded-[18px] p-[20px] shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-              <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={() => setSettings({...settings, negativeMarking: !settings.negativeMarking})}>
-                  <span className="text-[15px] font-semibold text-[#111827]">Negative Marking</span>
-                  <div className="relative flex items-center">
-                      <input 
-                          type="checkbox" 
-                          checked={settings.negativeMarking}
-                          onChange={(e) => setSettings({...settings, negativeMarking: e.target.checked})}
-                          className="peer sr-only" 
-                      />
-                      <div className="w-[22px] h-[22px] bg-white border-2 border-[#D1D5DB] rounded-[6px] transition-all peer-checked:bg-[#6366F1] peer-checked:border-[#6366F1] flex items-center justify-center">
-                          <svg className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="20 6 9 17 4 12"></polyline>
-                          </svg>
-                      </div>
+          <div className="bg-surface border border-border p-6 rounded-none shadow-none">
+              <div className="flex justify-between items-center cursor-pointer mb-2" onClick={() => setSettings({...settings, negativeMarking: !settings.negativeMarking})}>
+                  <span className="font-serif text-[16px] font-medium text-text-primary">Negative Marking</span>
+                  <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${settings.negativeMarking ? 'bg-text-primary border-text-primary' : 'border-border bg-background hover:border-text-primary'}`}>
+                    <input type="checkbox" className="hidden" checked={settings.negativeMarking} readOnly />
+                    {settings.negativeMarking && <Icon name="check" size="xs" className="text-surface" />}
                   </div>
               </div>
               
               {settings.negativeMarking && (
-                  <div className="animate-in slide-in-from-top-2 fade-in duration-200">
-                      <label className="block text-[13px] font-medium text-[#6B7280] mb-2">Penalty per wrong answer</label>
-                      <div className="grid grid-cols-4 gap-[8px]">
+                  <div className="animate-in slide-in-from-top-2 fade-in duration-200 pt-4 border-t border-border mt-4">
+                      <label className="font-sans text-[10px] uppercase tracking-widest text-text-secondary font-semibold block mb-3">Penalty per wrong answer</label>
+                      <div className="grid grid-cols-4 gap-3">
                           {[0.25, 0.33, 0.5, 1.0].map(p => (
                               <button 
                                   key={p}
                                   onClick={() => setSettings({...settings, negativePenalty: p})}
                                   className={`
-                                      py-[8px] text-[13px] font-medium rounded-[10px] border transition-all
+                                      py-2 font-sans text-[11px] font-semibold tracking-widest border transition-all
                                       ${settings.negativePenalty === p 
-                                          ? 'bg-red-50 border-red-200 text-red-600 ring-1 ring-red-200' 
-                                          : 'bg-white border-[#F3F4F6] text-[#6B7280] hover:bg-gray-50'
+                                          ? 'bg-text-primary border-text-primary text-surface' 
+                                          : 'bg-background border-border text-text-primary hover:bg-[#EBE7DF]'
                                       }
                                   `}
                               >
@@ -330,9 +306,9 @@ const CreateExamPage: React.FC = () => {
           </div>
 
           {/* Passing Score */}
-          <div className="bg-white border border-[#F3F4F6] rounded-[18px] p-[20px] shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-              <label className="block text-[15px] font-semibold text-[#111827] mb-4">Passing Score</label>
-              <div className="flex items-center gap-4">
+          <div className="bg-surface border border-border p-6 rounded-none shadow-none">
+              <label className="font-serif text-[16px] font-medium text-text-primary block mb-6">Passing Score</label>
+              <div className="flex items-center gap-6">
                   <div className="flex-1 relative h-6 flex items-center">
                       <input 
                           type="range" 
@@ -341,10 +317,10 @@ const CreateExamPage: React.FC = () => {
                           step="1"
                           value={settings.passingScore} 
                           onChange={(e) => setSettings({...settings, passingScore: parseInt(e.target.value)})}
-                          className="w-full h-1 bg-[#F3F4F6] rounded-lg appearance-none cursor-pointer accent-[#6366F1]"
+                          className="w-full h-1 bg-border rounded-none appearance-none cursor-pointer accent-text-primary focus:outline-none"
                       />
                   </div>
-                  <div className="w-[60px] text-right text-[18px] font-bold text-[#6366F1]">
+                  <div className="font-serif text-[24px] font-medium text-text-primary min-w-[4ch] text-right">
                       {settings.passingScore}%
                   </div>
               </div>
@@ -353,59 +329,51 @@ const CreateExamPage: React.FC = () => {
   );
 
   const renderReview = () => (
-      <div className="space-y-4 pb-32 animate-in fade-in slide-in-from-right-4 duration-300">
+      <div className="space-y-6 pb-32 animate-in fade-in slide-in-from-right-4 duration-300">
           {/* Exam Summary Card */}
-          <div className="rounded-[24px] p-[24px] shadow-lg" style={{ background: 'linear-gradient(135deg, #1E1B4B, #312E81)' }}>
-              <h2 className="text-[20px] font-bold text-white mb-[20px]">Exam Summary</h2>
-              <div className="space-y-[12px]">
-                  <div className="flex justify-between items-center">
-                      <span className="text-[14px] font-normal text-white/60">Sources</span>
-                      <span className="text-[14px] font-semibold text-white">{selectedSetIds.size} Sets</span>
+          <div className="bg-surface border border-border p-6 rounded-none shadow-none">
+              <h2 className="font-serif text-[20px] font-medium text-text-primary mb-6">Exam Summary</h2>
+              <div className="space-y-4 font-sans text-[11px] uppercase tracking-widest font-semibold">
+                  <div className="flex justify-between items-center border-b border-border/50 pb-2">
+                      <span className="text-text-secondary">Sources</span>
+                      <span className="text-text-primary">{selectedSetIds.size} Sets</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                      <span className="text-[14px] font-normal text-white/60">Questions</span>
-                      <span className="text-[14px] font-semibold text-white">{settings.totalQuestions}</span>
+                  <div className="flex justify-between items-center border-b border-border/50 pb-2">
+                      <span className="text-text-secondary">Questions</span>
+                      <span className="text-text-primary">{settings.totalQuestions}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                      <span className="text-[14px] font-normal text-white/60">Time</span>
-                      <span className="text-[14px] font-semibold text-white">{settings.timeLimit} mins</span>
+                  <div className="flex justify-between items-center border-b border-border/50 pb-2">
+                      <span className="text-text-secondary">Time</span>
+                      <span className="text-text-primary">{settings.timeLimit} mins</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                      <span className="text-[14px] font-normal text-white/60">Passing</span>
-                      <span className="text-[14px] font-semibold text-white">{settings.passingScore}%</span>
+                  <div className="flex justify-between items-center border-b border-border/50 pb-2">
+                      <span className="text-text-secondary">Passing</span>
+                      <span className="text-text-primary">{settings.passingScore}%</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                      <span className="text-[14px] font-normal text-white/60">Negative Marking</span>
-                      <span className="text-[14px] font-semibold text-white">{settings.negativeMarking ? `On (-${settings.negativePenalty})` : 'Off'}</span>
+                  <div className="flex justify-between items-center border-b border-border/50 pb-2">
+                      <span className="text-text-secondary">Negative Marking</span>
+                      <span className="text-text-primary">{settings.negativeMarking ? `On (-${settings.negativePenalty})` : 'Off'}</span>
                   </div>
               </div>
           </div>
 
           {/* Save as Template */}
-          <div className="bg-white border border-[#F3F4F6] rounded-[18px] p-[18px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] mt-[16px]">
+          <div className="bg-surface border border-border p-6 rounded-none shadow-none">
               <div 
-                className="flex items-center gap-3 cursor-pointer"
+                className="flex items-center justify-between cursor-pointer"
                 onClick={() => setSaveAsTemplate(!saveAsTemplate)}
               >
-                  <div className="relative flex items-center">
-                      <input 
-                          type="checkbox" 
-                          checked={saveAsTemplate}
-                          onChange={(e) => setSaveAsTemplate(e.target.checked)}
-                          className="peer sr-only" 
-                      />
-                      <div className="w-[22px] h-[22px] bg-white border-2 border-[#D1D5DB] rounded-[6px] transition-all peer-checked:bg-[#6366F1] peer-checked:border-[#6366F1] flex items-center justify-center">
-                          <svg className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="20 6 9 17 4 12"></polyline>
-                          </svg>
-                      </div>
+                  <span className="font-serif text-[16px] font-medium text-text-primary">Save as Template</span>
+                  <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${saveAsTemplate ? 'bg-text-primary border-text-primary' : 'border-border bg-background hover:border-text-primary'}`}>
+                    <input type="checkbox" className="hidden" checked={saveAsTemplate} readOnly />
+                    {saveAsTemplate && <Icon name="check" size="xs" className="text-surface" />}
                   </div>
-                  <span className="text-[15px] font-medium text-[#374151]">Save as Template</span>
               </div>
               
               {saveAsTemplate && (
-                  <div className="mt-4 animate-in slide-in-from-top-1 fade-in">
+                  <div className="mt-6 animate-in slide-in-from-top-1 fade-in pt-4 border-t border-border">
                       <PremiumInput 
+                          label="TEMPLATE NAME"
                           placeholder="e.g. Physics Weekly Test"
                           value={templateName}
                           onChange={setTemplateName}
@@ -417,33 +385,33 @@ const CreateExamPage: React.FC = () => {
   );
 
   const renderFooter = () => (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#F3F4F6] p-[16px_20px] z-40 pb-safe">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
+    <div className="fixed bottom-0 left-0 right-0 bg-surface border-t border-border p-4 z-40 pb-safe">
+        <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
             {step === STEPS.SOURCES ? (
                 <>
                     <div className="flex flex-col">
-                        <span className="text-[12px] font-medium text-[#9CA3AF]">Selected</span>
-                        <span className="text-[16px] font-bold text-[#111827]">{totalSelectedMCQs} MCQs</span>
+                        <span className="font-sans text-[10px] uppercase font-semibold text-secondary tracking-widest">Selected</span>
+                        <span className="font-serif text-[18px] font-medium text-text-primary">{totalSelectedMCQs} <span className="font-sans text-xs uppercase tracking-widest">MCQs</span></span>
                     </div>
                     <button 
                         onClick={() => setStep(STEPS.SETTINGS)}
                         disabled={totalSelectedMCQs < 5}
-                        className="bg-[#6366F1] text-white px-7 py-3.5 rounded-[14px] text-[15px] font-semibold hover:bg-indigo-700 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 shadow-sm"
+                        className="bg-text-primary text-surface px-6 py-3 font-sans text-[11px] font-semibold uppercase tracking-[0.1em] transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#2C2C2B]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-text-primary rounded-none"
                     >
-                        Next: Settings →
+                        Next: Settings
                     </button>
                 </>
             ) : step === STEPS.SETTINGS ? (
                 <button 
                     onClick={() => setStep(STEPS.REVIEW)}
-                    className="w-full bg-[#6366F1] text-white py-[16px] rounded-[16px] text-[16px] font-semibold active:scale-[0.98] transition-transform hover:bg-indigo-700 shadow-lg shadow-indigo-200"
+                    className="w-full bg-text-primary text-surface py-4 font-sans text-[11px] font-semibold uppercase tracking-[0.1em] transition-all hover:bg-[#2C2C2B]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-text-primary rounded-none"
                 >
-                    Next: Review →
+                    Next: Review
                 </button>
             ) : (
                 <button 
                     onClick={handleStartExam} 
-                    className="w-full bg-[#6366F1] text-white py-[16px] rounded-[16px] text-[16px] font-semibold active:scale-[0.98] transition-transform hover:bg-indigo-700 shadow-lg shadow-indigo-200 flex items-center justify-center gap-2"
+                    className="w-full bg-primary text-surface py-4 font-sans text-[11px] font-semibold uppercase tracking-[0.1em] transition-all hover:bg-[#8A4F3A]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary rounded-none flex items-center justify-center gap-2"
                 >
                     Start Exam
                 </button>
@@ -453,10 +421,10 @@ const CreateExamPage: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] pt-[60px]">
+    <div className="min-h-screen bg-background pt-[60px] font-serif">
         {renderHeader()}
 
-        <div className="max-w-3xl mx-auto px-5 mt-4">
+        <div className="max-w-xl mx-auto px-5 mt-6">
             {step === STEPS.SOURCES && renderSources()}
             {step === STEPS.SETTINGS && renderSettings()}
             {step === STEPS.REVIEW && renderReview()}

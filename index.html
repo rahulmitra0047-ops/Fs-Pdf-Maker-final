@@ -12,7 +12,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
     
     <!-- Restore Tailwind CDN for styling to work without a build step -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,31 +22,45 @@
         theme: {
           extend: {
             fontFamily: {
-              sans: ['"Inter"', '"Plus Jakarta Sans"', '"Noto Sans Bengali"', 'sans-serif'],
+              sans: ['"Albert Sans"', 'sans-serif'],
+              serif: ['"Newsreader"', 'serif'],
             },
             colors: {
               primary: { 
-                DEFAULT: '#6366F1', /* Indigo 500 */
-                50: '#EEF2FF', 
-                600: '#4F46E5', 
-                700: '#4338CA' 
+                DEFAULT: '#8A4F3A', /* Terracotta */
+                50: '#F5EBE7', 
+                600: '#7A4532', 
+                700: '#643727' 
               },
-              surface: '#FFFFFF',
-              background: '#FAFAFA',
-              border: '#E2E8F0',
+              surface: '#F0EDE5', /* Pressed Paper */
+              background: '#F9F6F0', /* Warm Alabaster */
+              border: '#D5D2C9',
               text: {
-                primary: '#111827',
-                secondary: '#6B7280',
-                muted: '#9CA3AF'
+                primary: '#2C2C2B', /* Deep Charcoal */
+                secondary: '#8A8881', /* Faded Ink */
+                muted: '#A5A39B'
               }
             },
             borderRadius: {
-              'xl': '20px',
-              '2xl': '24px',
+              'none': '0px',
+              'sm': '0px',
+              DEFAULT: '0px',
+              'md': '0px',
+              'lg': '0px',
+              'xl': '0px',
+              '2xl': '0px',
+              '3xl': '0px',
             },
             boxShadow: {
-              'soft': '0 1px 3px rgba(0,0,0,0.05)',
-              'lifted': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)',
+              'sm': 'none',
+              DEFAULT: 'none',
+              'md': 'none',
+              'lg': 'none',
+              'xl': 'none',
+              '2xl': 'none',
+              'inner': 'none',
+              'soft': 'none',
+              'lifted': 'none',
             },
             zIndex: {
               'header': '40', /* TopBar, App Shell */

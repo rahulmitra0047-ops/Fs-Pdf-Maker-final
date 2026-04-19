@@ -61,10 +61,10 @@ class RootErrorBoundary extends React.Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--color-bg)] p-6 text-center">
-          <div className="glass-panel max-w-md w-full p-8 rounded-[var(--radius-xl)] animate-fade-in shadow-xl">
-            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce-soft">
-              <svg className="w-10 h-10 text-[var(--color-error)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6 text-center">
+          <div className="bg-surface max-w-md w-full p-8 rounded-none border border-border animate-fade-in shadow-none">
+            <div className="w-20 h-20 bg-red-100 rounded-none flex items-center justify-center mx-auto mb-6 animate-bounce-soft border border-red-200">
+              <svg className="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {this.state.isChunkError ? (
                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 ) : (
@@ -73,18 +73,18 @@ class RootErrorBoundary extends React.Component<Props, State> {
               </svg>
             </div>
             
-            <h1 className="text-2xl font-bold text-[var(--color-text)] mb-2">
+            <h1 className="text-2xl font-serif font-medium text-text-primary mb-2 tracking-tight">
                 {this.state.isChunkError ? "Update Available" : "Oops! Something went wrong"}
             </h1>
-            <p className="text-[var(--color-text-secondary)] mb-6 text-sm">
+            <p className="font-serif text-[15px] leading-relaxed text-secondary mb-6">
               {this.state.isChunkError 
                 ? "A new version of the app is available. Please reload to apply updates."
                 : "We encountered an unexpected error. Don't worry, your data is safe in the database."}
             </p>
             
             {this.state.error && !this.state.isChunkError && (
-              <div className="bg-gray-100 p-3 rounded-lg mb-6 text-left overflow-auto max-h-32 border border-gray-200">
-                <code className="text-xs text-red-600 font-mono">
+              <div className="bg-background p-3 rounded-none mb-6 text-left overflow-auto max-h-32 border border-border">
+                <code className="text-[10px] text-red-600 font-mono tracking-wider">
                   {this.state.error.message}
                 </code>
               </div>
@@ -93,13 +93,13 @@ class RootErrorBoundary extends React.Component<Props, State> {
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={this.handleGoHome}
-                className="px-4 py-2.5 bg-white border border-[var(--color-border)] text-[var(--color-text)] font-semibold rounded-xl hover:bg-gray-50 transition-all active:scale-95"
+                className="px-4 py-3 bg-background border border-border text-text-primary text-[10px] uppercase font-sans tracking-widest font-semibold rounded-none hover:bg-surface transition-all active:scale-95"
               >
                 Go Home
               </button>
               <button
                 onClick={this.handleRefresh}
-                className="px-4 py-2.5 bg-[var(--color-primary)] text-white font-semibold rounded-xl hover:bg-indigo-700 shadow-lg transition-all active:scale-95"
+                className="px-4 py-3 bg-primary text-white text-[10px] uppercase font-sans tracking-widest font-semibold rounded-none hover:bg-primary/90 transition-all active:scale-95"
               >
                 {this.state.isChunkError ? "Reload App" : "Try Again"}
               </button>

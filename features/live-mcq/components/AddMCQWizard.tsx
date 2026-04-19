@@ -9,6 +9,7 @@ import { generateUUID } from '../../../core/storage/idGenerator';
 import BulkImportModal from '../../create-pdf/components/BulkImportModal';
 import SingleMCQModal from '../../create-pdf/components/SingleMCQModal';
 import { useToast } from '../../../shared/context/ToastContext';
+import Icon from '../../../shared/components/Icon';
 
 interface Props {
   isOpen: boolean;
@@ -83,7 +84,8 @@ const AddMCQWizard: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
                   name: newTopicName,
                   icon: '📚',
                   order: topics.length,
-                  createdAt: Date.now()
+                  createdAt: Date.now(),
+                  updatedAt: Date.now()
               });
           }
 
@@ -97,7 +99,8 @@ const AddMCQWizard: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
                   topicId,
                   name: newSubtopicName,
                   order: subtopics.length,
-                  createdAt: Date.now()
+                  createdAt: Date.now(),
+                  updatedAt: Date.now()
               });
           }
 
@@ -149,37 +152,39 @@ const AddMCQWizard: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
   };
 
   const renderStep1 = () => (
-      <div className="space-y-4">
+      <div className="space-y-5 font-sans">
           {/* TOPIC */}
-          <div className="space-y-2">
-              <label className="block text-sm font-bold text-gray-700">Topic</label>
+          <div className="space-y-1">
+              <label className="block text-[10px] font-semibold tracking-widest uppercase text-text-secondary">Topic</label>
               {!isCreatingTopic ? (
                   <div className="flex gap-2">
                       <select 
-                          className="flex-1 border p-2 rounded-lg"
+                          className="flex-1 bg-background border border-border px-3 py-2 rounded-none text-text-primary text-sm font-serif"
                           value={selectedTopicId}
                           onChange={(e) => { setSelectedTopicId(e.target.value); setSelectedSubtopicId(''); setSelectedSetId(''); }}
                       >
                           <option value="">Select Topic</option>
                           {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                       </select>
-                      <button onClick={() => setIsCreatingTopic(true)} className="bg-gray-100 px-3 py-2 rounded-lg text-sm font-bold hover:bg-gray-200">+</button>
+                      <button onClick={() => setIsCreatingTopic(true)} className="bg-surface border border-border px-3 py-2 rounded-none hover:bg-[#EBE7DF] text-text-primary">
+                        <Icon name="plus" size="sm" />
+                      </button>
                   </div>
               ) : (
                   <div className="flex gap-2">
                       <PremiumInput value={newTopicName} onChange={setNewTopicName} placeholder="New Topic Name" className="flex-1" />
-                      <button onClick={() => setIsCreatingTopic(false)} className="text-sm text-red-500 font-bold">Cancel</button>
+                      <button onClick={() => setIsCreatingTopic(false)} className="text-[10px] uppercase tracking-widest font-semibold text-text-secondary hover:text-text-primary px-2 transition-colors">Cancel</button>
                   </div>
               )}
           </div>
 
           {/* SUBTOPIC */}
-          <div className="space-y-2">
-              <label className="block text-sm font-bold text-gray-700">Subtopic</label>
+          <div className="space-y-1">
+              <label className="block text-[10px] font-semibold tracking-widest uppercase text-text-secondary">Subtopic</label>
               {!isCreatingSubtopic ? (
                   <div className="flex gap-2">
                       <select 
-                          className="flex-1 border p-2 rounded-lg"
+                          className="flex-1 bg-background border border-border px-3 py-2 rounded-none text-text-primary text-sm font-serif disabled:opacity-50"
                           value={selectedSubtopicId}
                           onChange={(e) => { setSelectedSubtopicId(e.target.value); setSelectedSetId(''); }}
                           disabled={!selectedTopicId && !isCreatingTopic}
@@ -189,25 +194,27 @@ const AddMCQWizard: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
                       </select>
                       <button 
                         onClick={() => setIsCreatingSubtopic(true)} 
-                        className="bg-gray-100 px-3 py-2 rounded-lg text-sm font-bold hover:bg-gray-200"
+                        className="bg-surface border border-border px-3 py-2 rounded-none hover:bg-[#EBE7DF] text-text-primary disabled:opacity-50"
                         disabled={!selectedTopicId && !isCreatingTopic}
-                      >+</button>
+                      >
+                        <Icon name="plus" size="sm" />
+                      </button>
                   </div>
               ) : (
                   <div className="flex gap-2">
                       <PremiumInput value={newSubtopicName} onChange={setNewSubtopicName} placeholder="New Subtopic Name" className="flex-1" />
-                      <button onClick={() => setIsCreatingSubtopic(false)} className="text-sm text-red-500 font-bold">Cancel</button>
+                      <button onClick={() => setIsCreatingSubtopic(false)} className="text-[10px] uppercase tracking-widest font-semibold text-text-secondary hover:text-text-primary px-2 transition-colors">Cancel</button>
                   </div>
               )}
           </div>
 
           {/* SET */}
-          <div className="space-y-2">
-              <label className="block text-sm font-bold text-gray-700">Set</label>
+          <div className="space-y-1">
+              <label className="block text-[10px] font-semibold tracking-widest uppercase text-text-secondary">Set</label>
               {!isCreatingSet ? (
                   <div className="flex gap-2">
                       <select 
-                          className="flex-1 border p-2 rounded-lg"
+                          className="flex-1 bg-background border border-border px-3 py-2 rounded-none text-text-primary text-sm font-serif disabled:opacity-50"
                           value={selectedSetId}
                           onChange={(e) => setSelectedSetId(e.target.value)}
                           disabled={!selectedSubtopicId && !isCreatingSubtopic}
@@ -217,14 +224,16 @@ const AddMCQWizard: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
                       </select>
                       <button 
                         onClick={() => setIsCreatingSet(true)} 
-                        className="bg-gray-100 px-3 py-2 rounded-lg text-sm font-bold hover:bg-gray-200"
+                        className="bg-surface border border-border px-3 py-2 rounded-none hover:bg-[#EBE7DF] text-text-primary disabled:opacity-50"
                         disabled={!selectedSubtopicId && !isCreatingSubtopic}
-                      >+</button>
+                      >
+                        <Icon name="plus" size="sm" />
+                      </button>
                   </div>
               ) : (
                   <div className="flex gap-2">
                       <PremiumInput value={newSetName} onChange={setNewSetName} placeholder="New Set Name" className="flex-1" />
-                      <button onClick={() => setIsCreatingSet(false)} className="text-sm text-red-500 font-bold">Cancel</button>
+                      <button onClick={() => setIsCreatingSet(false)} className="text-[10px] uppercase tracking-widest font-semibold text-text-secondary hover:text-text-primary px-2 transition-colors">Cancel</button>
                   </div>
               )}
           </div>
@@ -236,35 +245,39 @@ const AddMCQWizard: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
   );
 
   const renderStep2 = () => (
-      <div className="space-y-4">
-          <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 mb-4">
-              <p className="text-sm text-blue-800">Adding to <b>{sets.find(s => s.id === selectedSetId)?.name || newSetName}</b></p>
+      <div className="space-y-4 font-sans">
+          <div className="bg-background border border-border p-3 rounded-none mb-4">
+              <p className="text-[11px] uppercase tracking-wide text-text-secondary font-semibold">Adding to <span className="font-serif text-sm font-medium text-text-primary capitalize">{sets.find(s => s.id === selectedSetId)?.name || newSetName}</span></p>
           </div>
           
           <button 
               onClick={() => setShowSingleMCQ(true)}
-              className="w-full p-4 border rounded-xl hover:bg-gray-50 text-left flex items-center gap-3"
+              className="w-full p-4 border border-border bg-surface hover:bg-[#EBE7DF] transition-colors rounded-none text-left flex items-center gap-4 group"
           >
-              <span className="text-2xl">📝</span>
+              <div className="w-10 h-10 border border-border bg-background text-text-primary flex items-center justify-center group-hover:bg-text-primary group-hover:text-surface transition-colors">
+                  <Icon name="edit-3" size="sm" />
+              </div>
               <div>
-                  <div className="font-bold">Add Single MCQ</div>
-                  <div className="text-xs text-gray-500">Manual Entry</div>
+                  <div className="font-semibold text-text-primary text-sm uppercase tracking-wider">Add Single MCQ</div>
+                  <div className="text-[10px] uppercase tracking-widest font-semibold text-text-secondary">Manual Entry</div>
               </div>
           </button>
 
           <button 
               onClick={() => setShowBulkImport(true)}
-              className="w-full p-4 border rounded-xl hover:bg-gray-50 text-left flex items-center gap-3"
+              className="w-full p-4 border border-border bg-surface hover:bg-[#EBE7DF] transition-colors rounded-none text-left flex items-center gap-4 group"
           >
-              <span className="text-2xl">📋</span>
+              <div className="w-10 h-10 border border-border bg-background text-text-primary flex items-center justify-center group-hover:bg-text-primary group-hover:text-surface transition-colors">
+                  <Icon name="file-text" size="sm" />
+              </div>
               <div>
-                  <div className="font-bold">Bulk Import</div>
-                  <div className="text-xs text-gray-500">Paste Text</div>
+                  <div className="font-semibold text-text-primary text-sm uppercase tracking-wider">Bulk Import</div>
+                  <div className="text-[10px] uppercase tracking-widest font-semibold text-text-secondary">Paste Text</div>
               </div>
           </button>
 
-          <div className="pt-4 flex justify-between">
-              <button onClick={() => setStep(1)} className="text-sm text-gray-500">← Back</button>
+          <div className="pt-4 flex items-center justify-between">
+              <button onClick={() => setStep(1)} className="text-[10px] uppercase tracking-widest font-semibold text-text-secondary hover:text-text-primary transition-colors">← Back</button>
               <PremiumButton onClick={onClose} variant="ghost">Finish</PremiumButton>
           </div>
       </div>

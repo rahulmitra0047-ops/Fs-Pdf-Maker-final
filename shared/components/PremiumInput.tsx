@@ -23,9 +23,9 @@ const PremiumInput: React.FC<Props> = ({
   className = '',
 }) => {
   return (
-    <div className={`w-full ${className}`}>
+    <div className={`w-full ${className} font-serif`}>
       {label && (
-        <label className="block text-sm font-semibold text-[var(--color-text)] mb-1.5 ml-1">
+        <label className="block text-[15px] font-medium text-text-primary mb-2">
           {label}
         </label>
       )}
@@ -37,22 +37,22 @@ const PremiumInput: React.FC<Props> = ({
           placeholder={placeholder}
           className={`
             w-full 
-            bg-white
+            bg-background
             border 
-            rounded-[var(--radius-lg)]
+            rounded-none
             px-4 py-3
-            text-base text-[var(--color-text)] 
-            placeholder-slate-400
+            text-base text-text-primary 
+            placeholder-text-secondary/50
             transition-all duration-200
-            focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary-600
-            disabled:bg-slate-50 disabled:text-slate-400
-            shadow-sm
-            ${error ? 'border-[var(--color-error)] focus:ring-red-100 focus:border-red-500' : 'border-[var(--color-border)]'}
+            focus:outline-none focus:border-primary
+            disabled:bg-surface disabled:text-text-secondary
+            font-serif
+            ${error ? 'border-primary' : 'border-border'}
           `}
         />
       </div>
       {(error || helperText) && (
-        <p className={`mt-1.5 ml-1 text-xs font-medium ${error ? 'text-[var(--color-error)]' : 'text-[var(--color-text-secondary)]'}`}>
+        <p className={`mt-2 font-sans uppercase tracking-[0.1em] text-[10px] font-semibold ${error ? 'text-primary' : 'text-text-secondary'}`}>
           {error || helperText}
         </p>
       )}

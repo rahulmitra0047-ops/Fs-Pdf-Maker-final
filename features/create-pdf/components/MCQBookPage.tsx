@@ -192,10 +192,10 @@ const MCQBookPage: React.FC<Props> = ({
 
       {isEditingTitle && interactive && (
         <div className="absolute inset-0 z-50 flex items-start justify-center pt-8 pointer-events-none">
-           <div className="bg-white p-3 rounded-lg shadow-xl border border-gray-200 w-64 flex flex-col gap-2 pointer-events-auto animate-in slide-in-from-top-2">
+           <div className="bg-surface p-4 rounded-none border border-border mt-1 shadow-none w-72 flex flex-col gap-3 pointer-events-auto animate-in slide-in-from-top-2">
               <input 
                 autoFocus
-                className="border p-2 rounded text-sm w-full focus:ring-2 focus:ring-[var(--color-primary)] focus:outline-none"
+                className="border border-border p-2 rounded-none text-[15px] font-serif w-full focus:ring-1 focus:ring-primary focus:outline-none placeholder:font-sans placeholder-text-secondary/50 placeholder:text-xs"
                 value={tempTitle}
                 onChange={(e) => setTempTitle(e.target.value)}
                 placeholder="Chapter 1: Physics"
@@ -203,8 +203,8 @@ const MCQBookPage: React.FC<Props> = ({
                 onKeyDown={(e) => { if(e.key === 'Enter') handleTitleSave(); }}
               />
               <div className="flex justify-end gap-2">
-                 <button onClick={() => setIsEditingTitle(false)} className="text-xs text-gray-500 hover:text-gray-800 px-2 py-1">Cancel</button>
-                 <button onClick={handleTitleSave} className="text-xs bg-[var(--color-primary)] text-white px-3 py-1 rounded hover:bg-[var(--color-primary-700)]">Save</button>
+                 <button onClick={() => setIsEditingTitle(false)} className="text-[10px] font-sans tracking-widest uppercase font-semibold text-text-secondary hover:text-text-primary px-2 py-1">Cancel</button>
+                 <button onClick={handleTitleSave} className="text-[10px] font-sans tracking-widest uppercase font-semibold bg-primary text-white border border-border px-3 py-1 rounded-none hover:bg-primary/90">Save</button>
               </div>
            </div>
         </div>

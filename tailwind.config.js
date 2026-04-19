@@ -8,34 +8,48 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Inter"', '"Plus Jakarta Sans"', '"Noto Sans Bengali"', 'sans-serif'],
+        sans: ['"Albert Sans"', 'sans-serif'],
+        serif: ['"Newsreader"', 'serif'],
       },
       colors: {
         primary: { 
-          DEFAULT: '#6366F1', /* Indigo 500 */
-          50: '#EEF2FF', 
-          600: '#4F46E5', 
-          700: '#4338CA' 
+          DEFAULT: '#8A4F3A',
+          50: '#F5EBE7', 
+          600: '#7A4532', 
+          700: '#643727' 
         },
-        surface: '#FFFFFF',
-        background: '#FAFAFA', /* Very Light Gray */
-        border: '#E2E8F0',
+        surface: '#F0EDE5',
+        background: '#F9F6F0',
+        border: '#D5D2C9',
         text: {
-          primary: '#111827', /* Gray 900 */
-          secondary: '#6B7280', /* Gray 500 */
-          muted: '#9CA3AF'
+          primary: '#2C2C2B',
+          secondary: '#8A8881',
+          muted: '#A5A39B'
         },
         success: 'var(--color-success)',
         error: 'var(--color-error)',
         warning: 'var(--color-warning)'
       },
       borderRadius: {
-        'xl': '20px',
-        '2xl': '24px',
+        'none': '0px',
+        'sm': '0px',
+        DEFAULT: '0px',
+        'md': '0px',
+        'lg': '0px',
+        'xl': '0px',
+        '2xl': '0px',
+        '3xl': '0px',
       },
       boxShadow: {
-        'soft': '0 1px 3px rgba(0,0,0,0.05)',
-        'lifted': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)',
+        'sm': 'none',
+        DEFAULT: 'none',
+        'md': 'none',
+        'lg': 'none',
+        'xl': 'none',
+        '2xl': 'none',
+        'inner': 'none',
+        'soft': 'none',
+        'lifted': 'none',
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out forwards',

@@ -97,12 +97,12 @@ const AiGenerationModal: React.FC<Props> = ({ isOpen, onClose, onImport }) => {
 
   return (
     <PremiumModal isOpen={isOpen} onClose={onClose} title="Generate with AI" size="md">
-      <div className="space-y-4">
-        <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-blue-100 flex items-center gap-3">
-          <div className="bg-white p-2 rounded-full shadow-sm">
-             <Icon name="sparkles" className="text-purple-600" />
+      <div className="space-y-6">
+        <div className="bg-surface p-4 border border-border flex items-center gap-3">
+          <div className="bg-background border border-border p-2">
+             <Icon name="sparkles" className="text-primary" />
           </div>
-          <p className="text-sm text-gray-700">
+          <p className="font-serif text-[15px] leading-relaxed text-text-primary">
             Describe your topic, and AI will create unique questions for you instantly.
           </p>
         </div>
@@ -112,15 +112,16 @@ const AiGenerationModal: React.FC<Props> = ({ isOpen, onClose, onImport }) => {
           value={topic}
           onChange={setTopic}
           placeholder="e.g. Photosynthesis, Newton's Laws"
+          error=""
         />
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Question Count</label>
+            <label className="block font-sans text-[10px] font-semibold text-text-primary uppercase tracking-widest mb-1.5">Question Count</label>
             <select
               value={count}
               onChange={(e) => setCount(Number(e.target.value))}
-              className="w-full p-2.5 bg-[var(--surface)] border border-[var(--border)] rounded-lg outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+              className="w-full p-2.5 bg-background border border-border rounded-none outline-none focus:ring-1 focus:ring-primary font-serif text-[15px] text-text-primary"
             >
               <option value={5}>5 Questions</option>
               <option value={10}>10 Questions</option>
@@ -129,11 +130,11 @@ const AiGenerationModal: React.FC<Props> = ({ isOpen, onClose, onImport }) => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">Difficulty</label>
+            <label className="block font-sans text-[10px] font-semibold text-text-primary uppercase tracking-widest mb-1.5">Difficulty</label>
             <select
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
-              className="w-full p-2.5 bg-[var(--surface)] border border-[var(--border)] rounded-lg outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+              className="w-full p-2.5 bg-background border border-border rounded-none outline-none focus:ring-1 focus:ring-primary font-serif text-[15px] text-text-primary"
             >
               <option value="Easy">Easy</option>
               <option value="Medium">Medium</option>
@@ -143,14 +144,13 @@ const AiGenerationModal: React.FC<Props> = ({ isOpen, onClose, onImport }) => {
           </div>
         </div>
 
-        <div className="pt-4 flex justify-end gap-3">
+        <div className="pt-4 flex justify-end gap-3 border-t border-border">
           <PremiumButton variant="ghost" onClick={onClose}>Cancel</PremiumButton>
           <PremiumButton 
             onClick={handleGenerate} 
             loading={isLoading}
             disabled={!topic.trim()}
-            variant="gradient"
-            icon={<Icon name="sparkles" size="sm" />}
+            variant="primary"
           >
             {isLoading ? 'Generating...' : 'Generate MCQs'}
           </PremiumButton>

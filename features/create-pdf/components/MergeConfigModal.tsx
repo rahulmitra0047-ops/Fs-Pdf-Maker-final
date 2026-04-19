@@ -125,7 +125,7 @@ const MergeConfigModal: React.FC<Props> = ({ isOpen, onClose, selectedDocs, onSu
 
   const renderOrderStep = () => (
     <div className="space-y-4">
-        <div className="text-sm text-[var(--text-secondary)] mb-2">
+        <div className="text-sm text-secondary mb-2 font-serif">
             Drag to reorder or remove documents from merge.
         </div>
         <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
@@ -136,35 +136,35 @@ const MergeConfigModal: React.FC<Props> = ({ isOpen, onClose, selectedDocs, onSu
                     onDragStart={(e) => handleDragStart(e, idx)}
                     onDragOver={handleDragOver}
                     onDrop={(e) => handleDrop(e, idx)}
-                    className="flex items-center gap-3 p-3 bg-white border border-[var(--border)] rounded-lg shadow-sm cursor-move hover:border-primary-600 transition-colors"
+                    className="flex items-center gap-3 p-3 bg-surface border border-border cursor-move hover:border-primary/50 transition-colors"
                 >
-                    <div className="text-gray-400 cursor-grab">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    <div className="text-secondary cursor-grab">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" /></svg>
                     </div>
                     <div className="flex-1">
-                        <div className="font-medium text-[var(--text-primary)] text-sm line-clamp-1">
+                        <div className="font-serif font-medium text-text-primary text-[15px] line-clamp-1">
                             {idx + 1}. {doc.title}
                         </div>
-                        <div className="text-xs text-[var(--text-secondary)]">
+                        <div className="text-xs text-secondary font-sans tracking-wide uppercase mt-0.5">
                             {doc.mcqs.length} MCQs
                         </div>
                     </div>
                     <button 
                         onClick={() => handleRemoveDoc(idx)}
-                        className="text-gray-400 hover:text-red-500 p-1"
+                        className="text-secondary hover:text-primary transition-colors p-1"
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 </div>
             ))}
         </div>
-        <div className="flex justify-between items-center pt-4 border-t border-[var(--divider)]">
-            <div className="text-sm font-medium">Total: {orderedDocs.reduce((acc, d) => acc + d.mcqs.length, 0)} MCQs</div>
+        <div className="flex justify-between items-center pt-4 border-t border-border mt-4">
+            <div className="text-sm font-sans tracking-wide text-text-primary">TOTAL: {orderedDocs.reduce((acc, d) => acc + d.mcqs.length, 0)} MCQS</div>
             <PremiumButton 
                 onClick={() => setStep(STEPS.OPTIONS)}
                 disabled={orderedDocs.length < 2}
             >
-                Next: Options
+                NEXT: OPTIONS
             </PremiumButton>
         </div>
     </div>
@@ -179,24 +179,24 @@ const MergeConfigModal: React.FC<Props> = ({ isOpen, onClose, selectedDocs, onSu
         />
 
         <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Section Handling</label>
+            <label className="block font-sans text-xs font-semibold uppercase tracking-widest text-text-primary mb-2">Section Handling</label>
             <div className="space-y-2">
                 {[
                     { val: 'use_doc_names', label: 'Use document names', desc: 'Document name becomes section header' },
                     { val: 'keep_original', label: 'Keep original titles', desc: 'Preserve internal section headers' },
                     { val: 'none', label: 'No sections', desc: 'Merge continuously without headers' }
                 ].map(opt => (
-                    <label key={opt.val} className="flex items-start gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <label key={opt.val} className="flex items-start gap-3 p-3 border border-border cursor-pointer hover:bg-black/5 transition-colors">
                         <input 
                             type="radio" 
                             name="sectionHandling"
                             checked={config.sectionHandling === opt.val}
                             onChange={() => setConfig({ ...config, sectionHandling: opt.val as any })}
-                            className="mt-1 w-4 h-4 text-primary-600"
+                            className="mt-1 w-4 h-4 text-primary bg-background border-border focus:ring-primary focus:ring-offset-0"
                         />
                         <div>
-                            <div className="text-sm font-medium text-[var(--text-primary)]">{opt.label}</div>
-                            <div className="text-xs text-[var(--text-secondary)]">{opt.desc}</div>
+                            <div className="text-[15px] font-serif text-text-primary">{opt.label}</div>
+                            <div className="text-xs text-secondary font-serif mt-0.5">{opt.desc}</div>
                         </div>
                     </label>
                 ))}
@@ -204,34 +204,34 @@ const MergeConfigModal: React.FC<Props> = ({ isOpen, onClose, selectedDocs, onSu
         </div>
 
         <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Duplicate Handling</label>
+            <label className="block font-sans text-xs font-semibold uppercase tracking-widest text-text-primary mb-2 mt-4">Duplicate Handling</label>
             <div className="space-y-2">
                 {[
                     { val: 'remove_auto', label: 'Remove duplicates automatically', desc: 'Keep first occurrence' },
                     { val: 'keep_all', label: 'Keep all', desc: 'Allow duplicates' },
                     { val: 'ask', label: 'Ask for each duplicate', desc: 'Review manually' }
                 ].map(opt => (
-                    <label key={opt.val} className="flex items-start gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <label key={opt.val} className="flex items-start gap-3 p-3 border border-border cursor-pointer hover:bg-black/5 transition-colors">
                         <input 
                             type="radio" 
                             name="duplicateHandling"
                             checked={config.duplicateHandling === opt.val}
                             onChange={() => setConfig({ ...config, duplicateHandling: opt.val as any })}
-                            className="mt-1 w-4 h-4 text-primary-600"
+                            className="mt-1 w-4 h-4 text-primary bg-background border-border focus:ring-primary focus:ring-offset-0"
                         />
                         <div>
-                            <div className="text-sm font-medium text-[var(--text-primary)]">{opt.label}</div>
-                            <div className="text-xs text-[var(--text-secondary)]">{opt.desc}</div>
+                            <div className="text-[15px] font-serif text-text-primary">{opt.label}</div>
+                            <div className="text-xs text-secondary font-serif mt-0.5">{opt.desc}</div>
                         </div>
                     </label>
                 ))}
             </div>
         </div>
 
-        <div className="flex justify-between pt-4 border-t border-[var(--divider)]">
-            <PremiumButton variant="ghost" onClick={() => setStep(STEPS.ORDER)}>Back</PremiumButton>
+        <div className="flex justify-between pt-4 border-t border-border mt-6">
+            <PremiumButton variant="ghost" onClick={() => setStep(STEPS.ORDER)}>BACK</PremiumButton>
             <PremiumButton onClick={prepareDuplicates}>
-                {config.duplicateHandling === 'ask' ? 'Next: Review Duplicates' : 'Next: Preview'}
+                {config.duplicateHandling === 'ask' ? 'NEXT: REVIEW DUPLICATES' : 'NEXT: PREVIEW'}
             </PremiumButton>
         </div>
     </div>
@@ -239,19 +239,21 @@ const MergeConfigModal: React.FC<Props> = ({ isOpen, onClose, selectedDocs, onSu
 
   const renderDuplicatesStep = () => (
     <div className="space-y-4">
-        <div className="bg-amber-50 p-3 rounded-lg flex items-center gap-2 border border-amber-200">
-            <span className="text-amber-600">⚠️</span>
-            <span className="text-sm text-amber-800 font-medium">{Array.from(duplicatesMap.keys()).length} duplicates found</span>
+        <div className="bg-[#F0EDE5] p-3 border border-border flex items-center gap-2">
+            <span className="text-primary">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            </span>
+            <span className="text-sm text-text-primary font-serif font-medium">{Array.from(duplicatesMap.keys()).length} DUPLICATES FOUND</span>
         </div>
         
         <div className="max-h-[300px] overflow-y-auto space-y-4">
             {Array.from(duplicatesMap.entries()).map(([fp, list], idx) => (
-                <div key={idx} className="border rounded-lg p-3 space-y-2">
-                    <div className="text-sm font-medium line-clamp-2">"{list[0].question}"</div>
-                    <div className="text-xs text-[var(--text-secondary)]">Found in {list.length} places.</div>
-                    <div className="flex gap-2">
+                <div key={idx} className="border border-border p-4 space-y-3 bg-surface">
+                    <div className="font-serif text-[15px] text-text-primary leading-relaxed">"{list[0].question}"</div>
+                    <div className="text-xs text-secondary font-sans tracking-wide uppercase">Found in {list.length} places</div>
+                    <div className="flex gap-2 pt-2 border-t border-border">
                         <button 
-                            className="text-xs px-2 py-1 bg-gray-100 rounded hover:bg-gray-200"
+                            className="text-xs font-sans tracking-wide uppercase px-3 py-1.5 bg-background border border-border text-text-primary hover:bg-[#EBE7DF] transition-colors"
                             onClick={() => {
                                 // Keep first, remove others
                                 const [first, ...rest] = list;
@@ -260,10 +262,10 @@ const MergeConfigModal: React.FC<Props> = ({ isOpen, onClose, selectedDocs, onSu
                                 setIdsToRemove(newSet);
                             }}
                         >
-                            Keep First
+                            KEEP FIRST
                         </button>
                         <button 
-                            className="text-xs px-2 py-1 bg-gray-100 rounded hover:bg-gray-200"
+                            className="text-xs font-sans tracking-wide uppercase px-3 py-1.5 bg-background border border-border text-text-primary hover:bg-[#EBE7DF] transition-colors"
                             onClick={() => {
                                 // Keep last, remove others
                                 const last = list[list.length - 1];
@@ -273,10 +275,10 @@ const MergeConfigModal: React.FC<Props> = ({ isOpen, onClose, selectedDocs, onSu
                                 setIdsToRemove(newSet);
                             }}
                         >
-                            Keep Last
+                            KEEP LAST
                         </button>
                         <button 
-                            className="text-xs px-2 py-1 bg-red-50 text-red-600 rounded hover:bg-red-100"
+                            className="text-xs font-sans tracking-wide uppercase px-3 py-1.5 bg-background border border-red-200 text-red-600 hover:bg-red-50 transition-colors"
                             onClick={() => {
                                 // Remove all
                                 const newSet = new Set(idsToRemove);
@@ -284,16 +286,16 @@ const MergeConfigModal: React.FC<Props> = ({ isOpen, onClose, selectedDocs, onSu
                                 setIdsToRemove(newSet);
                             }}
                         >
-                            Remove All
+                            REMOVE ALL
                         </button>
                     </div>
                 </div>
             ))}
         </div>
 
-        <div className="flex justify-between pt-4 border-t border-[var(--divider)]">
-            <PremiumButton variant="ghost" onClick={() => setStep(STEPS.OPTIONS)}>Back</PremiumButton>
-            <PremiumButton onClick={preparePreview}>Continue to Preview</PremiumButton>
+        <div className="flex justify-between pt-4 border-t border-border mt-6">
+            <PremiumButton variant="ghost" onClick={() => setStep(STEPS.OPTIONS)}>BACK</PremiumButton>
+            <PremiumButton onClick={preparePreview}>CONTINUE TO PREVIEW</PremiumButton>
         </div>
     </div>
   );
@@ -302,35 +304,40 @@ const MergeConfigModal: React.FC<Props> = ({ isOpen, onClose, selectedDocs, onSu
     <div className="space-y-4">
         {previewDoc && (
             <>
-                <div className="bg-gray-50 p-4 rounded-lg border border-[var(--border)] text-center">
-                    <div className="text-4xl mb-2">📖</div>
-                    <h3 className="text-lg font-bold text-[var(--text-primary)]">{previewDoc.title}</h3>
-                    <div className="text-sm text-[var(--text-secondary)] mt-1">
+                <div className="bg-surface p-6 border border-border text-center">
+                    <div className="text-3xl mb-3 text-primary">
+                        <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
+                    </div>
+                    <h3 className="text-xl font-serif font-medium text-text-primary tracking-tight">{previewDoc.title}</h3>
+                    <div className="text-xs text-secondary font-sans uppercase tracking-widest mt-2">
                         {previewDoc.mcqs?.length} MCQs • {previewDoc.mergedFrom?.length} Sections
                     </div>
                 </div>
 
                 <div className="space-y-2 max-h-[250px] overflow-y-auto">
-                    <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Structure</h4>
+                    <h4 className="text-[10px] font-sans font-bold text-secondary uppercase tracking-widest mb-3 mt-4">Document Structure</h4>
                     {previewDoc.mergedFrom?.map((src, idx) => (
-                        <div key={idx} className="flex items-center gap-3 p-2 bg-white border border-[var(--border)] rounded shadow-sm">
-                            <div className="text-xl">
-                                {config.sectionHandling !== 'none' ? '📂' : '📄'}
+                        <div key={idx} className="flex items-center gap-3 p-3 bg-white border border-border">
+                            <div className="text-secondary">
+                                {config.sectionHandling !== 'none' ? 
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg> : 
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                                }
                             </div>
                             <div>
-                                <div className="text-sm font-medium">{src.docTitle}</div>
-                                <div className="text-xs text-[var(--text-secondary)]">
-                                    Q {src.mcqRange[0]} - {src.mcqRange[1]} ({src.mcqCount} MCQs)
+                                <div className="text-[15px] font-serif text-text-primary line-clamp-1">{src.docTitle}</div>
+                                <div className="text-xs text-secondary font-sans uppercase tracking-wide mt-0.5">
+                                    Q{src.mcqRange[0]} - {src.mcqRange[1]} ({src.mcqCount} items)
                                 </div>
                             </div>
                         </div>
                     ))}
                 </div>
 
-                <div className="flex justify-between pt-4 border-t border-[var(--divider)]">
-                    <PremiumButton variant="ghost" onClick={() => setStep(config.duplicateHandling === 'ask' ? STEPS.DUPLICATES : STEPS.OPTIONS)}>Back</PremiumButton>
-                    <PremiumButton onClick={handleCreateMerged} className="bg-green-600 hover:bg-green-700">
-                        ✓ Create Merged Doc
+                <div className="flex justify-between pt-4 border-t border-border mt-6">
+                    <PremiumButton variant="ghost" onClick={() => setStep(config.duplicateHandling === 'ask' ? STEPS.DUPLICATES : STEPS.OPTIONS)}>BACK</PremiumButton>
+                    <PremiumButton onClick={handleCreateMerged}>
+                        ✓ CREATE MERGED DOC
                     </PremiumButton>
                 </div>
             </>
@@ -339,14 +346,16 @@ const MergeConfigModal: React.FC<Props> = ({ isOpen, onClose, selectedDocs, onSu
   );
 
   const renderSuccessStep = () => (
-    <div className="text-center py-8">
-        <div className="text-6xl mb-4">✅</div>
-        <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2">Merge Complete!</h3>
-        <p className="text-[var(--text-secondary)] mb-8">
-            "{config.newTitle}" has been created successfully with {previewDoc?.mcqs?.length} MCQs.
+    <div className="text-center py-10">
+        <div className="text-primary mb-6 flex justify-center">
+            <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" /></svg>
+        </div>
+        <h3 className="text-2xl font-serif font-medium text-text-primary tracking-tight mb-3">Merge Complete</h3>
+        <p className="text-secondary font-serif text-[15px] mb-10 max-w-sm mx-auto leading-relaxed">
+            "{config.newTitle}" has been organized successfully with {previewDoc?.mcqs?.length} MCQs.
         </p>
         <div className="flex gap-3 justify-center">
-            <PremiumButton onClick={onClose} variant="secondary">Back to Recent</PremiumButton>
+            <PremiumButton onClick={onClose} variant="secondary">BACK TO RECENT</PremiumButton>
         </div>
     </div>
   );

@@ -187,7 +187,7 @@ const ActiveExamPage: React.FC = () => {
       return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
-  if (loading) return <div className="p-10 text-center">Preparing Exam...</div>;
+  if (loading) return <div className="p-10 text-center font-sans tracking-widest uppercase text-xs text-text-secondary bg-background min-h-screen pt-20">Preparing Exam...</div>;
 
   const currentMCQ = mcqs[currentIndex];
   const selectedOption = answers[currentMCQ?.id];
@@ -195,29 +195,29 @@ const ActiveExamPage: React.FC = () => {
   const isMarked = marked.has(currentMCQ?.id);
 
   return (
-    <div className="fixed inset-0 bg-white flex flex-col font-sans overflow-hidden">
+    <div className="fixed inset-0 bg-background flex flex-col font-serif overflow-hidden">
         {/* 2. Exam Header Bar */}
-        <div className="fixed top-0 left-0 right-0 z-[100] bg-[#1E1B4B] px-[20px] py-[12px] flex items-center justify-between shadow-md">
+        <div className="fixed top-0 left-0 right-0 z-[100] bg-surface border-b border-border px-5 py-[12px] flex items-center justify-between shadow-none">
             <div className="flex items-center gap-4">
                 <button 
                     onClick={() => setShowExitConfirm(true)} 
-                    className="text-white/60 hover:text-white transition-colors p-1 -ml-1"
+                    className="text-text-secondary hover:text-text-primary transition-colors p-1 -ml-1 rounded-none hover:bg-background"
                 >
                     <Icon name="x" size="md" />
                 </button>
                 <div className="flex flex-col">
-                    <span className="text-[16px] font-semibold text-white leading-tight">Exam</span>
-                    <span className="text-[14px] font-normal text-white/60 leading-tight">
-                        {currentIndex + 1}/{mcqs.length}
+                    <span className="text-[12px] font-sans font-semibold uppercase tracking-widest text-text-primary leading-tight">Exam</span>
+                    <span className="text-[10px] font-sans font-semibold text-text-secondary tracking-[0.1em] mt-[2px] leading-tight opacity-70">
+                        {currentIndex + 1} / {mcqs.length}
                     </span>
                 </div>
             </div>
             
             <div className="flex items-center gap-2">
-                <span className="text-white/60">
+                <span className="text-text-secondary opacity-70">
                     <Icon name="clock" size="sm" />
                 </span>
-                <span className={`text-[20px] font-bold tabular-nums text-white ${timeLeft < 60 ? 'animate-pulse text-red-300' : ''}`}>
+                <span className={`text-[15px] font-medium font-serif tabular-nums text-text-primary ${timeLeft < 60 ? 'animate-pulse text-primary' : ''}`}>
                     {formatTime(timeLeft)}
                 </span>
             </div>
@@ -225,141 +225,109 @@ const ActiveExamPage: React.FC = () => {
             <button 
                 onClick={() => setShowSubmitConfirm(true)} 
                 disabled={isSubmitting} 
-                className="bg-white/15 border border-white/25 text-white rounded-[10px] px-[18px] py-[8px] text-[14px] font-semibold active:scale-95 transition-all hover:bg-white/20 disabled:opacity-50"
+                className="bg-text-primary border border-text-primary text-surface rounded-none px-4 py-1.5 text-[10px] font-sans uppercase tracking-[0.1em] font-semibold transition-all hover:bg-[#2C2C2B]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-text-primary disabled:opacity-50"
             >
                 {isSubmitting ? '...' : 'Submit'}
             </button>
         </div>
 
         {/* Progress Line */}
-        <div className="fixed top-[64px] left-0 right-0 h-[3px] bg-[#1E1B4B] z-[90]">
+        <div className="fixed top-[60px] left-0 right-0 h-[1px] bg-border z-[90]">
             <div 
-                className="h-full bg-[#6366F1] transition-all duration-300 ease-out rounded-r-[2px]"
+                className="h-full bg-text-primary transition-all duration-300 ease-out"
                 style={{ width: `${((currentIndex + 1) / mcqs.length) * 100}%` }}
             ></div>
         </div>
 
         {/* Scrollable Content Area */}
-        <div className="flex-1 mt-[67px] mb-[76px] overflow-y-auto overscroll-contain">
+        <div className="flex-1 mt-[61px] mb-[74px] overflow-y-auto overscroll-contain bg-background">
             <div className="max-w-xl mx-auto pb-4">
                 
                 {/* 3. Question Number */}
-                <div className="flex justify-between items-center my-[12px] px-[20px]">
-                    <div className="flex items-center gap-1.5">
-                        <span className="text-[14px] font-medium text-[#9CA3AF]">Q</span>
-                        <span className="text-[14px] font-bold text-[#6366F1]">{currentIndex + 1}</span>
+                <div className="flex justify-between items-center my-[24px] px-[24px]">
+                    <div className="flex items-center gap-3">
+                        <span className="text-[10px] font-sans font-semibold text-text-secondary uppercase tracking-widest">Question</span>
+                        <span className="text-[16px] font-serif font-medium text-text-primary">{currentIndex + 1}</span>
                     </div>
                     {isMarked && (
-                        <div className="flex items-center gap-1.5 text-amber-600 bg-amber-50 px-2 py-1 rounded-md">
-                            <Icon name="check-circle" size="sm" />
-                            <span className="text-[12px] font-bold uppercase tracking-wide">Marked</span>
+                        <div className="flex items-center gap-1.5 text-primary border border-primary px-3 py-1 bg-surface">
+                            <Icon name="flag" size="sm" className="w-3.5 h-3.5" />
+                            <span className="text-[10px] font-sans font-semibold uppercase tracking-[0.1em]">Flagged</span>
                         </div>
                     )}
                 </div>
 
                 {/* 4. Question Card */}
-                <div className="px-[20px] mb-3">
-                    <div className="bg-[#F9FAFB] rounded-[16px] p-[16px]">
-                        <h2 className="text-[16px] font-semibold text-[#111827] leading-[1.5]">
+                <div className="px-[24px] mb-6">
+                    <div className="bg-surface border border-border rounded-none p-[24px]">
+                        <h2 className="text-[17px] font-serif font-medium text-text-primary leading-[1.6]">
                             {currentMCQ.question}
                         </h2>
                     </div>
                 </div>
 
                 {/* 5. Option Cards */}
-                <div className="px-[20px] flex flex-col gap-[8px]">
+                <div className="px-[24px] flex flex-col gap-3">
                     {['A', 'B', 'C', 'D'].map((opt) => {
                         const optionKey = `option${opt}` as keyof MCQ;
                         const text = currentMCQ[optionKey] as string;
                         const isSelected = selectedOption === opt;
                         
                         return (
-                            <motion.button
+                            <button
                                 key={opt}
                                 onClick={() => handleAnswer(opt)}
-                                whileHover={{ scale: 0.99, backgroundColor: "#f8fafc", borderColor: "#cbd5e1" }}
-                                whileTap={{ scale: 0.97 }}
-                                initial={false}
-                                animate={{
-                                    backgroundColor: isSelected ? "#EEF2FF" : "#ffffff",
-                                    borderColor: isSelected ? "#6366F1" : "#F3F4F6",
-                                    scale: isSelected ? [1, 1.02, 1] : 1,
-                                }}
-                                transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
                                 className={`
-                                    w-full rounded-[14px] p-[12px] px-[16px] 
-                                    flex items-center text-left border-[1.5px]
-                                    transition-colors duration-150 ease-out
+                                    w-full rounded-none p-[16px] min-h-[64px]
+                                    flex items-center text-left border
+                                    transition-all duration-200 ease-out active:scale-[0.99]
+                                    ${isSelected ? 'bg-[#EBE7DF] border-text-primary text-text-primary' : 'bg-surface border-border hover:bg-[#EBE7DF] text-text-primary'}
                                 `}
                             >
-                                <motion.div 
+                                <div 
                                     className={`
-                                        w-[30px] h-[30px] rounded-full flex items-center justify-center text-[13px] font-semibold flex-shrink-0 transition-colors
+                                        w-[32px] h-[32px] border rounded-none flex items-center justify-center text-[12px] font-sans font-semibold flex-shrink-0 transition-colors
+                                        ${isSelected ? 'border-text-primary bg-text-primary text-surface' : 'border-border/50 bg-background text-text-secondary'}
                                     `}
-                                    animate={{
-                                        backgroundColor: isSelected ? "#6366F1" : "#F3F4F6",
-                                        color: isSelected ? "#ffffff" : "#6B7280"
-                                    }}
                                 >
-                                    <AnimatePresence mode="wait">
-                                        {isSelected ? (
-                                            <motion.div
-                                                key="selected"
-                                                initial={{ scale: 0, rotate: -180 }}
-                                                animate={{ scale: 1, rotate: 0 }}
-                                                exit={{ scale: 0 }}
-                                                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                                            >
-                                                <Icon name="check" size="sm" className="text-white w-4 h-4" />
-                                            </motion.div>
-                                        ) : (
-                                            <motion.span
-                                                key="letter"
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                exit={{ opacity: 0 }}
-                                            >
-                                                {opt}
-                                            </motion.span>
-                                        )}
-                                    </AnimatePresence>
-                                </motion.div>
-                                <span className="text-[15px] font-normal text-[#374151] ml-[12px] leading-snug">
+                                    {isSelected ? <Icon name="check" size="sm" strokeWidth={1.5} /> : opt}
+                                </div>
+                                <span className={`text-[16px] font-serif ml-[16px] leading-[1.5] tracking-tight ${isSelected ? 'text-text-primary font-medium' : 'text-text-primary'}`}>
                                     {text}
                                 </span>
-                            </motion.button>
+                            </button>
                         );
                     })}
                 </div>
 
                 {/* 6. Confidence Level Section */}
                 {selectedOption && (
-                    <div className="mt-[10px] px-[24px] animate-in fade-in slide-in-from-top-2">
-                        <div className="text-[13px] font-medium text-[#9CA3AF] mb-[6px] text-center">Confidence Level</div>
-                        <div className="flex gap-[8px] justify-center">
+                    <div className="mt-[32px] px-[24px] animate-in fade-in slide-in-from-top-2">
+                        <div className="text-[10px] font-sans font-semibold uppercase tracking-widest text-text-secondary mb-[16px] text-center">Confidence Level</div>
+                        <div className="flex gap-3 justify-center">
                             <button 
                                 onClick={() => handleConfidence('sure')}
                                 className={`
-                                    flex-1 max-w-[140px] py-[8px] rounded-[20px] text-[13px] font-medium transition-all
+                                    flex-1 max-w-[140px] py-[12px] rounded-none border text-[10px] font-sans font-semibold uppercase tracking-[0.1em] transition-all hover:border-text-primary
                                     ${currentConfidence === 'sure' 
-                                        ? 'bg-[#6366F1] text-white shadow-sm' 
-                                        : 'bg-[#F9FAFB] border border-[#F3F4F6] text-[#6B7280]'
+                                        ? 'bg-text-primary text-surface border-text-primary' 
+                                        : 'bg-surface border-border text-text-secondary hover:text-text-primary hover:bg-[#EBE7DF]'
                                     }
                                 `}
                             >
-                                ✓ Sure
+                                Sure
                             </button>
                             <button 
                                 onClick={() => handleConfidence('guess')}
                                 className={`
-                                    flex-1 max-w-[140px] py-[8px] rounded-[20px] text-[13px] font-medium transition-all
+                                    flex-1 max-w-[140px] py-[12px] rounded-none border text-[10px] font-sans font-semibold uppercase tracking-[0.1em] transition-all hover:border-text-primary
                                     ${currentConfidence === 'guess' 
-                                        ? 'bg-[#6366F1] text-white shadow-sm' 
-                                        : 'bg-[#F9FAFB] border border-[#F3F4F6] text-[#6B7280]'
+                                        ? 'bg-[#8A4F3A] text-surface border-[#8A4F3A]' 
+                                        : 'bg-surface border-border text-text-secondary hover:text-[#8A4F3A] hover:bg-[#F9F6F0]'
                                     }
                                 `}
                             >
-                                ? Guess
+                                Guess
                             </button>
                         </div>
                     </div>
@@ -368,30 +336,30 @@ const ActiveExamPage: React.FC = () => {
         </div>
 
         {/* 7. Bottom Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-[#F3F4F6] px-[20px] py-[12px] pb-safe">
+        <div className="fixed bottom-0 left-0 right-0 z-[100] bg-surface border-t border-border px-[24px] py-[12px] pb-safe font-sans">
             {/* Map Toggle Area */}
             <div className="absolute top-0 left-0 right-0 h-[20px] -mt-[20px] flex justify-center pointer-events-none">
                  <div 
                     onClick={() => setShowMap(!showMap)}
-                    className="w-[60px] h-[20px] bg-white rounded-t-[12px] border-t border-l border-r border-[#F3F4F6] flex items-center justify-center cursor-pointer shadow-[0_-2px_4px_rgba(0,0,0,0.02)] pointer-events-auto"
+                    className="w-[80px] h-[20px] bg-surface border-t border-l border-r border-border rounded-t-sm flex items-center justify-center cursor-pointer pointer-events-auto transition-colors hover:bg-[#EBE7DF]"
                  >
-                     <div className="w-8 h-1 bg-gray-200 rounded-full"></div>
+                     <div className="w-8 h-0.5 bg-border rounded-full opacity-60"></div>
                  </div>
             </div>
 
             {showMap && (
-                <div className="absolute bottom-full left-0 right-0 bg-white border-t border-[#F3F4F6] p-4 shadow-xl z-30 max-h-[40vh] overflow-y-auto animate-in slide-in-from-bottom-2">
-                    <div className="grid grid-cols-5 gap-2">
+                <div className="absolute bottom-full left-0 right-0 bg-surface border-t border-border p-5 shadow-none z-30 max-h-[40vh] overflow-y-auto animate-in slide-in-from-bottom-2">
+                    <div className="grid grid-cols-5 sm:grid-cols-8 gap-2.5 max-w-xl mx-auto">
                         {mcqs.map((_, i) => {
                             const ans = answers[mcqs[i].id];
                             const mk = marked.has(mcqs[i].id);
-                            let cls = "bg-white border-[#F3F4F6] text-[#6B7280]";
-                            if (i === currentIndex) cls = "ring-2 ring-[#6366F1] border-[#6366F1] text-[#6366F1] font-bold";
-                            else if (mk) cls = "bg-amber-50 text-amber-600 border-amber-200 font-medium";
-                            else if (ans) cls = "bg-[#EEF2FF] text-[#6366F1] border-indigo-100 font-medium";
+                            let cls = "bg-background border-border text-text-secondary hover:bg-[#EBE7DF] hover:text-text-primary";
+                            if (i === currentIndex) cls = "bg-text-primary border-text-primary text-surface font-medium ring-2 ring-text-primary ring-offset-1 ring-offset-surface";
+                            else if (mk) cls = "bg-surface border-primary text-primary font-medium";
+                            else if (ans) cls = "bg-[#EBE7DF] border-text-primary text-text-primary font-medium";
                             
                             return (
-                                <button key={i} onClick={() => { setCurrentIndex(i); setShowMap(false); }} className={`h-10 rounded-[8px] flex items-center justify-center text-[13px] border ${cls}`}>
+                                <button key={i} onClick={() => { setCurrentIndex(i); setShowMap(false); }} className={`h-10 w-full rounded-none flex items-center justify-center text-[12px] font-sans font-semibold border transition-all ${cls}`}>
                                     {i + 1}
                                 </button>
                             )
@@ -400,60 +368,60 @@ const ActiveExamPage: React.FC = () => {
                 </div>
             )}
 
-            <div className="max-w-xl mx-auto flex items-center gap-[10px]">
+            <div className="max-w-xl mx-auto flex items-center gap-3">
                 <button 
                     onClick={() => setCurrentIndex(p => Math.max(0, p - 1))}
                     disabled={currentIndex === 0}
-                    className="flex-1 py-[12px] px-[20px] bg-[#F9FAFB] border border-[#F3F4F6] text-[#6B7280] rounded-[14px] text-[15px] font-medium disabled:opacity-50 active:scale-[0.98] transition-all hover:bg-[#F3F4F6]"
+                    className="flex-1 py-[12px] px-[16px] bg-background border border-border text-text-secondary rounded-none text-[10px] font-sans font-semibold uppercase tracking-widest disabled:opacity-50 active:scale-[0.98] transition-all hover:bg-[#EBE7DF] hover:text-text-primary"
                 >
-                    ← Prev
+                    Prev
                 </button>
                 
                 <button 
                     onClick={toggleMark}
-                    className={`flex-1 py-[12px] px-[20px] border-[1.5px] rounded-[14px] text-[15px] font-medium active:scale-[0.98] transition-all flex items-center justify-center gap-2 ${isMarked ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-white border-[#F3F4F6] text-[#6B7280] hover:bg-gray-50'}`}
+                    className={`flex-1 py-[12px] px-[16px] border rounded-none text-[10px] font-sans font-semibold uppercase tracking-widest active:scale-[0.98] transition-all flex items-center justify-center gap-2 ${isMarked ? 'bg-[#F9F6F0] border-[#8A4F3A] text-[#8A4F3A]' : 'bg-background border-border text-text-secondary hover:bg-[#EBE7DF] hover:text-[#8A4F3A]'}`}
                 >
-                    {isMarked ? 'Unmark' : 'Flag'}
+                    {isMarked ? 'Flagged' : 'Flag'}
                 </button>
 
                 <button 
                     onClick={() => setCurrentIndex(p => Math.min(mcqs.length - 1, p + 1))}
                     disabled={currentIndex === mcqs.length - 1}
-                    className="flex-[1.2] py-[12px] px-[24px] bg-[#6366F1] text-white rounded-[14px] text-[15px] font-semibold disabled:opacity-50 active:scale-[0.98] transition-transform shadow-sm hover:bg-[#5a5dd9]"
+                    className="flex-[1.2] py-[12px] px-[24px] bg-text-primary text-surface rounded-none text-[10px] font-sans font-semibold uppercase tracking-widest disabled:opacity-50 active:scale-[0.98] transition-transform hover:bg-[#2C2C2B]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-text-primary"
                 >
-                    Next →
+                    Next
                 </button>
             </div>
         </div>
 
         {/* Submit Confirmation */}
-        <PremiumModal isOpen={showSubmitConfirm} onClose={() => setShowSubmitConfirm(false)} title="Submit Exam?" size="sm">
-            <div className="space-y-4">
-                <div className="bg-gray-50 p-4 rounded-[16px] space-y-2 text-sm border border-gray-100">
-                    <div className="flex justify-between">
-                        <span className="text-gray-600">Answered:</span>
-                        <span className="font-medium text-[#6366F1]">{Object.keys(answers).length} / {mcqs.length}</span>
+        <PremiumModal isOpen={showSubmitConfirm} onClose={() => setShowSubmitConfirm(false)} title="Submit Exam" size="sm">
+            <div className="space-y-6">
+                <div className="bg-surface p-5 rounded-none space-y-3 text-[15px] border border-border">
+                    <div className="flex justify-between font-serif">
+                        <span className="text-text-secondary">Answered</span>
+                        <span className="font-medium text-text-primary tabular-nums">{Object.keys(answers).length} <span className="text-secondary font-normal mx-1">/</span> {mcqs.length}</span>
                     </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-600">Marked:</span>
-                        <span className="font-medium text-amber-600">{marked.size}</span>
+                    <div className="flex justify-between font-serif">
+                        <span className="text-text-secondary">Flagged</span>
+                        <span className="font-medium text-primary tabular-nums">{marked.size}</span>
                     </div>
                 </div>
-                <p className="text-xs text-gray-500 text-center">You cannot change answers after submitting.</p>
+                <p className="font-serif text-[14px] text-text-secondary text-center italic">You cannot change your answers after submitting.</p>
                 <div className="flex gap-3 justify-end pt-2">
-                    <PremiumButton variant="ghost" onClick={() => setShowSubmitConfirm(false)}>Continue</PremiumButton>
-                    <PremiumButton variant="primary" onClick={() => finishExam()}>Submit Now</PremiumButton>
+                    <button onClick={() => setShowSubmitConfirm(false)} className="flex-1 py-3 bg-background border border-border text-text-primary font-sans text-[10px] font-semibold tracking-widest uppercase hover:bg-[#EBE7DF] transition-colors">Continue</button>
+                    <button onClick={() => finishExam()} className="flex-1 py-3 bg-text-primary text-surface font-sans text-[10px] font-semibold tracking-widest uppercase hover:bg-[#2C2C2B]/90 transition-colors">Submit Final</button>
                 </div>
             </div>
         </PremiumModal>
 
         {/* Exit Confirmation */}
-        <PremiumModal isOpen={showExitConfirm} onClose={() => setShowExitConfirm(false)} title="Exit Exam?" size="sm">
-            <div className="space-y-4">
-                <p className="text-[14px] text-gray-600">Are you sure? All progress will be lost.</p>
+        <PremiumModal isOpen={showExitConfirm} onClose={() => setShowExitConfirm(false)} title="Exit Exam" size="sm">
+            <div className="space-y-6">
+                <p className="font-serif text-[15px] text-text-primary text-center">Are you sure you want to exit? <br/><span className="text-secondary">All progress will be lost.</span></p>
                 <div className="flex justify-end gap-3 pt-2">
-                    <PremiumButton variant="ghost" onClick={() => setShowExitConfirm(false)}>Cancel</PremiumButton>
-                    <PremiumButton variant="danger" onClick={handleExit}>Exit</PremiumButton>
+                    <button onClick={() => setShowExitConfirm(false)} className="flex-1 py-3 bg-background border border-border text-text-primary font-sans text-[10px] font-semibold tracking-widest uppercase hover:bg-[#EBE7DF] transition-colors">Cancel</button>
+                    <button onClick={handleExit} className="flex-1 py-3 bg-primary text-surface font-sans text-[10px] font-semibold tracking-widest uppercase hover:bg-[#8A4F3A]/90 transition-colors">Exit Exam</button>
                 </div>
             </div>
         </PremiumModal>

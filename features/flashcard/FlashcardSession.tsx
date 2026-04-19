@@ -286,48 +286,47 @@ const FlashcardSession: React.FC = () => {
     }
   };
 
-  if (loading) return <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6C63FF]"></div></div>;
+  if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>;
 
   if (sessionComplete) {
     const accuracy = Math.round((sessionStats.gotIt / (sessionStats.gotIt + sessionStats.again)) * 100) || 0;
     return (
-      <div className="min-h-screen bg-[#F8FAFC] p-5 flex flex-col items-center justify-center text-center">
-        <div className="text-[48px] mb-4 animate-bounce">🎉</div>
-        <h2 className="text-[22px] font-bold text-[#6C63FF] mb-2">Session Complete!</h2>
+      <div className="min-h-screen bg-background p-6 flex flex-col items-center justify-center text-center font-serif">
+        <h2 className="text-2xl tracking-tight text-text-primary mb-2 font-medium">Session Complete</h2>
         {mode === 'practice' && (
-          <p className="text-[13px] text-gray-500 mb-6">Casual mode — no SRS progress saved</p>
+          <p className="font-sans text-xs text-text-secondary mb-8 uppercase tracking-widest">Casual mode — no SRS progress saved</p>
         )}
         
-        <div className="bg-white rounded-[14px] p-4 w-full max-w-xs shadow-sm border border-gray-200 mb-6">
-          <div className="flex justify-between mb-2">
-            <span className="text-gray-600">✅ {direction === 'reverse' ? 'I knew it' : 'Got it'}</span>
-            <span className="font-bold text-[#4CAF50]">{sessionStats.gotIt}</span>
+        <div className="bg-surface p-6 w-full max-w-xs border border-border mb-8">
+          <div className="flex justify-between mb-4 items-center">
+            <span className="font-sans text-sm text-text-secondary uppercase tracking-wider">{direction === 'reverse' ? 'I knew it' : 'Got it'}</span>
+            <span className="font-sans text-base font-medium text-text-primary">{sessionStats.gotIt}</span>
           </div>
-          <div className="flex justify-between mb-2">
-            <span className="text-gray-600">❌ {direction === 'reverse' ? "Didn't know" : 'Again'}</span>
-            <span className="font-bold text-[#E53935]">{sessionStats.again}</span>
+          <div className="flex justify-between mb-4 items-center">
+            <span className="font-sans text-sm text-text-secondary uppercase tracking-wider">{direction === 'reverse' ? "Didn't know" : 'Again'}</span>
+            <span className="font-sans text-base font-medium text-text-primary">{sessionStats.again}</span>
           </div>
-          <div className="h-px bg-gray-100 my-2"></div>
-          <div className="flex justify-between">
-            <span className="text-gray-800 font-medium">Accuracy</span>
-            <span className="font-bold text-[#6C63FF]">{accuracy}%</span>
+          <div className="h-[1px] bg-border my-4 w-full"></div>
+          <div className="flex justify-between items-center">
+            <span className="font-sans text-sm text-text-primary uppercase tracking-wider font-semibold">Accuracy</span>
+            <span className="font-sans text-base font-semibold text-primary">{accuracy}%</span>
           </div>
         </div>
 
-        <div className="space-y-3 w-full max-w-xs">
+        <div className="space-y-4 w-full max-w-xs font-sans">
           {sessionStats.again > 0 && mode === 'learning' && (
             <button 
               onClick={() => window.location.reload()}
-              className="w-full bg-[#6C63FF] text-white py-3 rounded-[14px] font-bold shadow-md active:scale-95 transition-transform"
+              className="w-full bg-primary text-surface py-3 text-sm font-semibold tracking-wider uppercase active:scale-[0.98] transition-transform"
             >
-              🔄 Review Mistakes ({sessionStats.again})
+              Review Mistakes ({sessionStats.again})
             </button>
           )}
           <button 
             onClick={() => navigate(mode === 'practice' ? '/flashcards/practice' : '/flashcards')}
-            className="w-full border border-[#6C63FF] text-[#6C63FF] py-3 rounded-[14px] font-bold active:scale-95 transition-transform"
+            className="w-full border border-primary text-primary py-3 text-sm font-semibold tracking-wider uppercase active:scale-[0.98] transition-transform"
           >
-            🏠 Back to {mode === 'practice' ? 'Practice' : 'Flashcard'}
+            Back to {mode === 'practice' ? 'Practice' : 'Flashcard'}
           </button>
         </div>
       </div>
@@ -341,35 +340,29 @@ const FlashcardSession: React.FC = () => {
   // Dynamic Styles for Swipe
   const rotate = (dragX / 100) * 15;
   const opacityRight = Math.min(1, Math.max(0, dragX / 100));
-  const opacityLeft = Math.min(1, Math.max(0, -dragX / 100));
-
-  // Content Logic based on Direction
+  const opacityLeft = Math.min(1, Math.max(0, -dragX / 100));  // Content Logic based on Direction
   const FrontContent = () => {
     if (direction === 'reverse') {
       return (
-        <div className="absolute inset-0 backface-hidden flex flex-col items-center justify-center p-6 text-center">
-          <h2 className="text-[28px] font-bold text-gray-800 mb-4">{currentCard.meaning}</h2>
-          <span className={`px-2 py-1 rounded-full text-[11px] border mb-4 ${
-              currentCard.type === 'Verb' ? 'text-blue-600 border-blue-200 bg-blue-50' :
-              currentCard.type === 'Noun' ? 'text-green-600 border-green-200 bg-green-50' :
-              'text-gray-600 border-gray-200 bg-gray-50'
-            }`}>
-              {currentCard.type}
-            </span>
-          <p className="absolute bottom-6 text-[12px] text-gray-400">tap to reveal</p>
+        <div className="absolute inset-0 backface-hidden flex flex-col items-center justify-center p-8 text-center bg-surface">
+          <h2 className="text-3xl font-serif text-text-primary mb-6 leading-snug">{currentCard.meaning}</h2>
+          <span className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-6 before:content-['—'] before:mr-2 after:content-['—'] after:ml-2">
+            {currentCard.type}
+          </span>
+          <p className="absolute bottom-6 font-sans text-xs uppercase tracking-widest text-text-secondary opacity-60">tap to reveal</p>
         </div>
       );
     }
     return (
-      <div className="absolute inset-0 backface-hidden flex flex-col items-center justify-center p-6 text-center">
-        <h2 className="text-[28px] font-bold text-gray-800 mb-4">{currentCard.word}</h2>
+      <div className="absolute inset-0 backface-hidden flex flex-col items-center justify-center p-8 text-center bg-surface">
+        <h2 className="text-4xl font-serif text-text-primary mb-8 tracking-tight">{currentCard.word}</h2>
         <button 
           onClick={(e) => { e.stopPropagation(); speakWord(currentCard.word); }}
-          className="text-[#6C63FF] p-2 rounded-full hover:bg-indigo-50"
+          className="text-primary p-3 hover:bg-[#EBE7DF] transition-colors"
         >
-          <Icon name="volume-2" size="md" />
+          <Icon name="volume-2" size="md" strokeWidth={1.5} />
         </button>
-        <p className="absolute bottom-6 text-[12px] text-gray-400">tap to flip</p>
+        <p className="absolute bottom-6 font-sans text-xs uppercase tracking-widest text-text-secondary opacity-60">tap to flip</p>
       </div>
     );
   };
@@ -377,91 +370,84 @@ const FlashcardSession: React.FC = () => {
   const BackContent = () => {
     if (direction === 'reverse') {
       return (
-        <div className="absolute inset-0 backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 text-center bg-white rounded-[20px]">
-          <h2 className="text-[22px] font-bold text-[#6C63FF] mb-2">{currentCard.word}</h2>
+        <div className="absolute inset-0 backface-hidden rotate-y-180 flex flex-col items-center justify-center p-8 text-center bg-surface">
+          <h2 className="text-3xl font-serif text-primary mb-4">{currentCard.word}</h2>
           
           {currentCard.verbForms && (
-             <p className="text-[12px] text-gray-500 mb-2">{currentCard.verbForms.v1}, {currentCard.verbForms.v2}, {currentCard.verbForms.v3}</p>
+             <p className="font-sans text-xs text-text-secondary mb-4 italic">{currentCard.verbForms.v1}, {currentCard.verbForms.v2}, {currentCard.verbForms.v3}</p>
           )}
 
           {currentCard.examples && currentCard.examples.length > 0 && (
-            <p className="text-[13px] text-gray-600 italic mb-4 line-clamp-2">
+             <p className="font-serif text-lg leading-relaxed text-text-primary mb-6 line-clamp-3">
               "{currentCard.examples[0].split('=')[1]?.trim() || currentCard.examples[0]}"
-            </p>
+             </p>
           )}
 
           <button 
             onClick={(e) => { e.stopPropagation(); speakWord(currentCard.word); }}
-            className="text-[#6C63FF] flex items-center gap-1 text-[12px] font-bold"
+            className="text-primary flex items-center gap-2 font-sans text-xs uppercase tracking-wider font-semibold hover:bg-[#EBE7DF] p-2 transition-colors"
           >
-            <Icon name="volume-2" size="sm" /> tap to hear
+            <Icon name="volume-2" size="sm" strokeWidth={1.5} /> tap to hear
           </button>
         </div>
       );
     }
     return (
-      <div className="absolute inset-0 backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 text-center bg-white rounded-[20px]">
-        <h2 className="text-[22px] font-bold text-[#6C63FF] mb-2">{currentCard.word} → {currentCard.meaning}</h2>
+      <div className="absolute inset-0 backface-hidden rotate-y-180 flex flex-col items-center justify-center p-8 text-center bg-surface">
+        <h2 className="text-2xl font-serif text-primary mb-4 leading-snug">{currentCard.word} <br/><span className="text-text-primary text-xl mt-2 block">{currentCard.meaning}</span></h2>
         
-        <span className={`px-2 py-1 rounded-full text-[11px] border mb-4 ${
-          currentCard.type === 'Verb' ? 'text-blue-600 border-blue-200 bg-blue-50' :
-          currentCard.type === 'Noun' ? 'text-green-600 border-green-200 bg-green-50' :
-          currentCard.type === 'Adjective' ? 'text-orange-600 border-orange-200 bg-orange-50' :
-          'text-gray-600 border-gray-200 bg-gray-50'
-        }`}>
+        <span className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-6 before:content-['—'] before:mr-2 after:content-['—'] after:ml-2">
           {currentCard.type}
         </span>
 
         {currentCard.type === 'Verb' && currentCard.verbForms && (
-          <div className="grid grid-cols-2 gap-2 bg-gray-50 p-2 rounded-[8px] mb-4 w-full text-[12px] text-gray-600">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 border border-border p-4 mb-6 w-full font-serif text-sm text-text-secondary">
             <div>V1: {currentCard.verbForms.v1}</div>
             <div>V1s: {currentCard.verbForms.v1s}</div>
             <div>V2: {currentCard.verbForms.v2}</div>
             <div>V3: {currentCard.verbForms.v3}</div>
-            <div className="col-span-2">Ving: {currentCard.verbForms.vIng}</div>
+            <div className="col-span-2 mt-1 pt-1 border-t border-border/50">Ving: {currentCard.verbForms.vIng}</div>
           </div>
         )}
 
         {currentCard.examples && currentCard.examples.length > 0 && (
-          <p className="text-[13px] text-gray-600 italic mb-4 line-clamp-2">
+           <p className="font-serif text-lg leading-relaxed text-text-primary mb-8 line-clamp-3">
             "{currentCard.examples[0].split('=')[1]?.trim() || currentCard.examples[0]}"
-          </p>
+           </p>
         )}
 
         <button 
           onClick={(e) => { e.stopPropagation(); speakWord(currentCard.word); }}
-          className="text-[#6C63FF] flex items-center gap-1 text-[12px] font-bold"
+          className="text-primary flex items-center gap-2 font-sans text-xs uppercase tracking-wider font-semibold hover:bg-[#EBE7DF] p-2 transition-colors"
         >
-          <Icon name="volume-2" size="sm" /> tap to hear
+          <Icon name="volume-2" size="sm" strokeWidth={1.5} /> tap to hear
         </button>
       </div>
     );
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col overflow-hidden font-serif">
       {/* Top Bar */}
-      <div className="px-5 py-4 flex items-center justify-between relative z-20">
+      <div className="px-6 py-4 flex items-center justify-between relative z-20 border-b border-border/50">
         <button 
           onClick={() => {
-            if (window.confirm("Session ছেড়ে যাবে? Progress save হবে।")) {
-              navigate(mode === 'practice' ? '/flashcards/practice' : '/flashcards');
-            }
+             navigate(mode === 'practice' ? '/flashcards/practice' : '/flashcards');
           }}
-          className="text-gray-600 p-2 -ml-2 rounded-full hover:bg-gray-100"
+          className="text-text-primary p-2 -ml-2"
         >
           <Icon name="arrow-left" size="sm" />
         </button>
-        <span className="text-[16px] font-bold text-gray-800">
+        <span className="font-sans text-xs uppercase tracking-widest text-text-secondary font-semibold">
           {mode === 'practice' ? (direction === 'reverse' ? 'Reverse Card' : 'Shuffle Practice') : 'Session'}
         </span>
-        <span className="text-[14px] text-gray-600">{currentIndex + 1} / {deck.length}</span>
+        <span className="font-sans text-xs font-semibold text-text-primary">{currentIndex + 1} / {deck.length}</span>
       </div>
       
       {/* Progress Bar */}
-      <div className="w-full h-[3px] bg-gray-200">
+      <div className="w-full h-[1px] bg-border">
         <div 
-          className="h-full bg-[#6C63FF] transition-all duration-300"
+          className="h-full bg-primary transition-all duration-300"
           style={{ width: `${progress}%` }}
         ></div>
       </div>
@@ -471,13 +457,13 @@ const FlashcardSession: React.FC = () => {
         
         {/* Next Card (Background) */}
         {nextCard && (
-          <div className="absolute w-[85%] h-[60%] bg-white rounded-[20px] border border-gray-200 shadow-sm transform scale-95 opacity-50 -z-10"></div>
+          <div className="absolute w-[85%] h-[60%] bg-surface border border-border transform scale-95 opacity-50 -z-10"></div>
         )}
 
         {/* Current Card */}
         <div 
           ref={cardRef}
-          className="absolute w-[85%] h-[60%] bg-white rounded-[20px] border border-gray-200 shadow-lg cursor-grab active:cursor-grabbing transform-style-3d transition-transform duration-0"
+          className="absolute w-[85%] h-[60%] bg-surface border border-border cursor-grab active:cursor-grabbing transform-style-3d transition-transform duration-0"
           style={{ 
             transform: `translateX(${dragX}px) rotate(${rotate}deg) rotateY(${isFlipped ? 180 : 0}deg)`,
             transition: isDragging ? 'none' : 'transform 0.3s ease-out'
@@ -495,16 +481,16 @@ const FlashcardSession: React.FC = () => {
           
           {/* Swipe Overlays */}
           <div 
-            className="absolute inset-0 bg-[#4CAF50] rounded-[20px] flex items-center justify-center pointer-events-none transition-opacity backface-hidden"
+            className="absolute inset-0 bg-primary/10 flex items-center justify-center pointer-events-none transition-opacity backface-hidden border border-primary/20"
             style={{ opacity: opacityRight * 0.2, zIndex: 10 }}
           >
-              <Icon name="check" size="xl" className="text-white opacity-50" />
+              <Icon name="check" size="xl" className="text-primary opacity-80" strokeWidth={1.5} />
           </div>
           <div 
-            className="absolute inset-0 bg-[#E53935] rounded-[20px] flex items-center justify-center pointer-events-none transition-opacity backface-hidden"
+            className="absolute inset-0 bg-text-secondary/10 flex items-center justify-center pointer-events-none transition-opacity backface-hidden border border-text-secondary/20"
             style={{ opacity: opacityLeft * 0.2, zIndex: 10 }}
           >
-              <Icon name="x" size="xl" className="text-white opacity-50" />
+              <Icon name="x" size="xl" className="text-text-secondary opacity-80" strokeWidth={1.5} />
           </div>
 
           <BackContent />
@@ -512,28 +498,28 @@ const FlashcardSession: React.FC = () => {
       </div>
 
       {/* Bottom Buttons */}
-      <div className="p-8 flex justify-between items-center">
+      <div className="p-8 flex justify-between items-center max-w-sm mx-auto w-full">
         <button 
           onClick={() => handleSwipe('left')}
-          className="w-[56px] h-[56px] rounded-full border-2 border-[#E53935] flex items-center justify-center bg-white shadow-sm active:scale-95 transition-transform"
+          className="w-14 h-14 border border-border flex items-center justify-center bg-surface hover:bg-[#EBE7DF] active:scale-[0.98] transition-transform"
         >
-          <Icon name="x" size="md" className="text-[#E53935]" />
+          <Icon name="x" size="md" className="text-text-secondary" strokeWidth={1.5} />
         </button>
 
         <div className="text-center">
-            <span className="text-[12px] font-bold text-[#E53935] block mb-1 opacity-0 transition-opacity" style={{ opacity: opacityLeft }}>
+            <span className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1 opacity-0 transition-opacity" style={{ opacity: opacityLeft }}>
               {direction === 'reverse' ? "Didn't know" : 'Again'}
             </span>
-            <span className="text-[12px] font-bold text-[#4CAF50] block opacity-0 transition-opacity" style={{ opacity: opacityRight }}>
+            <span className="font-sans text-xs uppercase tracking-widest text-primary block opacity-0 transition-opacity" style={{ opacity: opacityRight }}>
               {direction === 'reverse' ? "I knew it" : 'Got it'}
             </span>
         </div>
 
         <button 
           onClick={() => handleSwipe('right')}
-          className="w-[56px] h-[56px] rounded-full border-2 border-[#4CAF50] flex items-center justify-center bg-white shadow-sm active:scale-95 transition-transform"
+          className="w-14 h-14 border border-border flex items-center justify-center bg-surface hover:bg-[#EBE7DF] active:scale-[0.98] transition-transform"
         >
-          <Icon name="check" size="md" className="text-[#4CAF50]" />
+          <Icon name="check" size="md" className="text-primary" strokeWidth={1.5} />
         </button>
       </div>
 

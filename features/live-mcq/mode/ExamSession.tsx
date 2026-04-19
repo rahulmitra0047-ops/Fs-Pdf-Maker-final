@@ -148,34 +148,34 @@ const ExamSession: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
         {/* Exam Header */}
-        <div className="h-14 bg-slate-900 text-white flex items-center justify-between px-4 sticky top-0 z-20 shadow-md border-b border-slate-800">
+        <div className="h-16 bg-background border-b border-border/50 flex items-center justify-between px-6 sticky top-0 z-20 font-sans uppercase tracking-widest text-xs">
             <div className="flex items-center gap-4">
-                <button onClick={() => setShowExitConfirm(true)} className="text-slate-400 hover:text-white p-2 -ml-2 transition-colors">✕</button>
-                <span className="font-bold tracking-tight">Exam Mode</span>
+                <button onClick={() => setShowExitConfirm(true)} className="text-text-primary p-2 -ml-2 hover:bg-[#EBE7DF] transition-colors"><Icon name="x" size="sm" strokeWidth={1.5} /></button>
+                <span className="font-semibold text-text-primary">Exam</span>
             </div>
-            <div className={`font-mono text-lg font-bold ${timeLeft < 60 ? 'text-rose-400 animate-pulse' : 'text-indigo-400'}`}>
-                ⏱️ {formatTime(timeLeft)}
+            <div className={`font-mono text-sm tracking-wider font-semibold ${timeLeft < 60 ? 'text-[#8A4F3A] animate-pulse' : 'text-text-primary'}`}>
+                {formatTime(timeLeft)}
             </div>
-            <button onClick={() => setShowSubmitConfirm(true)} disabled={isSubmitting} className="text-xs bg-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-500 disabled:opacity-50 font-semibold shadow-lg shadow-indigo-900/20 transition-all active:scale-95">
-                {isSubmitting ? '...' : 'Submit'}
+            <button onClick={() => setShowSubmitConfirm(true)} disabled={isSubmitting} className="border border-primary text-primary px-3 py-1 font-semibold hover:bg-[#EBE7DF] disabled:opacity-50 transition-colors">
+                {isSubmitting ? '...' : 'SUMBIT'}
             </button>
         </div>
 
         {/* Question Area */}
-        <div className="flex-1 p-5 pb-40 overflow-y-auto">
-            <div className="max-w-2xl mx-auto space-y-6">
-                <div className="flex justify-between items-center text-sm text-slate-500 font-medium">
+        <div className="flex-1 p-6 pb-48 overflow-y-auto font-serif">
+            <div className="max-w-xl mx-auto space-y-6">
+                <div className="flex justify-between items-center font-sans text-[10px] text-text-secondary uppercase tracking-widest font-semibold pb-2 border-b border-border/50">
                     <span>Question {currentIndex + 1} of {mcqs.length}</span>
-                    {isMarked && <span className="text-amber-600 font-bold flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-md border border-amber-100">🚩 Marked</span>}
+                    {isMarked && <span className="text-[#8A4F3A] flex items-center gap-1">Marked</span>}
                 </div>
 
-                <div className="bg-white p-6 rounded-[24px] shadow-sm border border-slate-100">
-                    <h2 className="text-[18px] font-semibold text-slate-800 leading-[1.6]">
+                <div className="bg-surface p-6 border border-border">
+                    <h2 className="text-xl font-medium text-text-primary leading-[1.6]">
                         {currentMCQ.question}
                     </h2>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-3 pt-2">
                     {['A', 'B', 'C', 'D'].map((opt) => {
                         const text = currentMCQ[`option${opt}` as keyof MCQ] as string;
                         const isSelected = selectedOption === opt;
@@ -184,10 +184,10 @@ const ExamSession: React.FC = () => {
                             <button
                                 key={opt}
                                 onClick={() => handleAnswer(opt)}
-                                className={`w-full p-4 border rounded-[20px] flex items-start gap-4 text-left transition-all duration-200 ${isSelected ? 'bg-slate-800 border-slate-800 text-white shadow-lg shadow-slate-900/10' : 'bg-white border-slate-100 text-slate-600 hover:bg-slate-50 hover:border-slate-200'}`}
+                                className={`w-full p-4 px-5 border flex items-center text-left transition-all duration-200 min-h-[64px] ${isSelected ? 'bg-text-primary border-text-primary text-surface' : 'bg-surface border-border text-text-primary hover:bg-[#EBE7DF]'}`}
                             >
-                                <span className={`w-6 h-6 rounded-full border flex items-center justify-center text-xs font-bold flex-shrink-0 transition-colors ${isSelected ? 'border-white text-white bg-white/20' : 'border-slate-300 text-slate-400 bg-slate-50'}`}>{opt}</span>
-                                <span className="text-[15px] mt-0.5 leading-snug">{text}</span>
+                                <span className={`w-8 h-8 border flex items-center justify-center font-sans text-xs font-semibold flex-shrink-0 transition-colors ${isSelected ? 'border-surface text-surface' : 'border-border/50 text-text-secondary bg-background'}`}>{opt}</span>
+                                <span className="text-[17px] ml-4 leading-relaxed tracking-tight">{text}</span>
                             </button>
                         );
                     })}
@@ -196,23 +196,23 @@ const ExamSession: React.FC = () => {
         </div>
 
         {/* Navigator Footer */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200 z-20 pb-safe">
+        <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/50 z-20 pb-safe font-sans">
             {/* Quick Nav Strip */}
-            <div className="overflow-x-auto whitespace-nowrap p-3 border-b border-slate-100 scrollbar-hide flex gap-2 px-4">
+            <div className="overflow-x-auto whitespace-nowrap p-3 border-b border-border/50 scrollbar-hide flex gap-2 px-6">
                 {mcqs.map((m, i) => {
                     const ans = answers[m.id];
                     const mk = marked.has(m.id);
-                    let statusClass = "bg-slate-50 text-slate-400 border-slate-100";
+                    let statusClass = "bg-surface text-text-secondary border-border/50 opacity-60";
                     
-                    if (i === currentIndex) statusClass = "bg-slate-800 text-white border-slate-800 ring-2 ring-slate-200";
-                    else if (mk) statusClass = "bg-amber-100 text-amber-600 border-amber-200";
-                    else if (ans) statusClass = "bg-indigo-50 text-indigo-600 border-indigo-200";
+                    if (i === currentIndex) statusClass = "bg-text-primary text-surface border-text-primary opacity-100";
+                    else if (mk) statusClass = "bg-[#8A4F3A] text-surface border-[#8A4F3A] opacity-100";
+                    else if (ans) statusClass = "bg-[#EBE7DF] text-primary border-primary opacity-100";
 
                     return (
                         <button 
                             key={m.id}
                             onClick={() => setCurrentIndex(i)}
-                            className={`w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center text-xs font-bold border transition-all ${statusClass}`}
+                            className={`w-10 h-10 flex-shrink-0 flex items-center justify-center text-[11px] font-semibold border transition-all ${statusClass}`}
                         >
                             {i + 1}
                         </button>
@@ -220,18 +220,18 @@ const ExamSession: React.FC = () => {
                 })}
             </div>
 
-            <div className="p-4 flex justify-between items-center max-w-2xl mx-auto gap-4">
+            <div className="p-4 flex justify-between items-center max-w-xl mx-auto gap-4">
                 <button 
                     onClick={() => setCurrentIndex(p => Math.max(0, p - 1))}
                     disabled={currentIndex === 0}
-                    className="flex-1 py-3 text-sm font-bold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="flex-1 py-4 text-xs font-semibold text-text-primary border border-border bg-surface hover:bg-[#EBE7DF] disabled:opacity-30 transition-colors uppercase tracking-widest min-w-[30%]"
                 >
-                    ← Prev
+                    Prev
                 </button>
                 
                 <button 
                     onClick={toggleMark}
-                    className={`flex-1 py-3 text-sm font-bold rounded-xl border transition-colors ${isMarked ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}
+                    className={`flex-1 py-4 text-xs font-semibold border transition-colors uppercase tracking-widest min-w-[30%] ${isMarked ? 'bg-[#8A4F3A] text-surface border-[#8A4F3A]' : 'bg-surface text-text-primary border-border hover:bg-[#EBE7DF]'}`}
                 >
                     {isMarked ? 'Unmark' : 'Mark'}
                 </button>
@@ -239,24 +239,24 @@ const ExamSession: React.FC = () => {
                 <button 
                     onClick={() => setCurrentIndex(p => Math.min(mcqs.length - 1, p + 1))}
                     disabled={currentIndex === mcqs.length - 1}
-                    className="flex-1 py-3 text-sm font-bold text-white bg-slate-800 rounded-xl hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-slate-900/10"
+                    className="flex-1 py-4 text-xs font-semibold text-surface border border-text-primary bg-text-primary hover:bg-[#434342] disabled:opacity-30 transition-colors uppercase tracking-widest min-w-[30%]"
                 >
-                    Next →
+                    Next
                 </button>
             </div>
         </div>
 
         {/* Exam Settings Modal */}
         <PremiumModal isOpen={showSettings} onClose={() => navigate(`/live-mcq/set/${setId}`)} title="Exam Settings" size="sm">
-            <div className="space-y-6">
+            <div className="space-y-6 font-sans">
                 <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-3">Time Limit (Minutes)</label>
+                    <label className="block text-xs font-semibold uppercase tracking-widest text-text-secondary mb-3">Time Limit (Minutes)</label>
                     <div className="grid grid-cols-4 gap-3">
                         {[10, 15, 20, 30].map(m => (
                             <button 
                                 key={m}
                                 onClick={() => setTimeLimit(m)}
-                                className={`py-3 rounded-xl text-sm font-bold border transition-all ${timeLimit === m ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+                                className={`py-3 rounded-none text-sm font-semibold border transition-all ${timeLimit === m ? 'bg-text-primary text-surface border-text-primary' : 'bg-surface text-text-primary border-border hover:bg-[#EBE7DF]'}`}
                             >
                                 {m}m
                             </button>
@@ -264,50 +264,50 @@ const ExamSession: React.FC = () => {
                     </div>
                 </div>
                 
-                <label className="flex items-center justify-between p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
-                    <span className="text-sm font-bold text-slate-700">Shuffle Questions</span>
+                <label className="flex items-center justify-between p-4 border border-border rounded-none cursor-pointer hover:bg-[#EBE7DF] transition-colors">
+                    <span className="text-xs font-semibold uppercase tracking-widest text-text-primary">Shuffle Questions</span>
                     <div className="relative flex items-center">
                         <input type="checkbox" checked={options.shuffleQuestions} onChange={e => setOptions({...options, shuffleQuestions: e.target.checked})} className="peer sr-only" />
-                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
+                        <div className="w-11 h-6 bg-border peer-focus:outline-none rounded-none peer peer-checked:after:translate-x-full peer-checked:after:border-surface after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-border after:border after:rounded-none after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                     </div>
                 </label>
 
                 <div className="pt-2">
-                    <PremiumButton fullWidth onClick={startExam} className="bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-900/20">Start Exam</PremiumButton>
+                    <PremiumButton fullWidth onClick={startExam}>START EXAM</PremiumButton>
                 </div>
             </div>
         </PremiumModal>
 
         {/* Submit Confirmation */}
         <PremiumModal isOpen={showSubmitConfirm} onClose={() => setShowSubmitConfirm(false)} title="Submit Exam?" size="sm">
-            <div className="space-y-5">
-                <div className="bg-slate-50 p-5 rounded-2xl space-y-3 text-sm border border-slate-100">
+            <div className="space-y-5 font-sans">
+                <div className="bg-surface p-5 border border-border space-y-3 text-sm">
                     <div className="flex justify-between items-center">
-                        <span className="text-slate-500 font-medium">Answered</span>
-                        <span className="font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">{Object.keys(answers).length}</span>
+                        <span className="text-text-secondary font-semibold uppercase tracking-widest text-[10px]">Answered</span>
+                        <span className="font-bold text-primary">{Object.keys(answers).length}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                        <span className="text-slate-500 font-medium">Marked</span>
-                        <span className="font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">{marked.size}</span>
+                        <span className="text-text-secondary font-semibold uppercase tracking-widest text-[10px]">Marked</span>
+                        <span className="font-bold text-[#8A4F3A]">{marked.size}</span>
                     </div>
-                    <div className="flex justify-between items-center border-t border-slate-200 pt-2 mt-2">
-                        <span className="text-slate-500 font-medium">Remaining</span>
-                        <span className="font-bold text-slate-900">{mcqs.length - Object.keys(answers).length}</span>
+                    <div className="flex justify-between items-center border-t border-border/50 pt-3 mt-3">
+                        <span className="text-text-secondary font-semibold uppercase tracking-widest text-[10px]">Remaining</span>
+                        <span className="font-bold text-text-primary">{mcqs.length - Object.keys(answers).length}</span>
                     </div>
                 </div>
-                <p className="text-xs text-slate-400 text-center">You cannot change answers after submitting.</p>
+                <p className="text-xs text-text-secondary text-center">You cannot change answers after submitting.</p>
                 <div className="flex gap-3">
                     <PremiumButton variant="ghost" onClick={() => setShowSubmitConfirm(false)}>Continue</PremiumButton>
-                    <PremiumButton onClick={() => finishExam()} className="bg-indigo-600 hover:bg-indigo-500">Submit Now</PremiumButton>
+                    <PremiumButton onClick={() => finishExam()}>Submit Now</PremiumButton>
                 </div>
             </div>
         </PremiumModal>
 
         {/* Exit Confirmation */}
         <PremiumModal isOpen={showExitConfirm} onClose={() => setShowExitConfirm(false)} title="Exit Exam?" size="sm">
-            <div className="space-y-4">
-                <p className="text-sm text-slate-500">Are you sure? All progress will be lost.</p>
-                <div className="flex justify-end gap-3 pt-2">
+            <div className="space-y-6">
+                <p className="font-serif text-[15px] text-text-secondary">Are you sure? All progress will be lost.</p>
+                <div className="flex justify-end gap-3 pt-4 border-t border-border/50">
                     <PremiumButton variant="ghost" onClick={() => setShowExitConfirm(false)}>Cancel</PremiumButton>
                     <PremiumButton variant="danger" onClick={handleExit}>Exit</PremiumButton>
                 </div>

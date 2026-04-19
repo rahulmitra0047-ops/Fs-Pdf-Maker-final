@@ -48,91 +48,66 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-sans pb-24 overflow-hidden flex flex-col">
-      
-      {/* 1. Compact Header */}
-      <header className="sticky top-0 z-40 bg-[#F8FAFC]/80 backdrop-blur-xl px-6 pt-8 pb-4 flex items-center justify-between flex-none">
-        <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-slate-700 rounded-lg flex items-center justify-center transform rotate-45 shadow-lg">
-                <span className="text-white transform -rotate-45 text-base">✦</span>
-            </div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-700">Edunex</h1>
-        </div>
-        <div className="text-xs font-medium text-slate-400">
+    <div className="min-h-screen bg-background font-serif text-text-primary pb-20 flex flex-col">
+      {/* 1. Scholarly Header */}
+      <header className="px-6 py-4 flex items-center justify-between border-b border-border/50">
+        <h1 className="text-2xl font-serif tracking-tight text-text-primary">Edunex</h1>
+        <div className="text-xs font-sans font-medium uppercase tracking-widest text-text-secondary">
             {greeting}
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col justify-start gap-5 max-w-md mx-auto px-6 w-full py-2 overflow-y-auto">
+      <main className="max-w-[640px] mx-auto px-6 py-6 flex flex-col gap-6 flex-1 w-full justify-center">
         
-        {/* 2. Motivational Quote Section */}
-        <MotivationalQuote />
+        {/* 2. Motivational Quote Section (Dynamic Integration) */}
+        <div className="w-full">
+           <MotivationalQuote />
+        </div>
 
         {/* 3. Action Grid (2x2) */}
-        <div className="grid grid-cols-2 gap-3 w-full">
+        <div className="grid grid-cols-2 gap-6 mx-auto w-full max-w-md">
             {/* Quick Practice */}
             <div 
                 onClick={handleQuickPractice}
-                className="col-span-1 bg-white rounded-2xl p-5 relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-36 flex flex-col justify-between border border-slate-200/80 group cursor-pointer"
+                className="bg-surface border border-border p-4 flex flex-col items-center justify-center h-28 gap-3 hover:bg-[#EBE7DF] transition-colors cursor-pointer"
             >
-                <div className="absolute top-0 right-0 p-4 opacity-5 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform duration-500 text-indigo-600">
-                    <Icon name="clock" size="lg" className="w-16 h-16" />
+                <div className="text-primary">
+                    <Icon name="clock" size="lg" strokeWidth={1.5} />
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
-                    <Icon name="play" size="sm" />
-                </div>
-                <div>
-                    <h3 className="font-bold text-slate-800 text-base leading-tight">Quick<br/>Practice</h3>
-                </div>
+                <h3 className="font-sans text-xs font-semibold tracking-wide text-text-primary text-center uppercase">Quick Practice</h3>
             </div>
 
             {/* Exam Center */}
             <div 
                 onClick={() => navigate('/live-mcq/exam-center')}
-                className="col-span-1 bg-white rounded-2xl p-5 relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-36 flex flex-col justify-between border border-slate-200/80 group cursor-pointer"
+                className="bg-surface border border-border p-4 flex flex-col items-center justify-center h-28 gap-3 hover:bg-[#EBE7DF] transition-colors cursor-pointer"
             >
-                <div className="absolute top-0 right-0 p-4 opacity-5 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform duration-500 text-rose-600">
-                    <Icon name="target" size="lg" className="w-16 h-16" />
+                <div className="text-primary">
+                    <Icon name="award" size="lg" strokeWidth={1.5} />
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100/50 shadow-sm group-hover:bg-rose-600 group-hover:text-white transition-colors duration-300">
-                    <Icon name="target" size="sm" />
-                </div>
-                <div>
-                    <h3 className="font-bold text-slate-800 text-base leading-tight">Exam<br/>Center</h3>
-                </div>
+                <h3 className="font-sans text-xs font-semibold tracking-wide text-text-primary text-center uppercase">Exam Center</h3>
             </div>
 
             {/* Flashcards */}
             <div 
                 onClick={() => navigate('/flashcards')}
-                className="col-span-1 bg-white rounded-2xl p-5 relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-36 flex flex-col justify-between border border-slate-200/80 group cursor-pointer"
+                className="bg-surface border border-border p-4 flex flex-col items-center justify-center h-28 gap-3 hover:bg-[#EBE7DF] transition-colors cursor-pointer"
             >
-                <div className="absolute top-0 right-0 p-4 opacity-5 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform duration-500 text-amber-600">
-                    <Icon name="file-text" size="lg" className="w-16 h-16" />
+                <div className="text-primary">
+                    <Icon name="layers" size="lg" strokeWidth={1.5} />
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100/50 shadow-sm group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
-                    <Icon name="layers" size="sm" />
-                </div>
-                <div>
-                    <h3 className="font-bold text-slate-800 text-base leading-tight">Flash<br/>Cards</h3>
-                </div>
+                <h3 className="font-sans text-xs font-semibold tracking-wide text-text-primary text-center uppercase">Flash Cards</h3>
             </div>
 
             {/* Synonym Finder */}
             <div 
                 onClick={() => navigate('/flashcards/universe')}
-                className="col-span-1 bg-white rounded-2xl p-5 relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-36 flex flex-col justify-between border border-slate-200/80 group cursor-pointer"
+                className="bg-surface border border-border p-4 flex flex-col items-center justify-center h-28 gap-3 hover:bg-[#EBE7DF] transition-colors cursor-pointer"
             >
-                <div className="absolute top-0 right-0 p-4 opacity-5 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform duration-500 text-emerald-600">
-                    <Icon name="search" size="lg" className="w-16 h-16" />
+                <div className="text-primary">
+                    <Icon name="refresh-cw" size="lg" strokeWidth={1.5} />
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100/50 shadow-sm group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
-                    <Icon name="search" size="sm" />
-                </div>
-                <div>
-                    <h3 className="font-bold text-slate-800 text-base leading-tight">Synonym<br/>Finder</h3>
-                </div>
+                <h3 className="font-sans text-xs font-semibold tracking-wide text-text-primary text-center uppercase">Synonyms</h3>
             </div>
         </div>
 

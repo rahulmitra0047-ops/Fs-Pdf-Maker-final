@@ -32,43 +32,44 @@ const QuestionCard: React.FC<QuestionCardProps> = memo(({
     formatLastAttempt
 }) => {
     return (
-        <div className="max-w-xl mx-auto animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="bg-white rounded-xl p-4 mb-4 shadow-sm border border-slate-100">
-                <h2 className="text-[16px] font-semibold text-slate-800 leading-[1.5]">
+        <div className="max-w-xl mx-auto animate-in fade-in slide-in-from-bottom-2 duration-300 font-serif">
+            <div className="bg-surface p-6 mb-8 border border-border">
+                <h2 className="text-xl font-medium text-text-primary leading-[1.6] tracking-tight">
                     {mcq.question}
                 </h2>
                 {attemptData && (
-                    <div className="mt-2.5 flex items-center gap-1.5 text-[10px] text-slate-400 font-medium bg-slate-50 px-2.5 py-1 rounded-md w-fit border border-slate-100">
+                    <div className="mt-4 flex items-center gap-2 font-sans text-[10px] text-text-secondary uppercase tracking-widest border-t border-border/50 pt-4">
                         <Icon name="clock" size="xs" className="w-3 h-3" />
-                        <span>Last attempted: <span className="text-slate-600">{formatLastAttempt(attemptData.lastAttemptedAt).relative}</span></span>
-                        <span className="text-slate-300">|</span>
+                        <span>Last attempted: {formatLastAttempt(attemptData.lastAttemptedAt).relative}</span>
+                        <span className="text-border">|</span>
                         <span>{new Date(attemptData.lastAttemptedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     </div>
                 )}
             </div>
 
-            <div className="flex flex-col gap-[8px]">
+            <div className="flex flex-col gap-3">
                 {['A', 'B', 'C', 'D'].map((opt) => {
                     const text = mcq[`option${opt}` as keyof MCQ] as string;
                     
                     const isSelected = selectedOption === opt;
                     const isCorrect = opt === mcq.answer;
                     
-                    let containerClass = "bg-white border-[1.5px] border-slate-100";
-                    let circleClass = "bg-slate-50 text-slate-500";
-                    let textClass = "text-slate-600";
+                    let containerClass = "bg-surface border border-border";
+                    let circleClass = "bg-background text-text-secondary";
+                    let textClass = "text-text-primary";
 
                     if (hasAnswered) {
                         if (isCorrect) {
-                            containerClass = "bg-emerald-50 border-emerald-500 ring-1 ring-emerald-500 shadow-sm";
-                            circleClass = "bg-emerald-500 text-white shadow-inner";
-                            textClass = "text-emerald-900 font-medium";
+                            containerClass = "bg-background border-text-primary";
+                            circleClass = "bg-text-primary text-surface";
+                            textClass = "text-text-primary font-medium";
                         } else if (isSelected) {
-                            containerClass = "bg-rose-50 border-rose-400 ring-1 ring-rose-400 shadow-sm";
-                            circleClass = "bg-rose-500 text-white shadow-inner";
-                            textClass = "text-rose-900";
+                            containerClass = "bg-surface border-[#8A4F3A]";
+                            circleClass = "bg-[#8A4F3A] text-surface border-[#8A4F3A]";
+                            textClass = "text-text-primary";
                         } else {
-                            containerClass = "bg-white border-slate-100 opacity-50 grayscale";
+                            containerClass = "bg-surface border-border opacity-60 grayscale";
+                            circleClass = "bg-background text-text-secondary border-border/50";
                         }
                     }
 
@@ -77,44 +78,32 @@ const QuestionCard: React.FC<QuestionCardProps> = memo(({
                             key={opt}
                             onClick={() => onAnswer(opt)}
                             disabled={hasAnswered}
-                            whileHover={!hasAnswered ? { scale: 0.99, backgroundColor: "#f8fafc", borderColor: "#cbd5e1" } : {}}
-                            whileTap={!hasAnswered ? { scale: 0.98 } : {}}
+                            whileHover={!hasAnswered ? { backgroundColor: "var(--color-surface-hover)", borderColor: "var(--color-text-primary)" } : {}}
+                            whileTap={!hasAnswered ? { scale: 0.99 } : {}}
                             initial={false}
-                            animate={{
-                                backgroundColor: hasAnswered && isCorrect ? "#ecfdf5" : hasAnswered && isSelected ? "#fff1f2" : "#ffffff",
-                                borderColor: hasAnswered && isCorrect ? "#10b981" : hasAnswered && isSelected ? "#fb7185" : "#f1f5f9",
-                                scale: hasAnswered && (isCorrect || isSelected) ? 1.01 : 1,
-                            }}
-                            transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
-                            className={`w-full rounded-xl p-3 px-4 flex items-center text-left transition-colors duration-200 ease-out ${containerClass}`}
+                            className={`w-full p-4 px-5 flex items-center text-left transition-colors duration-200 ease-out min-h-[64px] ${containerClass}`}
                         >
-                            <motion.div 
-                                className={`w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-bold flex-shrink-0 transition-colors ${circleClass}`}
-                                animate={{
-                                    backgroundColor: hasAnswered && isCorrect ? "#10b981" : hasAnswered && isSelected ? "#f43f5e" : "#f8fafc",
-                                    color: hasAnswered && (isCorrect || isSelected) ? "#ffffff" : "#64748b"
-                                }}
+                            <div 
+                                className={`w-8 h-8 flex items-center justify-center font-sans text-xs font-semibold flex-shrink-0 transition-colors border border-border/50 ${circleClass}`}
                             >
                                 <AnimatePresence mode="wait">
                                     {hasAnswered && isCorrect ? (
                                         <motion.div
                                             key="correct"
-                                            initial={{ scale: 0, rotate: -180 }}
-                                            animate={{ scale: 1, rotate: 0 }}
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
                                             exit={{ scale: 0 }}
-                                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
                                         >
-                                            <Icon name="check" size="xs" className="text-white w-4 h-4" />
+                                            <Icon name="check" size="sm" className="text-surface" strokeWidth={1.5} />
                                         </motion.div>
                                     ) : hasAnswered && isSelected ? (
                                         <motion.div
                                             key="wrong"
-                                            initial={{ scale: 0, rotate: 180 }}
-                                            animate={{ scale: 1, rotate: 0 }}
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
                                             exit={{ scale: 0 }}
-                                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
                                         >
-                                            <Icon name="x" size="xs" className="text-white w-4 h-4" />
+                                            <Icon name="x" size="sm" className="text-surface" strokeWidth={1.5} />
                                         </motion.div>
                                     ) : (
                                         <motion.span
@@ -127,8 +116,8 @@ const QuestionCard: React.FC<QuestionCardProps> = memo(({
                                         </motion.span>
                                     )}
                                 </AnimatePresence>
-                            </motion.div>
-                            <span className={`text-[14px] font-normal ml-3 leading-snug ${textClass}`}>{text}</span>
+                            </div>
+                            <span className={`text-[17px] ml-4 leading-relaxed tracking-tight ${textClass}`}>{text}</span>
                         </motion.button>
                     );
                 })}
@@ -139,51 +128,54 @@ const QuestionCard: React.FC<QuestionCardProps> = memo(({
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.4 }}
-                    className="mt-6 space-y-3"
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    className="mt-8 space-y-4"
                 >
                     {/* AI Action Row */}
-                    <div className="flex items-center justify-between px-1">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Solution</span>
+                    <div className="flex items-center justify-between pb-3 border-b border-border/50">
+                        <span className="font-sans text-[11px] font-semibold text-text-primary uppercase tracking-[0.1em]">Solution & Analysis</span>
                         {!aiExplanation && (
                             <button 
                                 onClick={onAiExplain}
                                 disabled={isAiLoading}
-                                className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-full text-[11px] font-bold shadow-sm shadow-indigo-200 active:scale-95 transition-all disabled:opacity-50 hover:shadow-indigo-300"
+                                className="flex items-center gap-2 border border-border text-text-primary px-3 py-1.5 font-sans text-[10px] font-semibold uppercase tracking-widest hover:bg-surface-hover hover:border-text-primary transition-all disabled:opacity-50 group"
                             >
-                                <Icon name="sparkles" size="xs" className={isAiLoading ? 'animate-spin w-3 h-3' : 'w-3 h-3'} />
-                                {isAiLoading ? 'Analyzing...' : 'Explain with AI'}
+                                <Icon name="sparkles" size="xs" strokeWidth={1.5} className={`text-text-secondary group-hover:text-text-primary transition-colors ${isAiLoading ? 'animate-spin' : ''}`} />
+                                {isAiLoading ? 'Analyzing...' : 'AI Explain'}
                             </button>
                         )}
                     </div>
 
                     {/* Standard Explanation */}
                     {showExplanation && mcq.explanation && (
-                        <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl">
-                            <p className="text-[13px] text-slate-600 leading-relaxed italic">{mcq.explanation}</p>
+                        <div className="bg-surface border border-border p-5">
+                            <p className="font-serif text-[15px] text-text-secondary leading-[1.6]">{mcq.explanation}</p>
                         </div>
                     )}
 
                     {/* AI Premium Explanation Box */}
                     {(isAiLoading || aiExplanation) && (
-                        <div className={`relative overflow-hidden rounded-xl p-[2px] transition-all duration-500 animate-in fade-in slide-in-from-top-4`}>
-                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 via-violet-400 to-fuchsia-400 opacity-20 animate-pulse"></div>
-                            <div className="relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-[10px] p-4 shadow-sm">
-                                <div className="flex items-center gap-2.5 mb-3">
-                                    <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
-                                        <Icon name="sparkles" size="xs" className="w-3 h-3" />
+                        <div className={`mt-4 relative transition-all duration-500 animate-in fade-in slide-in-from-top-4`}>
+                            <div className="bg-surface border border-text-primary p-6 relative overflow-hidden">
+                                {/* Subtle decorative background for AI box */}
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-text-primary/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+
+                                <div className="flex items-center gap-3 mb-5 relative z-10">
+                                    <div className="p-1.5 bg-background border border-border">
+                                        <Icon name="sparkles" size="xs" className="text-text-primary w-3.5 h-3.5" strokeWidth={1.5} />
                                     </div>
-                                    <h4 className="font-bold text-[14px] text-slate-800">Detailed AI Analysis</h4>
+                                    <h4 className="font-sans font-semibold text-[11px] text-text-primary uppercase tracking-[0.1em]">AI Analysis</h4>
                                 </div>
                                 
                                 {isAiLoading ? (
-                                    <div className="space-y-2.5">
-                                        <div className="h-3 bg-slate-100 rounded w-3/4 animate-pulse"></div>
-                                        <div className="h-3 bg-slate-100 rounded w-full animate-pulse"></div>
-                                        <div className="h-3 bg-slate-100 rounded w-5/6 animate-pulse"></div>
+                                    <div className="space-y-4 relative z-10">
+                                        <div className="h-2 bg-text-secondary/20 w-3/4 animate-pulse"></div>
+                                        <div className="h-2 bg-text-secondary/20 w-full animate-pulse"></div>
+                                        <div className="h-2 bg-text-secondary/20 w-5/6 animate-pulse"></div>
+                                        <div className="h-2 bg-text-secondary/20 w-1/2 animate-pulse mt-4"></div>
                                     </div>
                                 ) : (
-                                    <div className="text-[13px] text-slate-700 leading-relaxed space-y-3 whitespace-pre-wrap ai-content">
+                                    <div className="font-serif text-[15px] text-text-primary leading-[1.7] space-y-4 whitespace-pre-wrap ai-content relative z-10">
                                         {aiExplanation}
                                     </div>
                                 )}

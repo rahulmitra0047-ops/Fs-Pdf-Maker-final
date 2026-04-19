@@ -323,29 +323,29 @@ const PracticeSession: React.FC = () => {
       }
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white"><div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div></div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-background"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>;
 
   const currentMCQ = sessionMCQs[currentIndex];
-  if (!currentMCQ) return <div className="p-10 text-center">No questions available. <button onClick={handleExit} className="text-blue-500">Go Back</button></div>;
+  if (!currentMCQ) return <div className="p-10 text-center font-serif">No questions available. <button onClick={handleExit} className="text-primary underline">Go Back</button></div>;
 
   const hasAnswered = !!answers[currentMCQ?.id];
   const selectedOption = answers[currentMCQ?.id];
   const aiExplanation = aiExplanations[currentMCQ?.id];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
+    <div className="min-h-screen bg-background flex flex-col font-serif">
         {/* Header */}
-        <div className="h-[60px] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 flex items-center justify-between px-5 sticky top-0 z-20">
-            <button onClick={() => setShowExitConfirm(true)} className="text-slate-400 p-2 -ml-2 hover:bg-slate-50 hover:text-slate-700 rounded-full transition-colors active:scale-95">
-                <Icon name="x" size="md" />
+        <div className="h-[64px] bg-background border-b border-border/50 flex items-center justify-between px-6 sticky top-0 z-20">
+            <button onClick={() => setShowExitConfirm(true)} className="text-text-primary p-2 -ml-2 hover:bg-[#EBE7DF] transition-colors active:scale-[0.98]">
+                <Icon name="x" size="md" strokeWidth={1.5} />
             </button>
-            <div className="font-bold text-[16px] text-slate-900">
-                Practice <span className="text-indigo-600">{currentIndex + 1}</span><span className="text-slate-400">/{sessionMCQs.length}</span>
+            <div className="font-sans text-[13px] font-semibold text-text-primary uppercase tracking-widest">
+                Practice <span className="text-primary ml-1">{currentIndex + 1}</span><span className="text-text-secondary opacity-60">/{sessionMCQs.length}</span>
             </div>
             {/* Date Filter for Review Mode (Task 6) */}
             {customState?.source === 'review' ? (
-                <div className="text-xs text-slate-500 font-bold bg-slate-100 px-2 py-1 rounded-md">
-                    Review Mode
+                <div className="text-[10px] text-text-secondary font-sans font-bold uppercase tracking-widest bg-surface border border-border px-2 py-1">
+                    Review
                 </div>
             ) : (
                 <div className="w-[22px]"></div>
@@ -353,12 +353,12 @@ const PracticeSession: React.FC = () => {
         </div>
 
         {/* Progress Bar */}
-        <div className="h-[4px] bg-slate-100 w-full">
-            <div className="h-full bg-indigo-500 rounded-r-[4px] transition-all duration-300 ease-out" style={{ width: `${((currentIndex + 1) / sessionMCQs.length) * 100}%` }}></div>
+        <div className="h-[1px] bg-border w-full">
+            <div className="h-full bg-primary transition-all duration-300 ease-out" style={{ width: `${((currentIndex + 1) / sessionMCQs.length) * 100}%` }}></div>
         </div>
 
         {/* Question Area */}
-        <div className="flex-1 p-5 pb-32 overflow-y-auto">
+        <div className="flex-1 p-6 pb-40 overflow-y-auto">
             {currentMCQ && (
                 <QuestionCard
                     key={currentMCQ.id}
@@ -379,18 +379,18 @@ const PracticeSession: React.FC = () => {
         </div>
 
         {/* Footer Controls */}
-        <div className="fixed bottom-0 left-0 right-0 px-5 py-4 bg-white/80 backdrop-blur-md z-20 border-t border-slate-100">
+        <div className="fixed bottom-0 left-0 right-0 px-6 py-6 bg-background z-20 border-t border-border/50">
             <div className="max-w-xl mx-auto">
                 {hasAnswered ? (
                     <button 
                         onClick={nextQuestion} 
                         disabled={isFinished} 
-                        className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-[16px] shadow-xl shadow-indigo-500/20 active:scale-[0.98] transition-all disabled:opacity-50 hover:bg-indigo-500"
+                        className="w-full bg-primary text-surface py-4 font-sans text-xs uppercase tracking-widest font-bold active:scale-[0.98] transition-all disabled:opacity-50 hover:bg-[#7a4533]"
                     >
-                        {isFinished ? 'Saving...' : (currentIndex === sessionMCQs.length - 1 ? 'Finish Practice' : 'Next Question →')}
+                        {isFinished ? 'Saving...' : (currentIndex === sessionMCQs.length - 1 ? 'Finish Practice' : 'Next Question')}
                     </button>
                 ) : (
-                    <div className="text-center text-[14px] font-medium text-slate-400 pb-[20px]">
+                    <div className="text-center font-sans uppercase tracking-[0.1em] text-[10px] font-semibold text-text-secondary pb-4">
                         Select an answer to continue
                     </div>
                 )}
@@ -407,9 +407,9 @@ const PracticeSession: React.FC = () => {
         />
 
         <PremiumModal isOpen={showExitConfirm} onClose={() => setShowExitConfirm(false)} title="Exit Practice?" size="sm">
-            <div className="space-y-4">
-                <p className="text-sm text-slate-500">Current session progress will be lost, but question attempts will be tracked.</p>
-                <div className="flex justify-end gap-3 pt-2">
+            <div className="space-y-6">
+                <p className="font-serif text-[15px] text-text-secondary">Current session progress will be lost, but question attempts will be tracked.</p>
+                <div className="flex justify-end gap-3 pt-4 border-t border-border/50">
                     <PremiumButton variant="ghost" onClick={() => setShowExitConfirm(false)}>Cancel</PremiumButton>
                     <PremiumButton variant="danger" onClick={handleExit}>Exit</PremiumButton>
                 </div>
@@ -417,12 +417,12 @@ const PracticeSession: React.FC = () => {
         </PremiumModal>
         
         <style>{`
-            .ai-content h3 { font-size: 1.1rem; font-weight: 800; color: #0F172A; margin-top: 1.5rem; margin-bottom: 0.75rem; border-left: 4px solid #10B981; padding-left: 0.75rem; }
-            .ai-content b, .ai-content strong { color: #059669; font-weight: 700; }
-            .ai-content ul { list-style: type: none; padding-left: 0; margin-top: 0.5rem; }
+            .ai-content h3 { font-size: 1.1rem; font-weight: 700; color: #2C2C2B; margin-top: 1.5rem; margin-bottom: 0.75rem; border-left: 2px solid #8A4F3A; padding-left: 0.75rem; font-family: "Newsreader", serif; }
+            .ai-content b, .ai-content strong { color: #8A4F3A; font-weight: 600; }
+            .ai-content ul { list-style: none; padding-left: 0; margin-top: 0.5rem; }
             .ai-content li { margin-bottom: 10px; position: relative; padding-left: 22px; line-height: 1.5; }
-            .ai-content li::before { content: '•'; position: absolute; left: 0; color: #34D399; font-weight: bold; font-size: 1.2rem; top: -2px; }
-            .ai-content p { margin-bottom: 1rem; }
+            .ai-content li::before { content: '—'; position: absolute; left: 0; color: #8A8881; font-weight: normal; }
+            .ai-content p { margin-bottom: 1rem; font-family: "Newsreader", serif; }
         `}</style>
     </div>
   );

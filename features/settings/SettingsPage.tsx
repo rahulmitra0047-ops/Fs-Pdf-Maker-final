@@ -270,229 +270,230 @@ const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-20 pt-[60px]">
-      <header className="fixed top-0 left-0 right-0 h-[60px] bg-[#F8FAFC]/80 backdrop-blur-xl border-b border-slate-100 z-50 px-6 flex items-center justify-between transition-all">
-          <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-background pb-20 pt-[64px] font-serif text-text-primary">
+      <header className="fixed top-0 left-0 right-0 h-[64px] bg-background border-b border-border/50 z-50 px-6 flex items-center justify-between transition-all">
+          <div className="flex items-center gap-4">
               <button 
                   onClick={() => navigate('/')} 
-                  className="p-2 -ml-2 text-slate-400 hover:text-slate-700 rounded-full transition-colors active:scale-95"
+                  className="p-2 -ml-2 text-text-primary hover:bg-[#EBE7DF] transition-colors active:scale-95"
               >
-                  <Icon name="arrow-left" size="md" />
+                  <Icon name="arrow-left" size="sm" strokeWidth={1.5} />
               </button>
+              <h1 className="text-xl font-medium tracking-tight">Settings</h1>
           </div>
-          <h1 className="text-lg font-bold text-slate-700 absolute left-1/2 -translate-x-1/2 tracking-tight">
-              Settings
-          </h1>
           <button 
               onClick={() => navigate('/')}
-              className="p-2 -mr-2 text-slate-400 hover:text-slate-700 rounded-full transition-colors active:scale-95"
+              className="p-2 -mr-2 text-text-primary hover:bg-[#EBE7DF] transition-colors active:scale-95"
           >
-              <Icon name="home" size="md" />
+              <Icon name="home" size="sm" strokeWidth={1.5} />
           </button>
       </header>
 
-      <main className="max-w-3xl mx-auto px-6 mt-6">
-        <div className="bg-white border border-slate-100 rounded-[20px] shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between p-5 border-b border-slate-100">
-                <span className="text-base font-medium text-slate-700">Sound Effects</span>
+      <main className="max-w-xl mx-auto px-6 mt-6">
+        <div className="bg-surface border border-border">
+            <div className="flex items-center justify-between p-5 border-b border-border/50">
+                <span className="font-medium">Sound Effects</span>
                 <button 
                     onClick={() => updateSettings({ soundEnabled: !settings.soundEnabled })}
-                    className={`w-[50px] h-[28px] rounded-full transition-colors relative ${settings.soundEnabled ? 'bg-slate-700' : 'bg-slate-200'}`}
+                    className={`w-[44px] h-[24px] rounded-full transition-colors relative ${settings.soundEnabled ? 'bg-primary' : 'bg-[#EBE7DF]'}`}
                 >
-                    <div className={`absolute top-[3px] w-[22px] h-[22px] bg-white rounded-full shadow-sm transition-all ${settings.soundEnabled ? 'left-[25px]' : 'left-[3px]'}`} />
+                    <div className={`absolute top-[2px] w-[20px] h-[20px] bg-background rounded-full transition-all ${settings.soundEnabled ? 'left-[22px]' : 'left-[2px]'}`} />
                 </button>
             </div>
             <div className="flex items-center justify-between p-5">
-                <span className="text-base font-medium text-slate-700">Vibration</span>
+                <span className="font-medium">Vibration</span>
                 <button 
                     onClick={() => updateSettings({ vibrationEnabled: !settings.vibrationEnabled })}
-                    className={`w-[50px] h-[28px] rounded-full transition-colors relative ${settings.vibrationEnabled ? 'bg-slate-700' : 'bg-slate-200'}`}
+                    className={`w-[44px] h-[24px] rounded-full transition-colors relative ${settings.vibrationEnabled ? 'bg-primary' : 'bg-[#EBE7DF]'}`}
                 >
-                    <div className={`absolute top-[3px] w-[22px] h-[22px] bg-white rounded-full shadow-sm transition-all ${settings.vibrationEnabled ? 'left-[25px]' : 'left-[3px]'}`} />
+                    <div className={`absolute top-[2px] w-[20px] h-[20px] bg-background rounded-full transition-all ${settings.vibrationEnabled ? 'left-[22px]' : 'left-[2px]'}`} />
                 </button>
             </div>
         </div>
 
-        <h3 className="text-xs font-bold text-slate-400 tracking-wider uppercase mt-8 mb-3 ml-1">Gemini AI Configuration</h3>
-        <div className="bg-white border border-slate-100 rounded-[20px] shadow-sm p-5">
+        <h3 className="font-sans text-xs font-semibold text-text-secondary uppercase tracking-[0.15em] mt-10 mb-3 ml-1">Gemini AI Configuration</h3>
+        <div className="bg-surface border border-border p-5">
             
             {/* Model Selection */}
-            <div className="mb-5 pb-5 border-b border-slate-100">
-                <label className="block text-sm font-medium text-slate-700 mb-2">Preferred AI Model</label>
+            <div className="mb-6 pb-6 border-b border-border/50">
+                <label className="block text-[15px] font-medium mb-3">Preferred AI Model</label>
                 <div className="relative">
                     <select
                         value={settings.preferredModel || 'gemini-3-flash-preview'}
                         onChange={(e) => updateSettings({ preferredModel: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl p-3 appearance-none focus:outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100 font-medium"
+                        className="w-full bg-background border border-border text-text-primary rounded-none p-4 appearance-none focus:outline-none focus:border-primary font-serif font-medium"
                     >
                         <option value="gemini-3-flash-preview">Gemini 3.0 Flash Preview (Recommended)</option>
                         <option value="gemini-3.1-flash-lite-preview">Gemini 3.1 Flash Lite Preview (Fastest)</option>
+                        <option value="gemini-search-grounding">Gemini Grounded with Web Search</option>
                         <option value="gemini-2.5-pro">Gemini 2.5 Pro (Advanced)</option>
                     </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                        <Icon name="chevron-left" size="sm" className="-rotate-90" />
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary">
+                        <Icon name="chevron-left" size="sm" className="-rotate-90" strokeWidth={1.5} />
                     </div>
                 </div>
-                <p className="text-xs text-slate-400 mt-2">This model will be used across all AI features in the app.</p>
+                <p className="font-sans text-[11px] font-medium text-text-secondary mt-3">This model will be used across all AI features.</p>
             </div>
 
-            <div className="flex justify-between items-center mb-3">
-                <span className="text-sm font-medium text-slate-700">Gemini API Keys</span>
+            <div className="flex justify-between items-center mb-4">
+                <span className="text-[15px] font-medium">Gemini API Keys</span>
                 <button 
                     onClick={() => {
                         setIsEditingAi(!isEditingAi);
                     }}
-                    className="text-xs font-bold text-slate-600 hover:text-slate-800"
+                    className="font-sans text-xs font-semibold uppercase tracking-widest text-primary hover:text-primary/80 transition-colors"
                 >
                     {isEditingAi ? 'Cancel' : 'Edit Keys'}
                 </button>
             </div>
             
             {isEditingAi ? (
-                <div className="animate-in fade-in slide-in-from-top-1">
-                    <p className="text-xs text-slate-400 mb-2">Enter multiple keys (one per line) for automatic rotation.</p>
+                <div className="animate-fade-in">
+                    <p className="font-sans text-[11px] font-medium text-text-secondary mb-3">Enter multiple keys (one per line) for automatic rotation.</p>
                     <textarea 
                         value={apiKeysInput}
                         onChange={(e) => setApiKeysInput(e.target.value)}
                         rows={4}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-700 font-mono outline-none focus:border-slate-400 resize-none mb-3"
+                        className="w-full bg-background border border-border p-4 text-[13px] font-mono outline-none focus:border-primary resize-none mb-4"
                         placeholder="Paste your Gemini keys here..."
                     />
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                         <button 
                             onClick={handleTestApiKeys} 
                             disabled={!apiKeysInput.trim() || isTestingKeys}
-                            className="flex-1 bg-white border border-slate-200 text-slate-600 rounded-xl py-2 text-xs font-bold hover:bg-slate-50 disabled:opacity-50 transition-colors"
+                            className="flex-1 bg-background border border-border text-text-primary py-3 font-sans text-xs font-semibold uppercase tracking-widest hover:bg-[#EBE7DF] disabled:opacity-50 transition-colors"
                         >
                             {isTestingKeys ? (testProgress || 'Testing...') : 'Test Keys'}
                         </button>
-                        <PremiumButton onClick={saveAiKeys} size="sm" className="flex-1">Save Keys</PremiumButton>
+                        <button onClick={saveAiKeys} className="flex-1 bg-primary text-surface py-3 font-sans text-xs font-semibold uppercase tracking-widest hover:bg-opacity-90 transition-colors">
+                            Save Keys
+                        </button>
                     </div>
                 </div>
             ) : (
-                <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-slate-600 shadow-sm border border-slate-100">
-                            <Icon name="sparkles" size="sm" />
+                <div className="bg-background border border-border p-5 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-surface border border-border flex items-center justify-center text-text-primary">
+                            <Icon name="sparkles" size="sm" strokeWidth={1.5} />
                         </div>
                         <div>
-                            <span className="text-sm font-semibold text-slate-700">{settings.geminiApiKeys?.length || 0} Keys Active</span>
-                            <p className="text-xs text-slate-400">Rotation enabled for stability</p>
+                            <span className="text-[15px] font-medium">{settings.geminiApiKeys?.length || 0} Keys Active</span>
+                            <p className="font-sans text-[11px] font-medium text-text-secondary mt-1">Rotation enabled for stability</p>
                         </div>
                     </div>
                 </div>
             )}
         </div>
 
-        <h3 className="text-xs font-bold text-slate-400 tracking-wider uppercase mt-8 mb-3 ml-1">Data Management</h3>
-        <div className="bg-white border border-slate-100 rounded-[20px] shadow-sm p-5">
-            <div className="flex justify-between items-center mb-3">
-                <span className="text-sm font-medium text-slate-700">Storage Usage</span>
-                <span className="text-xs font-medium text-slate-400">
+        <h3 className="font-sans text-xs font-semibold text-text-secondary uppercase tracking-[0.15em] mt-10 mb-3 ml-1">Data Management</h3>
+        <div className="bg-surface border border-border p-5">
+            <div className="flex justify-between items-center mb-4">
+                <span className="text-[15px] font-medium">Storage Usage</span>
+                <span className="font-sans text-[11px] font-semibold text-text-secondary uppercase tracking-widest">
                     {storageUsage ? `${formatBytes(storageUsage.usage)} / ${formatBytes(storageUsage.quota)}` : '...'}
                 </span>
             </div>
-            <div className="h-2 bg-slate-100 rounded-full overflow-hidden mb-6">
+            <div className="h-1 bg-border overflow-hidden mb-6">
                 <div 
-                    className="h-full bg-slate-700 rounded-full transition-all duration-500" 
+                    className="h-full bg-primary transition-all duration-500" 
                     style={{ width: `${Math.min(100, (storageUsage?.usage || 0) / (storageUsage?.quota || 1) * 100)}%` }}
                 />
             </div>
             
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
                 <button 
                     onClick={handleExport}
-                    className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-600 rounded-xl px-4 py-3 text-sm font-bold active:scale-95 transition-transform hover:bg-slate-50 shadow-sm"
+                    className="flex flex-col items-center justify-center gap-2 bg-background border border-border text-text-primary px-4 py-5 font-sans text-xs font-semibold uppercase tracking-widest active:scale-95 transition-transform hover:bg-[#EBE7DF]"
                 >
-                    <Icon name="download" size="sm" className="text-slate-400" /> 
-                    Export Backup
+                    <Icon name="download" size="md" strokeWidth={1.5} /> 
+                    Export Data
                 </button>
-                <label className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-600 rounded-xl px-4 py-3 text-sm font-bold active:scale-95 transition-transform hover:bg-slate-50 shadow-sm cursor-pointer">
+                <label className="flex flex-col items-center justify-center gap-2 bg-background border border-border text-text-primary px-4 py-5 font-sans text-xs font-semibold uppercase tracking-widest active:scale-95 transition-transform hover:bg-[#EBE7DF] cursor-pointer">
                     <input type="file" accept=".json" onChange={handleFileSelect} className="hidden" />
-                    <Icon name="upload" size="sm" className="text-slate-400" /> 
+                    <Icon name="upload" size="md" strokeWidth={1.5} /> 
                     Import
                 </label>
             </div>
 
-            <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-50">
-                <span className="text-xs text-slate-400">
+            <div className="flex justify-between items-center mt-6 pt-5 border-t border-border/50">
+                <span className="font-sans text-[11px] font-medium text-text-secondary">
                     Last backup: {settings.lastBackupTimestamp ? new Date(settings.lastBackupTimestamp).toLocaleDateString() : 'Never'}
                 </span>
-                <button onClick={loadAuditLogs} className="text-xs font-bold text-slate-600 hover:text-slate-800 hover:underline">
+                <button onClick={loadAuditLogs} className="font-sans text-[11px] font-semibold uppercase tracking-widest text-primary hover:text-primary/80 transition-colors">
                     View Logs
                 </button>
             </div>
         </div>
 
-        <h3 className="text-xs font-bold text-slate-400 tracking-wider uppercase mt-8 mb-3 ml-1">Advanced</h3>
-        <div className="bg-white border border-slate-100 rounded-[20px] shadow-sm p-5">
-            <div className="flex justify-between items-center mb-3">
-                <span className="text-sm font-medium text-slate-700">PDF Server URL</span>
+        <h3 className="font-sans text-xs font-semibold text-text-secondary uppercase tracking-[0.15em] mt-10 mb-3 ml-1">Advanced</h3>
+        <div className="bg-surface border border-border p-5">
+            <div className="flex justify-between items-center mb-4">
+                <span className="text-[15px] font-medium">PDF Server URL</span>
                 <button 
                     onClick={() => {
                         setServerUrl(settings.railwayBaseUrl || '');
                         setIsEditingUrl(!isEditingUrl);
                     }}
-                    className="text-xs font-bold text-slate-600 hover:text-slate-800"
+                    className="font-sans text-[11px] font-semibold uppercase tracking-widest text-primary hover:text-primary/80 transition-colors"
                 >
                     {isEditingUrl ? 'Cancel' : 'Edit'}
                 </button>
             </div>
             
             {isEditingUrl ? (
-                <div className="mb-4">
-                    <div className="flex gap-2 mb-3">
+                <div className="mb-5">
+                    <div className="flex gap-2 mb-2">
                         <input 
                             value={serverUrl}
                             onChange={(e) => setServerUrl(e.target.value)}
-                            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-700 font-mono outline-none focus:border-slate-400"
+                            className="flex-1 bg-background border border-border p-3 text-[13px] font-mono outline-none focus:border-primary"
                             placeholder="https://..."
                         />
-                        <button onClick={saveUrl} className="bg-slate-700 text-white px-4 rounded-xl text-xs font-bold">Save</button>
+                        <button onClick={saveUrl} className="bg-primary text-surface px-5 font-sans text-[11px] font-semibold uppercase tracking-widest hover:bg-opacity-90 transition-colors">Save</button>
                     </div>
                 </div>
             ) : (
-                <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 text-xs text-slate-500 font-mono mb-4 truncate select-all">
+                <div className="bg-background border border-border p-4 text-[13px] text-text-secondary font-mono mb-5 truncate select-all">
                     {settings.railwayBaseUrl || 'Not configured'}
                 </div>
             )}
             
             <button 
                 onClick={handleTestConnection} 
-                className="w-full bg-white border border-slate-200 text-slate-600 rounded-xl px-4 py-3 text-sm font-bold active:scale-95 transition-transform hover:bg-slate-50 shadow-sm flex items-center justify-center gap-2"
+                className="w-full bg-background border border-border text-text-primary py-4 font-sans text-[11px] font-semibold uppercase tracking-widest active:scale-[0.99] transition-transform hover:bg-[#EBE7DF] flex items-center justify-center gap-2"
             >
                 {isTestingConnection ? 'Testing...' : 'Test Connection'}
             </button>
         </div>
 
-        <h3 className="text-xs font-bold text-red-400 tracking-wider uppercase mt-8 mb-3 ml-1">Danger Zone</h3>
-        <div className="bg-red-50/50 border border-red-100 rounded-[20px] p-5">
+        <h3 className="font-sans text-xs font-semibold text-[#8A4F3A] opacity-80 uppercase tracking-[0.15em] mt-10 mb-3 ml-1">Danger Zone</h3>
+        <div className="bg-surface border border-primary/20 p-5 mb-10">
             <button 
                 onClick={() => setShowClearConfirm(true)}
                 className="w-full flex items-center justify-between group"
             >
-               <span className="text-sm font-bold text-red-600">Reset Application</span>
-               <Icon name="trash-2" size="md" className="text-red-400 group-hover:text-red-600 transition-colors" />
+               <span className="font-sans text-[13px] font-semibold uppercase tracking-widest text-primary">Reset Application</span>
+               <Icon name="trash-2" size="sm" strokeWidth={1.5} className="text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
             </button>
         </div>
       </main>
 
       <PremiumModal isOpen={showAuditLog} onClose={() => setShowAuditLog(false)} title="Activity Log" size="lg">
-          <div className="max-h-[60vh] overflow-y-auto space-y-2">
+          <div className="max-h-[60vh] overflow-y-auto space-y-3 p-1">
               {auditLogs.length === 0 ? (
-                  <p className="text-center text-slate-400 py-8 text-sm">No recent activity recorded.</p>
+                  <p className="text-center text-text-secondary py-10 font-sans text-sm">No recent activity recorded.</p>
               ) : (
                   auditLogs.map(log => (
-                      <div key={log.id} className="p-3 bg-slate-50 rounded-lg border border-slate-100 flex justify-between items-start text-sm">
+                      <div key={log.id} className="p-4 bg-background border border-border flex justify-between items-start">
                           <div>
-                              <div className="font-semibold text-slate-800 capitalize">
-                                  {log.action} <span className="text-slate-500 font-normal">{log.entity}</span>
+                              <div className="font-medium text-text-primary capitalize mb-1">
+                                  {log.action} <span className="text-text-secondary font-normal">{log.entity}</span>
                               </div>
-                              <div className="text-xs text-slate-500 mt-0.5 font-mono bg-white px-1.5 py-0.5 rounded border border-slate-100 inline-block">
+                              <div className="text-[11px] text-text-secondary font-mono bg-surface px-2 py-1 border border-border inline-block">
                                   {log.details ? log.details : log.entityId?.slice(0,8)}
                               </div>
                           </div>
-                          <div className="text-xs text-slate-400 whitespace-nowrap tabular-nums">
+                          <div className="font-sans text-[10px] text-text-secondary tracking-widest uppercase mt-1">
                               {new Date(log.timestamp).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'})}
                           </div>
                       </div>
@@ -502,32 +503,32 @@ const SettingsPage: React.FC = () => {
       </PremiumModal>
 
       <PremiumModal isOpen={showImportConfirm} onClose={() => { if(!isImporting) { setShowImportConfirm(false); setPendingImport(null); } }} title={isImporting ? "Importing..." : "Import Backup"} size="sm">
-          <div className="space-y-4">
+          <div className="space-y-6">
               {!isImporting && (
-                  <p className="text-slate-600 text-sm">
-                      This backup contains data from <span className="font-bold">{pendingImport && new Date(pendingImport.timestamp).toLocaleDateString()}</span>.
+                  <p className="font-serif text-[15px] leading-relaxed">
+                      This backup contains data from <span className="font-semibold">{pendingImport && new Date(pendingImport.timestamp).toLocaleDateString()}</span>.
                       How would you like to import it?
                   </p>
               )}
               {isImporting && (
-                  <div className="flex flex-col items-center justify-center py-8 space-y-4">
-                      <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                      <p className="text-sm text-slate-500 font-medium">Processing backup file...</p>
+                  <div className="flex flex-col items-center justify-center py-10 space-y-5">
+                      <div className="w-10 h-10 border border-primary border-t-transparent rounded-full animate-spin"></div>
+                      <p className="font-sans text-[11px] font-semibold uppercase tracking-widest text-text-secondary">Processing backup...</p>
                   </div>
               )}
               {!isImporting && (
-                  <div className="space-y-2">
-                      <button onClick={() => confirmImport('merge')} className="w-full p-4 border border-slate-200 rounded-xl hover:bg-slate-50 flex flex-col items-start transition-all active:scale-[0.98]">
-                          <span className="font-bold text-slate-800 flex items-center gap-2">
-                              <Icon name="layout-grid" size="sm" className="text-indigo-600" /> Merge Data
+                  <div className="space-y-3">
+                      <button onClick={() => confirmImport('merge')} className="w-full p-5 bg-background border border-border hover:bg-[#EBE7DF] flex flex-col items-start transition-all active:scale-[0.99]">
+                          <span className="font-medium flex items-center gap-3">
+                              <Icon name="layout-grid" size="sm" className="text-primary" strokeWidth={1.5} /> Merge Data
                           </span>
-                          <span className="text-xs text-slate-500 mt-1">Keep existing data and add new items (Safe)</span>
+                          <span className="font-sans text-[11px] text-text-secondary mt-2">Keep existing data and add new items (Safe)</span>
                       </button>
-                      <button onClick={() => confirmImport('replace')} className="w-full p-4 border border-red-200 bg-red-50/50 rounded-xl hover:bg-red-50 flex flex-col items-start transition-all active:scale-[0.98]">
-                          <span className="font-bold text-red-700 flex items-center gap-2">
-                              <Icon name="refresh-cw" size="sm" /> Replace All
+                      <button onClick={() => confirmImport('replace')} className="w-full p-5 bg-surface border border-primary/30 hover:border-primary flex flex-col items-start transition-all active:scale-[0.99]">
+                          <span className="font-medium text-primary flex items-center gap-3">
+                              <Icon name="refresh-cw" size="sm" strokeWidth={1.5} /> Replace All
                           </span>
-                          <span className="text-xs text-red-600 mt-1">Delete current data and restore backup</span>
+                          <span className="font-sans text-[11px] text-text-secondary mt-2">Delete current data and restore backup</span>
                       </button>
                   </div>
               )}
@@ -535,19 +536,19 @@ const SettingsPage: React.FC = () => {
       </PremiumModal>
 
       <PremiumModal isOpen={showClearConfirm} onClose={() => setShowClearConfirm(false)} title="Clear All Data?" size="sm">
-        <div className="space-y-5">
-          <div className="flex flex-col items-center text-center p-4 bg-red-50 rounded-xl border border-red-100">
-             <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-red-500 mb-3 shadow-sm">
-                 <Icon name="alert-triangle" size="lg" />
+        <div className="space-y-6">
+          <div className="flex flex-col items-center text-center p-6 bg-surface border border-primary/20">
+             <div className="w-12 h-12 bg-background border border-border flex items-center justify-center text-primary mb-4">
+                 <Icon name="alert-triangle" size="md" strokeWidth={1.5} />
              </div>
-             <p className="text-sm text-red-800 font-medium">This action cannot be undone.</p>
+             <p className="font-sans text-[11px] font-semibold uppercase tracking-widest text-primary">This action cannot be undone.</p>
           </div>
-          <p className="text-sm text-slate-500 text-center">
+          <p className="font-serif text-[15px] leading-relaxed text-center">
             Are you sure you want to delete all data? This includes documents, topics, and settings.
           </p>
-          <div className="flex gap-3 justify-end pt-2">
-            <PremiumButton variant="ghost" onClick={() => setShowClearConfirm(false)}>Cancel</PremiumButton>
-            <PremiumButton variant="danger" onClick={handleClearData}>Yes, Delete Everything</PremiumButton>
+          <div className="flex gap-4 pt-4 border-t border-border/50">
+            <button className="flex-1 bg-surface border border-border py-4 font-sans text-[11px] font-semibold uppercase tracking-widest" onClick={() => setShowClearConfirm(false)}>Cancel</button>
+            <button className="flex-1 bg-primary text-surface py-4 font-sans text-[11px] font-semibold uppercase tracking-widest" onClick={handleClearData}>Delete</button>
           </div>
         </div>
       </PremiumModal>

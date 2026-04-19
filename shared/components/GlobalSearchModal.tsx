@@ -114,17 +114,17 @@ const GlobalSearchModal: React.FC<Props> = ({ isOpen, onClose }) => {
         <div className="relative mb-4">
           <input
             type="text"
-            className="w-full pl-10 pr-4 py-3 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl focus:ring-2 focus:ring-[var(--color-primary)] focus:outline-none"
+            className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-none focus:ring-1 focus:ring-primary focus:outline-none font-serif text-text-primary placeholder:font-sans placeholder-text-secondary/50"
             placeholder="Search documents, sets, questions..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
           />
-          <div className="absolute left-3.5 top-3.5 text-[var(--color-text-muted)]">
+          <div className="absolute left-3.5 top-3.5 text-secondary">
             <Icon name="search" size="sm" />
           </div>
           {isSearching && (
-            <div className="absolute right-3.5 top-3.5 text-[var(--color-text-muted)] animate-spin">
+            <div className="absolute right-3.5 top-3.5 text-secondary animate-spin">
               <Icon name="refresh-cw" size="sm" />
             </div>
           )}
@@ -132,13 +132,13 @@ const GlobalSearchModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
         <div className="space-y-2 max-h-[50vh] overflow-y-auto">
           {results.length === 0 && query.trim() && !isSearching && (
-            <div className="text-center py-10 text-[var(--color-text-secondary)]">
+            <div className="text-center py-10 text-secondary font-serif italic">
               <p>No results found for "{query}"</p>
             </div>
           )}
           
           {results.length === 0 && !query.trim() && (
-             <div className="text-center py-10 text-[var(--color-text-secondary)] text-sm">
+             <div className="text-center py-10 text-secondary text-sm font-sans uppercase tracking-widest">
                Type to search across your library
              </div>
           )}
@@ -147,32 +147,32 @@ const GlobalSearchModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <div 
               key={idx}
               onClick={() => handleSelect(res)}
-              className="p-3 hover:bg-[var(--color-bg)] rounded-lg cursor-pointer border border-transparent hover:border-[var(--color-border)] transition-all flex items-start gap-3"
+              className="p-3 hover:bg-surface rounded-none cursor-pointer border border-transparent hover:border-border transition-all flex items-start gap-3"
             >
-              <div className={`mt-1 p-2 rounded-lg ${res.type === 'document' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
+              <div className={`mt-1 p-2 rounded-none ${res.type === 'document' ? 'bg-background border border-border text-text-primary' : 'bg-background border border-border text-primary'}`}>
                 <Icon name={res.type === 'document' ? 'file-text' : res.type === 'set' ? 'folder' : 'list'} size="sm" />
               </div>
               <div className="flex-1 min-w-0">
                 {res.type === 'document' && (
                   <>
-                    <div className="font-medium text-[var(--color-text)]">{res.item.title}</div>
-                    <div className="text-xs text-[var(--color-text-secondary)]">Document • {res.item.mcqs.length} MCQs</div>
+                    <div className="font-serif font-medium text-text-primary tracking-tight">{res.item.title}</div>
+                    <div className="font-sans text-[10px] uppercase tracking-wider text-secondary mt-1">Document • {res.item.mcqs.length} MCQs</div>
                   </>
                 )}
                 {res.type === 'set' && (
                   <>
-                    <div className="font-medium text-[var(--color-text)]">{res.item.name}</div>
-                    <div className="text-xs text-[var(--color-text-secondary)]">MCQ Set • {res.item.mcqs.length} Questions</div>
+                    <div className="font-serif font-medium text-text-primary tracking-tight">{res.item.name}</div>
+                    <div className="font-sans text-[10px] uppercase tracking-wider text-secondary mt-1">MCQ Set • {res.item.mcqs.length} Questions</div>
                   </>
                 )}
                 {res.type === 'mcq' && (
                   <>
-                    <div className="font-medium text-[var(--color-text)] line-clamp-1">{res.item.question}</div>
-                    <div className="text-xs text-[var(--color-text-secondary)]">In Set: {res.set.name}</div>
+                    <div className="font-serif font-medium text-text-primary line-clamp-1 tracking-tight">{res.item.question}</div>
+                    <div className="font-sans text-[10px] uppercase tracking-wider text-secondary mt-1">In Set: {res.set.name}</div>
                   </>
                 )}
               </div>
-              <Icon name="chevron-right" size="sm" className="text-[var(--color-text-muted)] mt-2" />
+              <Icon name="chevron-right" size="sm" className="text-secondary mt-2" />
             </div>
           ))}
         </div>

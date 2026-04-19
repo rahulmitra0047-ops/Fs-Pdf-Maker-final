@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Calendar, CheckCircle, Target, Sparkles } from 'lucide-react';
+import { ArrowLeft, Plus, Calendar, CheckCircle, Target } from 'lucide-react';
 import { flashcardService } from '../../core/storage/services';
 import toast from 'react-hot-toast';
-import ThemeIcon from './components/ThemeIcon';
-import { useTheme } from './context/ThemeContext';
+import Icon from '../../shared/components/Icon';
 
-const FlashcardHomeContent: React.FC = () => {
+const FlashcardHome: React.FC = () => {
   const navigate = useNavigate();
-  const { currentTheme } = useTheme();
   const [counts, setCounts] = useState({ new: 0, daily: 0, mastered: 0 });
   const [loading, setLoading] = useState(true);
 
@@ -36,107 +34,85 @@ const FlashcardHomeContent: React.FC = () => {
   };
 
   return (
-    <div 
-      className="min-h-screen flex flex-col transition-colors duration-300"
-      style={{ backgroundColor: currentTheme.background }}
-    >
+    <div className="min-h-screen flex flex-col bg-background font-serif text-text-primary pb-28">
       {/* Top Bar */}
-      <div 
-        className="px-6 py-4 flex items-center justify-between sticky top-0 z-10 backdrop-blur-xl bg-opacity-80 transition-all"
-        style={{ 
-          backgroundColor: currentTheme.background === '#F8FAFC' ? 'rgba(248, 250, 252, 0.8)' : currentTheme.cardBg,
-          borderBottom: `1px solid ${currentTheme.borderColor}`
-        }}
-      >
-        <div className="flex items-center gap-2">
-            <button onClick={() => navigate('/home')} className="mr-2 p-1 rounded-full hover:bg-black/5 transition-colors active:scale-95">
-                <ArrowLeft className="w-6 h-6" style={{ color: currentTheme.textColor }} />
+      <header className="px-6 py-4 flex items-center justify-between sticky top-0 z-10 bg-background border-b border-border/50">
+        <div className="flex items-center gap-4">
+            <button onClick={() => navigate('/home')} className="p-2 -ml-2 text-text-primary hover:bg-[#EBE7DF] transition-colors active:scale-95">
+                <Icon name="arrow-left" size="sm" strokeWidth={1.5} />
             </button>
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center transform rotate-45 shadow-lg" style={{ backgroundColor: currentTheme.buttonBg }}>
-                <Target className="w-4 h-4 text-white transform -rotate-45" />
-            </div>
-            <h1 className="text-xl font-bold tracking-tight" style={{ color: currentTheme.textColor }}>Flashcards</h1>
+            <h1 className="text-xl font-medium tracking-tight">Flashcards</h1>
         </div>
-        
-        <div className="flex items-center gap-2">
-            {/* Theme Icon or Settings could go here */}
-        </div>
-      </div>
+      </header>
 
       {/* Content */}
       <div className="flex-1 p-6 overflow-y-auto">
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: currentTheme.accentColor }}></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
+          <div className="grid grid-cols-2 gap-4 max-w-xl mx-auto">
             {/* New Words */}
             <div 
               onClick={() => navigate('/flashcards/new')}
-              className="bg-white rounded-2xl p-5 relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between border border-slate-200/80 group cursor-pointer aspect-square"
+              className="bg-surface p-6 relative shadow-sm hover:bg-[#EBE7DF] transition-colors duration-200 flex flex-col justify-between border border-border group cursor-pointer aspect-square"
             >
-              <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center mb-3 group-hover:bg-indigo-600 transition-colors duration-300">
-                <Plus className="w-6 h-6 text-indigo-600 group-hover:text-white transition-colors duration-300" />
+              <div className="w-10 h-10 border border-border bg-background flex items-center justify-center mb-4 transition-colors">
+                <Icon name="plus" size="sm" className="text-text-primary" strokeWidth={1.5} />
               </div>
               <div className="flex flex-col">
-                <span className="text-3xl font-bold leading-none mb-1 text-slate-800">{counts.new}</span>
-                <span className="text-xs font-semibold tracking-wide uppercase text-slate-500">New Words</span>
+                <span className="text-3xl font-serif text-text-primary mb-2 line-clamp-1">{counts.new}</span>
+                <span className="font-sans text-[10px] font-semibold tracking-[0.1em] uppercase text-text-secondary">New Words</span>
               </div>
             </div>
 
             {/* Daily Words */}
             <div 
               onClick={() => navigate('/flashcards/daily')}
-              className="bg-white rounded-2xl p-5 relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between border border-slate-200/80 group cursor-pointer aspect-square"
+              className="bg-[#F4F1EA] p-6 relative shadow-sm hover:bg-[#EBE7DF] transition-colors duration-200 flex flex-col justify-between border border-primary group cursor-pointer aspect-square"
             >
-              <div className="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center mb-3 group-hover:bg-rose-600 transition-colors duration-300">
-                <Calendar className="w-6 h-6 text-rose-600 group-hover:text-white transition-colors duration-300" />
+              <div className="w-10 h-10 border border-primary bg-primary flex items-center justify-center mb-4 transition-colors">
+                <Icon name="calendar" size="sm" className="text-surface" strokeWidth={1.5} />
               </div>
               <div className="flex flex-col">
-                <span className="text-3xl font-bold leading-none mb-1 text-slate-800">{counts.daily}</span>
-                <span className="text-xs font-semibold tracking-wide uppercase text-slate-500">Daily Words</span>
+                <span className="text-3xl font-serif text-primary mb-2 line-clamp-1">{counts.daily}</span>
+                <span className="font-sans text-[10px] font-semibold tracking-[0.1em] uppercase text-primary">Daily Words</span>
               </div>
             </div>
 
             {/* Mastered */}
             <div 
               onClick={() => navigate('/flashcards/mastered')}
-              className="bg-white rounded-2xl p-5 relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between border border-slate-200/80 group cursor-pointer aspect-square"
+              className="bg-surface p-6 relative shadow-sm hover:bg-[#EBE7DF] transition-colors duration-200 flex flex-col justify-between border border-border group cursor-pointer aspect-square"
             >
-              <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-3 group-hover:bg-emerald-600 transition-colors duration-300">
-                <CheckCircle className="w-6 h-6 text-emerald-600 group-hover:text-white transition-colors duration-300" />
+              <div className="w-10 h-10 border border-border bg-background flex items-center justify-center mb-4 transition-colors">
+                <Icon name="check-circle" size="sm" className="text-text-primary" strokeWidth={1.5} />
               </div>
               <div className="flex flex-col">
-                <span className="text-3xl font-bold leading-none mb-1 text-slate-800">{counts.mastered}</span>
-                <span className="text-xs font-semibold tracking-wide uppercase text-slate-500">Mastered</span>
+                <span className="text-3xl font-serif text-text-primary mb-2 line-clamp-1">{counts.mastered}</span>
+                <span className="font-sans text-[10px] font-semibold tracking-[0.1em] uppercase text-text-secondary">Mastered</span>
               </div>
             </div>
 
             {/* Quiz Mode */}
             <div 
               onClick={() => navigate('/flashcards/quiz')}
-              className="bg-white rounded-2xl p-5 relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between border border-slate-200/80 group cursor-pointer aspect-square"
+              className="bg-surface p-6 relative shadow-sm hover:bg-[#EBE7DF] transition-colors duration-200 flex flex-col justify-between border border-border group cursor-pointer aspect-square"
             >
-              <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center mb-3 group-hover:bg-amber-500 transition-colors duration-300">
-                <Target className="w-6 h-6 text-amber-600 group-hover:text-white transition-colors duration-300" />
+              <div className="w-10 h-10 border border-border bg-background flex items-center justify-center mb-4 transition-colors">
+                <Icon name="target" size="sm" className="text-text-primary" strokeWidth={1.5} />
               </div>
               <div className="flex flex-col">
-                <span className="text-3xl font-bold leading-none mb-1 text-slate-800">Quiz</span>
-                <span className="text-xs font-semibold tracking-wide uppercase text-slate-500">Practice</span>
+                <span className="text-3xl font-serif text-text-primary mb-2">Quiz</span>
+                <span className="font-sans text-[10px] font-semibold tracking-[0.1em] uppercase text-text-secondary">Practice</span>
               </div>
             </div>
           </div>
         )}
       </div>
-
-      <ThemeIcon />
     </div>
   );
-};
-
-const FlashcardHome: React.FC = () => {
-  return <FlashcardHomeContent />;
 };
 
 export default FlashcardHome;
