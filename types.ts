@@ -402,7 +402,8 @@ export interface TranslationHint {
 export interface TranslationItem {
   id: string;
   lessonId: string;
-  bengaliText: string;
+  bengaliText: string; // Used as source text (can be English if direction is E2B)
+  direction?: 'B2E' | 'E2B'; // Translation direction
   type?: 'job' | 'ielts'; // Optional for backwards compatibility, default job
   hints?: TranslationHint[]; // Added for translation assistance
   isCompleted: boolean;
@@ -514,6 +515,9 @@ export interface FlashcardBase {
   mediaUrl?: string | null;
   mediaType?: 'image' | 'video' | null;
   clusterData?: WordCluster | null;
+  englishMeaning?: string | null;
+  greContext?: string | null;
+  usageContext?: string | null;
   
   // SRS Fields
   confidenceLevel: number; // 0-5

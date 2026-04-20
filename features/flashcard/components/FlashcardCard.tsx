@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Volume2, Image as ImageIcon, Video, Play, Trash2, Paperclip, X, Loader2, Camera } from 'lucide-react';
+import { Volume2, Image as ImageIcon, Video, Play, Trash2, Paperclip, X, Loader2, Camera, Sparkles, BookOpen } from 'lucide-react';
 import { FlashcardWord } from '../../../types';
 import { useTheme } from '../context/ThemeContext';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -17,18 +17,7 @@ interface FlashcardCardProps {
 const FlashcardCard: React.FC<FlashcardCardProps> = ({ word, isFlipped, onFlip, onSpeak }) => {
   const { currentTheme } = useTheme();
   const [showMediaSheet, setShowMediaSheet] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isPlayingVideo, setIsPlayingVideo] = useState(false);
-  const [mediaUrl, setMediaUrl] = useState<string | null>(word.mediaUrl || null);
-  const [mediaType, setMediaType] = useState<'image' | 'video' | null>(word.mediaType || null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  // Sync local state when word prop changes
-  React.useEffect(() => {
-    setMediaUrl(word.mediaUrl || null);
-    setMediaType(word.mediaType || null);
-  }, [word]);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleBackSpeak = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -83,7 +72,7 @@ const FlashcardCard: React.FC<FlashcardCardProps> = ({ word, isFlipped, onFlip, 
 
   const handleLongPress = () => {
     if (isFlipped) {
-      setShowMediaSheet(true);
+      handleGetDetails();
     }
   };
 
@@ -100,132 +89,78 @@ const FlashcardCard: React.FC<FlashcardCardProps> = ({ word, isFlipped, onFlip, 
     }
   };
 
-  const uploadMedia = async (file: File) => {
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', 'Edunex@media');
+  const handleGetDetails = async () => {
+    setShowMediaSheet(true);
+    
+    // If we already have the details, do nothing
+    if (word.englishMeaning && word.greContext && word.usageContext) {
+        return;
+    }
 
+    if (isGenerating) return;
+
+    setIsGenerating(true);
     try {
-      const response = await fetch(
-        'https://api.cloudinary.com/v1_1/dgjwyykxd/auto/upload',
-        { method: 'POST', body: formData }
-      );
-      
-      const data = await response.json();
-      
-      if (data.error) {
-        throw new Error(data.error.message);
-      }
+        const { aiManager } = await import('../../../core/ai/aiManager');
+        const prompt = `You are a bilingual linguist and vocabulary expert. Provide analysis for the word: "${word.word}".
+Return ONLY a valid JSON object with the following structure:
+{
+  "englishMeaning": "A concise, one-line English explanation of the meaning.",
+  "greContext": "GRE/advanced nuance or context. Write this in a natural, conversational mix of Bengali and English.",
+  "usageContext": "Real-world natural usage scenario. Write this in a natural, conversational mix of Bengali and English."
+}`;
+        
+        const aiResponse = await aiManager.generateContent('gemini-2.5-flash', prompt, {
+            responseMimeType: "application/json"
+        });
 
-      // Update Firestore
-      // Determine collection based on word type (this logic might need adjustment based on how words are stored)
-      // Assuming we can update by ID in the relevant collection. 
-      // Since we don't know the collection easily here, we might need to pass a function or know the collection.
-      // However, the prompt says "flashcard_new_words, flashcard_daily_words, flashcard_mastered".
-      // We'll try to find the document in these collections.
-      // For simplicity, let's assume we update where it came from. 
-      // But wait, `word` prop doesn't tell us the collection.
-      // We will try to update in all potential collections or assume a structure.
-      // Actually, the best way is to search for the doc ID.
-      
-      // Since this is a UI component, maybe we should pass an update function prop?
-      // But the prompt says "Firestore Update: ...".
-      // I'll implement a helper to find and update.
-      
-      await updateFlashcardMedia(word.id, data.secure_url, data.resource_type);
-      
-      setMediaUrl(data.secure_url);
-      setMediaType(data.resource_type);
-      toast.success('Media uploaded successfully');
-      setShowMediaSheet(false);
-      
-      // Optimistically update local state if needed, but parent should handle re-fetch or real-time update
-      // For now we just close the sheet.
-      
+        if (aiResponse.error || !aiResponse.text) {
+             throw new Error(aiResponse.error || "No response received");
+        }
+
+        // Extract JSON safely
+        let jsonStr = aiResponse.text;
+        if (typeof jsonStr === 'string') {
+            if (jsonStr.includes('```json')) {
+                jsonStr = jsonStr.split('```json')[1].split('```')[0].trim();
+            } else if (jsonStr.includes('```')) {
+                jsonStr = jsonStr.split('```')[1].split('```')[0].trim();
+            }
+        }
+
+        const details = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+
+        // Update word optimism
+        word.englishMeaning = details.englishMeaning;
+        word.greContext = details.greContext;
+        word.usageContext = details.usageContext;
+
+        // Persist
+        await updateFlashcardDetails(word.id, {
+            englishMeaning: details.englishMeaning,
+            greContext: details.greContext,
+            usageContext: details.usageContext
+        });
+
     } catch (error) {
-      console.error('Upload failed:', error);
-      toast.error('Upload failed');
+        console.error('Failed to get details', error);
+        toast.error('Failed to generate word details');
     } finally {
-      setIsUploading(false);
+        setIsGenerating(false);
     }
   };
 
-  const updateFlashcardMedia = async (id: string, url: string | null, type: 'image' | 'video' | null) => {
-    // Try to update in daily words first
+  const updateFlashcardDetails = async (id: string, details: Partial<FlashcardWord>) => {
     try {
-        // We don't know which collection the word belongs to.
-        // We can try to update in 'flashcard_daily_words' first as it's most likely.
-        // Or we can query to find where it is.
-        // Given the constraints, I will try to update 'flashcard_daily_words' and 'flashcard_mastered'.
-        // 'flashcard_new_words' is less likely for review but possible.
-        
-        // A better approach might be to pass the collection name as a prop, but I can't change the parent easily right now.
-        // I'll try to update all 3 collections. It's not efficient but ensures it's updated.
-        // Or better, check the word object for clues? No clues.
-        
         const collections = ['flashcard_daily_words', 'flashcard_mastered', 'flashcard_new_words'];
-        
         for (const col of collections) {
             try {
                 const docRef = doc(dbFirestore, col, id);
-                await updateDoc(docRef, {
-                    mediaUrl: url,
-                    mediaType: type
-                });
-            } catch (e) {
-                // Ignore error if doc doesn't exist in this collection
-            }
+                await updateDoc(docRef, details);
+            } catch (e) {}
         }
     } catch (error) {
-        console.error("Error updating document:", error);
-        throw error;
-    }
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.type.startsWith('video/')) {
-      // Check duration
-      const video = document.createElement('video');
-      video.preload = 'metadata';
-      video.onloadedmetadata = function() {
-        window.URL.revokeObjectURL(video.src);
-        if (video.duration > 10) {
-          toast.error('Video must be 10 seconds or less');
-          return;
-        }
-        uploadMedia(file);
-      }
-      video.src = URL.createObjectURL(file);
-    } else {
-      uploadMedia(file);
-    }
-  };
-
-  const handleRemoveMedia = async () => {
-      try {
-          await updateFlashcardMedia(word.id, null, null);
-          setMediaUrl(null);
-          setMediaType(null);
-          toast.success('Media removed');
-          setShowMediaSheet(false);
-      } catch (error) {
-          toast.error('Failed to remove media');
-      }
-  };
-
-  const toggleVideoPlay = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (videoRef.current) {
-      if (isPlayingVideo) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlayingVideo(!isPlayingVideo);
+        console.error("Error updating details:", error);
     }
   };
 
@@ -258,29 +193,31 @@ const FlashcardCard: React.FC<FlashcardCardProps> = ({ word, isFlipped, onFlip, 
             border: `1px solid ${currentTheme.borderColor}`
           }}
         >
-          <h2 
-            className="text-[32px] font-bold tracking-[1px] text-center leading-tight"
-            style={{ color: currentTheme.textColor }}
-          >
-            {word.word}
-          </h2>
-          
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              onSpeak(e, word.word);
-            }}
-            className="mt-6 p-3 rounded-full transition-colors"
-            style={{ 
-              color: currentTheme.accentColor,
-              backgroundColor: `${currentTheme.accentColor}10` // 10% opacity
-            }}
-          >
-            <Volume2 size={28} />
-          </button>
+          <div className="flex-1 flex flex-col items-center justify-center w-full">
+              <h2 
+                className="text-[42px] font-bold tracking-[1px] text-center leading-tight"
+                style={{ color: currentTheme.textColor }}
+              >
+                {word.word}
+              </h2>
+              
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSpeak(e, word.word);
+                }}
+                className="mt-8 p-3.5 rounded-full transition-colors active:scale-95"
+                style={{ 
+                  color: currentTheme.accentColor,
+                  backgroundColor: `${currentTheme.accentColor}10`
+                }}
+              >
+                <Volume2 size={32} />
+              </button>
+          </div>
           
           <div 
-            className="absolute bottom-8 text-[12px] font-medium tracking-wide uppercase"
+            className="text-[12px] font-medium tracking-widest uppercase pb-2"
             style={{ color: currentTheme.subTextColor }}
           >
             Tap to flip
@@ -336,111 +273,101 @@ const FlashcardCard: React.FC<FlashcardCardProps> = ({ word, isFlipped, onFlip, 
                 </div>
               </div>
             ) : (
-              <>
-                {/* Word + Meaning + Sound */}
-                <div className="flex items-center justify-center flex-wrap gap-2 mb-2 w-full">
-                  <span className="text-[20px] font-bold" style={{ color: currentTheme.textColor }}>{word.word}</span>
-                  <span className="text-lg" style={{ color: currentTheme.subTextColor }}>→</span>
-                  <span className="text-[20px] font-bold" style={{ color: currentTheme.accentColor }}>{word.meaning}</span>
-                  
-                  <button 
-                    onClick={handleBackSpeak}
-                    className="ml-1 p-1.5 rounded-full transition-colors hover:bg-black/5 active:scale-95"
-                    style={{ color: currentTheme.accentColor }}
-                  >
-                    <Volume2 size={20} />
-                  </button>
-                </div>
-
-                {/* Type Badge */}
-                <div 
-                    className="px-3 py-0.5 rounded-full text-[11px] font-semibold tracking-wide mb-2"
-                    style={{ backgroundColor: typeColors.bg, color: typeColors.text }}
-                >
-                    [{word.type}]
-                </div>
-
-                {/* Verb Forms */}
-                {word.type === 'Verb' && word.verbForms && (
-                    <div className="text-[12px] mb-3 opacity-80" style={{ color: currentTheme.subTextColor }}>
-                        <span className="mr-3">V2: {word.verbForms.v2}</span>
-                        <span>V3: {word.verbForms.v3}</span>
+              <div className="flex-1 flex flex-col w-full">
+                {/* Scrollable content area */}
+                <div className="flex-1 overflow-y-auto no-scrollbar w-full flex flex-col items-center justify-center p-2 mb-2">
+                    
+                    {/* Header: Word & Audio */}
+                    <div className="flex items-center gap-3 mb-2">
+                        <span className="text-[32px] font-bold tracking-wide" style={{ color: currentTheme.textColor }}>{word.word}</span>
+                        <button 
+                          onClick={handleBackSpeak}
+                          className="p-2 rounded-full transition-colors hover:bg-black/5 active:scale-95"
+                          style={{ color: currentTheme.accentColor, backgroundColor: `${currentTheme.accentColor}10` }}
+                        >
+                          <Volume2 size={20} />
+                        </button>
                     </div>
-                )}
 
-                {/* Example */}
-                {word.examples && word.examples.length > 0 && (
-                  <div 
-                    className="w-full text-center mb-2 px-2"
-                  >
-                    <p className="text-[14px] italic leading-relaxed" style={{ color: currentTheme.textColor }}>
-                      "{word.examples[0]}"
-                    </p>
-                  </div>
-                )}
-                
-                {/* Synonyms */}
-                {word.synonyms && word.synonyms.length > 0 && (
-                  <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 mb-4 px-4">
-                    <span className="text-[13px]" style={{ color: currentTheme.subTextColor }}>~</span>
-                    {word.synonyms.slice(0, 3).map((syn, idx) => (
-                      <span 
-                        key={idx} 
-                        className="text-[13px]"
-                        style={{ color: currentTheme.subTextColor }}
-                      >
-                        {syn}{idx < Math.min(word.synonyms.length, 3) - 1 ? ',' : ''}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                    {/* Meaning */}
+                    <div className="text-[24px] font-bold text-center leading-tight mb-3" style={{ color: currentTheme.accentColor }}>
+                        {word.meaning}
+                    </div>
 
-                {/* Media Area */}
-                <div className="w-full mt-auto flex justify-center pb-2">
+                    {/* Type Badge */}
                     <div 
-                        className="relative rounded-xl overflow-hidden bg-black/5 flex items-center justify-center w-full max-w-[200px]"
-                        style={{ height: '120px', border: `1px solid ${currentTheme.borderColor}` }}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            if (!mediaUrl) setShowMediaSheet(true);
-                            else if (mediaType === 'video') toggleVideoPlay(e);
-                        }}
+                        className="px-3 py-1 rounded-md text-[11px] font-semibold tracking-widest uppercase mb-5"
+                        style={{ backgroundColor: typeColors.bg, color: typeColors.text }}
                     >
-                        {mediaUrl ? (
-                            mediaType === 'video' ? (
-                                <>
-                                    <video 
-                                        ref={videoRef}
-                                        src={mediaUrl} 
-                                        className="w-full h-full object-cover"
-                                        onEnded={() => setIsPlayingVideo(false)}
-                                        playsInline
-                                    />
-                                    {!isPlayingVideo && (
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                                            <div className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center backdrop-blur-sm shadow-lg">
-                                                <Play size={20} className="text-black ml-1" fill="currentColor" />
-                                            </div>
-                                        </div>
-                                    )}
-                                </>
-                            ) : (
-                                <img src={mediaUrl} alt={word.word} className="w-full h-full object-cover" />
-                            )
-                        ) : (
-                            <Camera size={32} className="text-gray-400 opacity-50" />
-                        )}
+                        {word.type}
                     </div>
-                </div>
-              </>
-            )}
 
+                    {/* Details Divider */}
+                    {(word.examples?.length > 0 || word.synonyms?.length > 0 || word.verbForms) && (
+                        <div className="w-16 h-[1px] mb-5 opacity-50" style={{ backgroundColor: currentTheme.borderColor }}></div>
+                    )}
+
+                    {/* Verb Forms */}
+                    {word.type === 'Verb' && word.verbForms && (
+                        <div className="text-[13px] mb-4 opacity-80 font-medium tracking-wide flex gap-4" style={{ color: currentTheme.subTextColor }}>
+                            <span>V2: <strong style={{ color: currentTheme.textColor }}>{word.verbForms.v2}</strong></span>
+                            <span>V3: <strong style={{ color: currentTheme.textColor }}>{word.verbForms.v3}</strong></span>
+                        </div>
+                    )}
+
+                    {/* Example */}
+                    {word.examples && word.examples.length > 0 && (
+                      <div className="w-full text-center mb-4 px-2">
+                        <p className="text-[14px] italic leading-relaxed" style={{ color: currentTheme.textColor }}>
+                          "{word.examples[0]}"
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Synonyms */}
+                    {word.synonyms && word.synonyms.length > 0 && (
+                      <div className="flex flex-wrap justify-center gap-2 mt-1 px-2">
+                        {word.synonyms.slice(0, 3).map((syn, idx) => (
+                          <span 
+                            key={idx} 
+                            className="text-[12px] px-2.5 py-1 rounded-full border border-black/5"
+                            style={{ 
+                                color: currentTheme.subTextColor,
+                                backgroundColor: `${currentTheme.borderColor}40`
+                            }}
+                          >
+                            {syn}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="w-full mt-2 flex justify-center pb-1">
+              <button
+                  onClick={(e) => {
+                      e.stopPropagation();
+                      handleGetDetails();
+                  }}
+                  className="px-4 py-1.5 rounded-full text-[12px] font-bold tracking-wide flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
+                  style={{ 
+                      backgroundColor: '#F5EBE9', // Light pastel chocolate/maroon
+                      color: '#795548', // Brown/Maroon text
+                      border: '1px solid #EBDCD7'
+                  }}
+              >
+                  <Sparkles size={12} color="#795548" />
+                  Explanation
+              </button>
           </div>
         </div>
       </motion.div>
     </div>
 
-    {/* Media Bottom Sheet */}
+    {/* Details Bottom Sheet (reused state) */}
     <AnimatePresence>
         {showMediaSheet && (
             <>
@@ -456,50 +383,62 @@ const FlashcardCard: React.FC<FlashcardCardProps> = ({ word, isFlipped, onFlip, 
                     animate={{ y: 0 }}
                     exit={{ y: '100%' }}
                     transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                    className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[24px] z-50 p-6 pb-10"
+                    className="fixed bottom-0 left-0 right-0 rounded-t-[24px] z-50 p-6 pb-10"
+                    style={{ backgroundColor: currentTheme.cardBg }}
                 >
-                    <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6" />
+                    <div className="w-12 h-1.5 rounded-full mx-auto mb-6 opacity-30" style={{ backgroundColor: currentTheme.subTextColor }} />
                     
-                    <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-                        <Paperclip size={20} />
-                        {mediaUrl ? 'Manage Media' : 'Add Media'}
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: currentTheme.textColor }}>
+                        <BookOpen size={20} style={{ color: currentTheme.accentColor }} />
+                        Word Details
                     </h3>
 
-                    <div className="space-y-3">
-                        <button 
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={isUploading}
-                            className="w-full py-3.5 px-4 bg-blue-50 text-blue-600 rounded-xl font-medium flex items-center justify-center gap-2 active:scale-98 transition-transform"
-                        >
-                            {isUploading ? <Loader2 className="animate-spin" /> : <ImageIcon size={20} />}
-                            {mediaUrl ? 'Change Media' : 'Choose Image/Video'}
-                        </button>
+                    <div className="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar pb-4 text-[14px]">
+                       {isGenerating ? (
+                           <div className="flex flex-col items-center justify-center py-8">
+                               <Loader2 className="animate-spin mb-4" size={32} style={{ color: currentTheme.accentColor }} />
+                               <p style={{ color: currentTheme.subTextColor }}>Generating linguistic analysis...</p>
+                           </div>
+                       ) : (
+                           <>
+                               <div>
+                                   <h4 className="font-semibold mb-1" style={{ color: currentTheme.textColor }}>English Meaning:</h4>
+                                   <p style={{ color: currentTheme.subTextColor }} className="leading-relaxed">
+                                       {word.englishMeaning || 'Detailed meaning unavailable.'}
+                                   </p>
+                               </div>
+                               
+                               {word.greContext && (
+                                   <div>
+                                       <h4 className="font-semibold mb-1" style={{ color: currentTheme.textColor }}>GRE Context / Nuance:</h4>
+                                       <p style={{ color: currentTheme.subTextColor }} className="leading-relaxed">
+                                           {word.greContext}
+                                       </p>
+                                   </div>
+                               )}
 
-                        {mediaUrl && (
-                            <button 
-                                onClick={handleRemoveMedia}
-                                className="w-full py-3.5 px-4 bg-red-50 text-red-600 rounded-xl font-medium flex items-center justify-center gap-2 active:scale-98 transition-transform"
-                            >
-                                <Trash2 size={20} />
-                                Remove Media
-                            </button>
-                        )}
-
-                        <button 
-                            onClick={() => setShowMediaSheet(false)}
-                            className="w-full py-3.5 px-4 bg-gray-100 text-gray-700 rounded-xl font-medium active:scale-98 transition-transform"
-                        >
-                            Cancel
-                        </button>
+                               <div>
+                                   <h4 className="font-semibold mb-1" style={{ color: currentTheme.textColor }}>Common Usage:</h4>
+                                   <p style={{ color: currentTheme.subTextColor }} className="leading-relaxed">
+                                       {word.usageContext || 'Example usage unavailable.'}
+                                   </p>
+                               </div>
+                           </>
+                       )}
                     </div>
 
-                    <input 
-                        type="file" 
-                        ref={fileInputRef}
-                        className="hidden" 
-                        accept="image/*,video/*"
-                        onChange={handleFileSelect}
-                    />
+                    <div className="mt-4">
+                        <button 
+                            onClick={() => setShowMediaSheet(false)}
+                            className="w-full py-3.5 px-4 rounded-xl font-medium active:scale-98 transition-transform"
+                            style={{ 
+                                backgroundColor: currentTheme.buttonBg,
+                                color: currentTheme.buttonText
+                            }}
+                        >
+                            Got it
+                        </button>
+                    </div>
                 </motion.div>
             </>
         )}

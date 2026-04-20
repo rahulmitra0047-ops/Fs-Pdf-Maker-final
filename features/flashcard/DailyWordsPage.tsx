@@ -285,7 +285,7 @@ const DailyWordsPage: React.FC = () => {
       </div>
 
       {/* Main Content - Full Screen Card */}
-      <div className="flex-1 flex flex-col p-4 relative w-full max-w-md mx-auto h-full">
+      <div className="flex-1 flex flex-col p-4 relative w-full max-w-md mx-auto aspect-[3/4] max-h-[80vh]">
         {loading ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: currentTheme.accentColor }}></div>

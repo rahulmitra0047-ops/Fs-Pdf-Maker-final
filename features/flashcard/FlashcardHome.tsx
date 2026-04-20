@@ -38,7 +38,7 @@ const FlashcardHome: React.FC = () => {
       {/* Top Bar */}
       <header className="px-6 py-4 flex items-center justify-between sticky top-0 z-10 bg-background border-b border-border/50">
         <div className="flex items-center gap-4">
-            <button onClick={() => navigate('/home')} className="p-2 -ml-2 text-text-primary hover:bg-[#EBE7DF] transition-colors active:scale-95">
+            <button onClick={() => navigate('/home')} className="p-2 -ml-2 text-text-primary hover:bg-surface-hover transition-colors active:scale-95">
                 <Icon name="arrow-left" size="sm" strokeWidth={1.5} />
             </button>
             <h1 className="text-xl font-medium tracking-tight">Flashcards</h1>
@@ -56,56 +56,56 @@ const FlashcardHome: React.FC = () => {
             {/* New Words */}
             <div 
               onClick={() => navigate('/flashcards/new')}
-              className="bg-surface p-6 relative shadow-sm hover:bg-[#EBE7DF] transition-colors duration-200 flex flex-col justify-between border border-border group cursor-pointer aspect-square"
+              className="bg-surface p-5 relative shadow-sm hover:bg-surface-hover active:scale-95 transition-transform duration-200 flex flex-col justify-between border border-border cursor-pointer aspect-square"
             >
-              <div className="w-10 h-10 border border-border bg-background flex items-center justify-center mb-4 transition-colors">
+              <div className="w-10 h-10 border border-border bg-background flex items-center justify-center mb-4">
                 <Icon name="plus" size="sm" className="text-text-primary" strokeWidth={1.5} />
               </div>
               <div className="flex flex-col">
-                <span className="text-3xl font-serif text-text-primary mb-2 line-clamp-1">{counts.new}</span>
-                <span className="font-sans text-[10px] font-semibold tracking-[0.1em] uppercase text-text-secondary">New Words</span>
+                <span className="text-2xl font-serif text-text-primary mb-1 line-clamp-1">{counts.new}</span>
+                <span className="font-sans text-[11px] font-semibold tracking-[0.1em] uppercase text-text-secondary">New Words</span>
               </div>
             </div>
 
             {/* Daily Words */}
             <div 
               onClick={() => navigate('/flashcards/daily')}
-              className="bg-[#F4F1EA] p-6 relative shadow-sm hover:bg-[#EBE7DF] transition-colors duration-200 flex flex-col justify-between border border-primary group cursor-pointer aspect-square"
+              className="bg-surface p-5 relative shadow-sm hover:bg-surface-hover active:scale-95 transition-transform duration-200 flex flex-col justify-between border border-border cursor-pointer aspect-square"
             >
-              <div className="w-10 h-10 border border-primary bg-primary flex items-center justify-center mb-4 transition-colors">
-                <Icon name="calendar" size="sm" className="text-surface" strokeWidth={1.5} />
+              <div className="w-10 h-10 border border-border bg-background flex items-center justify-center mb-4">
+                <Icon name="calendar" size="sm" className="text-text-primary" strokeWidth={1.5} />
               </div>
               <div className="flex flex-col">
-                <span className="text-3xl font-serif text-primary mb-2 line-clamp-1">{counts.daily}</span>
-                <span className="font-sans text-[10px] font-semibold tracking-[0.1em] uppercase text-primary">Daily Words</span>
+                <span className="text-2xl font-serif text-text-primary mb-1 line-clamp-1">{counts.daily}</span>
+                <span className="font-sans text-[11px] font-semibold tracking-[0.1em] uppercase text-text-secondary">Daily Words</span>
               </div>
             </div>
 
             {/* Mastered */}
             <div 
               onClick={() => navigate('/flashcards/mastered')}
-              className="bg-surface p-6 relative shadow-sm hover:bg-[#EBE7DF] transition-colors duration-200 flex flex-col justify-between border border-border group cursor-pointer aspect-square"
+              className="bg-surface p-5 relative shadow-sm hover:bg-surface-hover active:scale-95 transition-transform duration-200 flex flex-col justify-between border border-border cursor-pointer aspect-square"
             >
-              <div className="w-10 h-10 border border-border bg-background flex items-center justify-center mb-4 transition-colors">
+              <div className="w-10 h-10 border border-border bg-background flex items-center justify-center mb-4">
                 <Icon name="check-circle" size="sm" className="text-text-primary" strokeWidth={1.5} />
               </div>
               <div className="flex flex-col">
-                <span className="text-3xl font-serif text-text-primary mb-2 line-clamp-1">{counts.mastered}</span>
-                <span className="font-sans text-[10px] font-semibold tracking-[0.1em] uppercase text-text-secondary">Mastered</span>
+                <span className="text-2xl font-serif text-text-primary mb-1 line-clamp-1">{counts.mastered}</span>
+                <span className="font-sans text-[11px] font-semibold tracking-[0.1em] uppercase text-text-secondary">Mastered</span>
               </div>
             </div>
 
             {/* Quiz Mode */}
             <div 
               onClick={() => navigate('/flashcards/quiz')}
-              className="bg-surface p-6 relative shadow-sm hover:bg-[#EBE7DF] transition-colors duration-200 flex flex-col justify-between border border-border group cursor-pointer aspect-square"
+              className="bg-surface p-5 relative shadow-sm hover:bg-surface-hover active:scale-95 transition-transform duration-200 flex flex-col justify-between border border-border cursor-pointer aspect-square"
             >
-              <div className="w-10 h-10 border border-border bg-background flex items-center justify-center mb-4 transition-colors">
+              <div className="w-10 h-10 border border-border bg-background flex items-center justify-center mb-4">
                 <Icon name="target" size="sm" className="text-text-primary" strokeWidth={1.5} />
               </div>
               <div className="flex flex-col">
-                <span className="text-3xl font-serif text-text-primary mb-2">Quiz</span>
-                <span className="font-sans text-[10px] font-semibold tracking-[0.1em] uppercase text-text-secondary">Practice</span>
+                <span className="text-2xl font-serif text-text-primary mb-1">Quiz</span>
+                <span className="font-sans text-[11px] font-semibold tracking-[0.1em] uppercase text-text-secondary">Practice</span>
               </div>
             </div>
           </div>

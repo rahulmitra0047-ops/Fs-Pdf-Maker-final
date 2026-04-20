@@ -7,6 +7,7 @@ import PremiumModal from '../../../shared/components/PremiumModal';
 import PremiumButton from '../../../shared/components/PremiumButton';
 import { generateUUID } from '../../../core/storage/idGenerator';
 import { useToast } from '../../../shared/context/ToastContext';
+import Icon from '../../../shared/components/Icon';
 
 const ExamSession: React.FC = () => {
   const { setId } = useParams();

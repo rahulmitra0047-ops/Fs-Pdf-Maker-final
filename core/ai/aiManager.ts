@@ -108,7 +108,7 @@ class AiManager {
     }
 
     // Use requested model, fallback to Global Preference, then default
-    const finalModel = model || this.preferredModel || 'gemini-3-flash-preview';
+    const finalModel = model || this.preferredModel || 'gemini-2.5-flash';
     
     // Increased default timeout to 60s for complex tasks, allow override
     const timeoutDuration = config?.timeout || 60000;

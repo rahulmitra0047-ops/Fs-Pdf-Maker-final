@@ -249,54 +249,54 @@ const LessonDetailPage: React.FC = () => {
 
   if (isLoading) {
       return (
-          <div className="min-h-screen bg-[#FAFAFA] pt-[60px] flex flex-col items-center justify-center gap-3">
-              <div className="w-8 h-8 border-4 border-[#EEF2FF] border-t-[#6366F1] rounded-full animate-spin"></div>
-              <p className="text-sm text-gray-400">Loading lesson data...</p>
+          <div className="min-h-screen bg-background pt-[60px] flex flex-col items-center justify-center gap-3">
+              <div className="w-8 h-8 border-2 border-border border-t-primary rounded-full animate-spin"></div>
+              <p className="text-sm font-sans tracking-[0.1em] uppercase text-text-secondary">Loading lesson data...</p>
           </div>
       );
   }
 
   if (!lesson) {
     return (
-        <div className="min-h-screen bg-[#FAFAFA] pt-[60px] flex flex-col items-center justify-center">
-            <p className="text-gray-400 mb-4">Lesson not found</p>
-            <button onClick={() => navigate('/learn')} className="text-[#6366F1] font-medium">Back to Learn</button>
+        <div className="min-h-screen bg-background pt-[60px] flex flex-col items-center justify-center">
+            <p className="text-text-primary font-serif mb-4">Lesson not found</p>
+            <button onClick={() => navigate('/learn')} className="text-primary font-sans font-bold uppercase tracking-wider text-sm">Back to Learn</button>
         </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] pb-24 pt-[60px]">
+    <div className="min-h-screen bg-background pb-24 pt-[60px] font-sans text-text-primary">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/90 backdrop-blur-md border-b border-gray-100 z-50 px-5 flex items-center justify-between transition-all">
+      <header className="fixed top-0 left-0 right-0 h-[60px] bg-background border-b border-border z-50 px-5 flex items-center justify-between transition-all">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => navigate('/learn')} 
-            className="p-2 -ml-2 text-[#6B7280] hover:text-gray-900 rounded-full transition-colors active:scale-95"
+            className="p-2 -ml-2 text-text-primary hover:bg-surface transition-colors active:scale-95 border border-transparent hover:border-border"
           >
-            <Icon name="arrow-left" size="md" />
+            <Icon name="arrow-left" size="sm" />
           </button>
         </div>
-        <h1 className="text-[18px] font-semibold text-[#111827] absolute left-1/2 -translate-x-1/2 tracking-tight">
+        <h1 className="text-[18px] font-medium font-serif text-text-primary absolute left-1/2 -translate-x-1/2 tracking-tight">
           Lesson {lesson.order}
         </h1>
         <div className="w-10"></div>
       </header>
 
       {/* Tabs */}
-      <div className="sticky top-[60px] z-40 bg-white border-b border-gray-200 shadow-sm">
+      <div className="sticky top-[60px] z-40 bg-surface border-b border-border">
         <div className="flex">
             {['grammar', 'vocabulary', 'practice'].map((tab) => (
                 <button
                     key={tab}
                     onClick={() => setActiveTab(tab as any)}
-                    className={`flex-1 py-3 text-[14px] font-semibold capitalize relative transition-colors ${
-                        activeTab === tab ? 'text-[#6366F1]' : 'text-[#6B7280] hover:text-gray-900'
+                    className={`flex-1 py-3 text-[13px] font-sans font-bold tracking-widest uppercase relative transition-colors ${
+                        activeTab === tab ? 'text-primary' : 'text-text-secondary hover:text-text-primary'
                     }`}
                 >
                     {tab}
                     {activeTab === tab && (
-                        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#6366F1] rounded-t-full mx-4" />
+                        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary mx-4" />
                     )}
                 </button>
             ))}

@@ -180,86 +180,78 @@ const LessonListPage: React.FC = () => {
   const currentLessons = lessons.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-24 pt-[60px] font-sans">
+    <div className="min-h-screen bg-background pb-24 pt-[60px] font-sans text-text-primary">
         {/* Custom Header */}
-        <header className="fixed top-0 left-0 right-0 h-[60px] bg-[#F8FAFC]/80 backdrop-blur-xl z-50 px-6 flex items-center justify-between transition-all">
-            <div className="flex items-center gap-2">
-                <div className="w-7 h-7 bg-slate-700 rounded-lg flex items-center justify-center transform rotate-45 shadow-lg">
-                    <Icon name={isLearnMode ? "book-open" : "play-circle"} size="sm" className="text-white transform -rotate-45" />
+        <header className="fixed top-0 left-0 right-0 h-[60px] bg-background border-b border-border z-50 px-6 flex items-center justify-between transition-all">
+            <div className="flex items-center gap-4">
+                <div className="w-8 h-8 border border-border flex items-center justify-center bg-surface">
+                    <Icon name={isLearnMode ? "book-open" : "play-circle"} size="sm" className="text-text-primary" />
                 </div>
-                <h1 className="text-xl font-bold tracking-tight text-slate-700">{title}</h1>
-            </div>
-            <div className="flex items-center gap-2">
-                <button 
-                    onClick={() => navigate('/settings')}
-                    className="p-2 -mr-2 text-slate-400 hover:text-slate-700 rounded-full transition-colors active:scale-95"
-                >
-                    <Icon name="settings" size="md" />
-                </button>
+                <h1 className="text-xl font-medium tracking-tight font-serif">{title}</h1>
             </div>
         </header>
 
-        <div className="max-w-md mx-auto px-6 mt-4">
+        <div className="max-w-md mx-auto px-6 mt-6">
             {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-3">
-                    <div className="w-8 h-8 border-4 border-slate-100 border-t-slate-700 rounded-full animate-spin"></div>
-                    <p className="text-sm text-slate-400">Loading lessons...</p>
+                    <div className="w-8 h-8 border-2 border-border border-t-primary rounded-full animate-spin"></div>
+                    <p className="text-sm font-sans tracking-[0.1em] uppercase text-text-secondary">Loading lessons...</p>
                 </div>
             ) : lessons.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-[24px] shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-slate-100 mt-4">
-                    <div className="text-4xl mb-4 opacity-20 grayscale">📚</div>
-                    <h3 className="text-lg font-bold text-slate-700 mb-1">No lessons yet</h3>
+                <div className="text-center py-12 bg-surface border border-border mt-4">
+                    <div className="text-3xl mb-4 text-text-secondary grayscale">📚</div>
+                    <h3 className="text-lg font-serif text-text-primary mb-1">No lessons yet</h3>
                     {isLearnMode ? (
-                        <p className="text-sm text-slate-400 mb-6">Tap + to add your first lesson</p>
+                        <p className="text-xs font-sans text-text-secondary mt-1">Tap + to add your first lesson</p>
                     ) : (
-                        <p className="text-sm text-slate-400 mb-6">Check back later for new lessons</p>
+                        <p className="text-xs font-sans text-text-secondary mt-1">Check back later for new lessons</p>
                     )}
                 </div>
             ) : (
                 <>
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-4">
                         {currentLessons.map((lesson) => (
                             <div 
                                 key={lesson.id}
                                 onClick={() => navigate(`/learn/lesson/${lesson.id}`)}
-                                className="relative group bg-white rounded-[20px] p-4 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-slate-100 active:scale-[0.98] transition-all duration-150 cursor-pointer hover:border-slate-200"
+                                className="relative group bg-surface border border-border px-5 py-4 w-full active:scale-95 transition-transform duration-200 cursor-pointer"
                             >
-                                <div className="flex items-start justify-between mb-3">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-600 flex flex-col items-center justify-center shadow-sm border border-slate-100 flex-shrink-0">
-                                            <span className="text-[9px] font-bold uppercase tracking-wider opacity-60 leading-none mb-0.5">Lesson</span>
-                                            <span className="text-lg font-bold leading-none">{lesson.order}</span>
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="flex items-center gap-4 w-full">
+                                        <div className="w-12 h-12 bg-background flex flex-col items-center justify-center border border-border flex-shrink-0">
+                                            <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-text-secondary leading-none mb-1">Lesson</span>
+                                            <span className="text-lg font-serif leading-none text-text-primary">{lesson.order}</span>
                                         </div>
-                                        <div className="min-w-0">
-                                            <h3 className="text-base font-bold text-slate-700 leading-tight truncate pr-2">{lesson.title}</h3>
-                                            <p className="text-xs font-medium text-slate-400 mt-1 truncate">
+                                        <div className="min-w-0 flex-1">
+                                            <h3 className="text-lg font-serif text-text-primary leading-tight truncate pr-2">{lesson.title}</h3>
+                                            <p className="text-[11px] font-sans tracking-[0.05em] text-text-secondary mt-1 truncate uppercase font-semibold">
                                                 {lesson.subtitle || 'Grammar + Vocabulary'}
                                             </p>
                                         </div>
                                     </div>
                                     {isLearnMode && (
-                                        <div className="relative flex-shrink-0 -mt-1 -mr-1">
+                                        <div className="relative flex-shrink-0 -mt-1 -mr-2">
                                             <button 
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     setActiveMenuId(activeMenuId === lesson.id ? null : lesson.id);
                                                 }}
-                                                className="text-slate-300 hover:text-slate-600 p-2 transition-colors rounded-full"
+                                                className="text-text-secondary hover:text-text-primary p-2 transition-colors border border-transparent hover:border-border hover:bg-background"
                                             >
                                                 <Icon name="more-vertical" size="sm" />
                                             </button>
                                             
                                             {activeMenuId === lesson.id && (
-                                                <div className="absolute right-0 top-8 z-20 bg-white border border-slate-100 rounded-xl shadow-xl min-w-[140px] overflow-hidden animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+                                                <div className="absolute right-0 top-10 z-20 bg-surface border border-border shadow-md min-w-[140px] animate-in fade-in duration-100">
                                                     <button 
                                                         onClick={(e) => initiateRename(lesson, e)}
-                                                        className="w-full text-left px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-2 border-b border-slate-50"
+                                                        className="w-full text-left px-4 py-2 text-[13px] font-sans font-medium text-text-primary hover:bg-background flex items-center gap-2 border-b border-border"
                                                     >
                                                         <Icon name="edit-3" size="sm" /> Rename
                                                     </button>
                                                     <button 
                                                         onClick={(e) => confirmDelete(lesson.id, e)}
-                                                        className="w-full text-left px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 flex items-center gap-2"
+                                                        className="w-full text-left px-4 py-2 text-[13px] font-sans font-medium text-error hover:bg-background flex items-center gap-2"
                                                     >
                                                         <Icon name="trash-2" size="sm" /> Delete
                                                     </button>
@@ -269,20 +261,16 @@ const LessonListPage: React.FC = () => {
                                     )}
                                 </div>
                                 
-                                <div className="flex items-center justify-between pt-3 border-t border-slate-50">
-                                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide ${
-                                        lesson.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
-                                        lesson.status === 'in-progress' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
-                                        'bg-slate-50 text-slate-500 border border-slate-100'
-                                    }`}>
-                                        <span className={`w-1.5 h-1.5 rounded-full ${
-                                            lesson.status === 'completed' ? 'bg-emerald-500' :
-                                            lesson.status === 'in-progress' ? 'bg-amber-500' :
-                                            'bg-slate-400'
+                                <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-text-secondary">
+                                        <span className={`w-1.5 h-1.5 ${
+                                            lesson.status === 'completed' ? 'bg-success' :
+                                            lesson.status === 'in-progress' ? 'bg-warning' :
+                                            'bg-text-secondary'
                                         }`}></span>
                                         {lesson.status || 'new'}
                                     </span>
-                                    <button className="text-xs font-bold text-slate-600 hover:text-slate-800 transition-colors flex items-center gap-1 px-2 py-1 -mr-2 group-hover:translate-x-1 duration-200">
+                                    <button className="text-[11px] uppercase tracking-wider font-bold text-text-primary flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
                                         {isLearnMode ? 'Start' : 'Practice'} <Icon name="arrow-right" size="sm" />
                                     </button>
                                 </div>
@@ -292,24 +280,24 @@ const LessonListPage: React.FC = () => {
 
                     {/* Pagination Controls */}
                     {totalPages > 1 && (
-                        <div className="flex justify-center items-center gap-2 mt-6 mb-8 select-none">
+                        <div className="flex justify-center items-center gap-3 mt-8 mb-8 select-none font-sans">
                             <button 
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
-                                className="p-2 rounded-xl border bg-white border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 shadow-sm"
+                                className="w-10 h-10 border bg-surface border-border text-text-primary disabled:opacity-40 hover:bg-background transition-colors flex items-center justify-center focus:outline-none"
                             >
                                 <Icon name="chevron-left" size="sm" />
                             </button>
                             
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-2">
                                 {Array.from({ length: totalPages }).map((_, i) => (
                                     <button
                                         key={i}
                                         onClick={() => setCurrentPage(i + 1)}
-                                        className={`w-9 h-9 rounded-xl text-xs font-bold transition-all shadow-sm ${
+                                        className={`w-10 h-10 text-[13px] font-bold tracking-wide transition-colors focus:outline-none ${
                                             currentPage === i + 1 
-                                                ? 'bg-slate-700 text-white border border-slate-700 scale-105' 
-                                                : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50'
+                                                ? 'bg-primary text-white border border-primary' 
+                                                : 'bg-surface border border-border text-text-primary hover:bg-background'
                                         }`}
                                     >
                                         {i + 1}
@@ -320,7 +308,7 @@ const LessonListPage: React.FC = () => {
                             <button 
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
-                                className="p-2 rounded-xl border bg-white border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 shadow-sm"
+                                className="w-10 h-10 border bg-surface border-border text-text-primary disabled:opacity-40 hover:bg-background transition-colors flex items-center justify-center focus:outline-none"
                             >
                                 <Icon name="chevron-right" size="sm" />
                             </button>
@@ -332,15 +320,15 @@ const LessonListPage: React.FC = () => {
 
         {/* Floating Action Button (Learn Mode Only) */}
         {isLearnMode && (
-            <div className="fixed bottom-[100px] right-6 z-40 flex flex-col items-end gap-3">
+            <div className="fixed bottom-[100px] right-6 z-40 flex flex-col items-end gap-3 cursor-pointer">
                 {isFabOpen && (
-                    <div className="flex flex-col items-end gap-3 animate-in slide-in-from-bottom-2 duration-200">
+                    <div className="flex flex-col items-end gap-3 mb-2 animate-in slide-in-from-bottom-2 duration-200">
                         <button 
                             onClick={() => { setShowAddModal(true); setIsFabOpen(false); }}
                             className="flex items-center gap-3 group"
                         >
-                            <span className="bg-white px-3 py-1.5 rounded-xl shadow-lg border border-slate-100 text-xs font-bold text-slate-600">Add Lesson</span>
-                            <div className="w-10 h-10 bg-white text-slate-700 border border-slate-100 rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform">
+                            <span className="bg-surface px-3 py-1.5 border border-border text-[11px] font-sans font-bold tracking-widest uppercase text-text-primary">Add Lesson</span>
+                            <div className="w-10 h-10 bg-background border border-border flex items-center justify-center text-text-primary active:scale-95 transition-transform hover:bg-surface">
                                 <Icon name="plus" size="sm" />
                             </div>
                         </button>
@@ -349,9 +337,9 @@ const LessonListPage: React.FC = () => {
                 
                 <button 
                     onClick={() => setIsFabOpen(!isFabOpen)}
-                    className={`w-14 h-14 rounded-2xl shadow-xl shadow-slate-900/20 flex items-center justify-center transition-all duration-300 active:scale-90 ${isFabOpen ? 'bg-slate-800 text-white rotate-45' : 'bg-slate-700 text-white'}`}
+                    className="w-14 h-14 bg-primary text-white flex items-center justify-center active:scale-95 transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-[2px_2px_0px_rgba(0,0,0,1)]"
                 >
-                    <Icon name="plus" size="lg" />
+                    <Icon name={isFabOpen ? 'x' : 'plus'} size="md" />
                 </button>
             </div>
         )}
