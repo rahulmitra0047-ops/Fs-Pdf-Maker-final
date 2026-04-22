@@ -127,12 +127,12 @@ review করো এই JSON format এ:
 score 0-10 এ দাও।
 grammarReview: শেখা rules থেকে কোনটা correct ব্যবহার করেছে, কোনটা incorrect, কোনটা ব্যবহারই করেনি — সব check করো।
 vocabReview: শেখা words থেকে কোনটা ব্যবহার করেছে (used), কোনটা করেনি (notUsed)। synonym ব্যবহার করলে similar এ দেখাও।
-tips ও feedback সব বাংলায় লেখো। correctedVersion ${isE2B ? 'বাংলায়' : 'ইংরেজিতে'}।
+tips ও feedback সব বাংলায় লেখো (অবশ্যই বাংলা অক্ষরে লিখবে, কোনোভাবেই ইংরেজি অক্ষরে বাংলিশ লিখবে না)। correctedVersion ${isE2B ? 'বাংলায়' : 'ইংরেজিতে'}।
 শুধু JSON দাও, অন্য কিছু না।
 `;
 
       const response = await aiManager.generateContent(
-          'gemini-3-flash-preview', 
+          '', 
           prompt, 
           { 
             responseMimeType: 'application/json',

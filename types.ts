@@ -518,6 +518,7 @@ export interface FlashcardBase {
   englishMeaning?: string | null;
   greContext?: string | null;
   usageContext?: string | null;
+  mnemonic?: string | null;
   
   // SRS Fields
   confidenceLevel: number; // 0-5

@@ -122,12 +122,18 @@ Include useful hints for any difficult words or grammar specific to the lesson. 
 }
 `;
 
-      const response = await aiManager.generateContent('gemini-3-flash-preview', prompt, {
+      const response = await aiManager.generateContent('', prompt, {
         responseMimeType: 'application/json',
         timeout: 45000,
       });
 
-      const parsedJSON = JSON.parse(response);
+      if (response.error || !response.text) {
+        throw new Error(response.error || "Failed to generate translation.");
+      }
+
+      const cleanJson = response.text.replace(/```json/gi, '').replace(/```/g, '').trim();
+      const parsedJSON = JSON.parse(cleanJson);
+      
       if (parsedJSON.sourceText) {
         setText(parsedJSON.sourceText);
       }

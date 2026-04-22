@@ -133,7 +133,7 @@ review করো এই JSON format এ:
 
 IELTS band score 0-9. 4 criteria আলাদাভাবে score করো.
 grammar rules ও vocabulary check করো।
-সব feedback বাংলায়। correctedVersion ইংরেজিতে।
+সব feedback বাংলায় (অবশ্যই বাংলা অক্ষরে লিখবে, কোনোভাবেই ইংরেজি অক্ষরে বাংলিশ লিখবে না)। correctedVersion ইংরেজিতে।
 শুধু JSON দাও।
 `;
       } else {
@@ -166,13 +166,13 @@ review করো এই JSON format এ:
 
 score 0-10.
 grammar rules ও vocabulary check করো।
-সব feedback বাংলায়। correctedVersion ইংরেজিতে।
+সব feedback বাংলায় (অবশ্যই বাংলা অক্ষরে লিখবে, কোনোভাবেই ইংরেজি অক্ষরে বাংলিশ লিখবে না)। correctedVersion ইংরেজিতে।
 শুধু JSON দাও।
 `;
       }
 
       const response = await aiManager.generateContent(
-          'gemini-3-flash-preview', 
+          '', 
           prompt, 
           { 
             responseMimeType: 'application/json',

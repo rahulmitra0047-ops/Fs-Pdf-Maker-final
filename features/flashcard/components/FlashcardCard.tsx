@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Volume2, Image as ImageIcon, Video, Play, Trash2, Paperclip, X, Loader2, Camera, Sparkles, BookOpen } from 'lucide-react';
+import { Volume2, Image as ImageIcon, Video, Play, Trash2, Paperclip, X, Loader2, Camera, Sparkles, BookOpen, RefreshCw } from 'lucide-react';
 import { FlashcardWord } from '../../../types';
 import { useTheme } from '../context/ThemeContext';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -18,6 +18,64 @@ const FlashcardCard: React.FC<FlashcardCardProps> = ({ word, isFlipped, onFlip, 
   const { currentTheme } = useTheme();
   const [showMediaSheet, setShowMediaSheet] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isRegeneratingMnemonic, setIsRegeneratingMnemonic] = useState(false);
+
+  const handleRegenerateMnemonic = async (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (isRegeneratingMnemonic) return;
+
+      setIsRegeneratingMnemonic(true);
+      try {
+          const { aiManager } = await import('../../../core/ai/aiManager');
+          const prompt = `You are a bilingual linguist and vocabulary expert. I need a NEW, entirely different mnemonic memory trick for the word: "${word.word}".
+The previous mnemonic was: "${word.mnemonic || ''}" (Do NOT give anything similar to this).
+
+IMPORTANT RULES:
+- Provide a completely different approach or connection to easily remember the word.
+- Write in a natural, conversational mix of Bengali and English.
+- ALWAYS use proper Bengali script (বাংলা অক্ষর) for Bengali parts.
+- NEVER write Bengali words using English letters (NO Banglish/Manglish!). English letters are ONLY for English words.
+- FIRST, try to find a meaningful smaller word, root, or phonetics INSIDE the word itself to create a clever connection. If that's not possible, use another creative approach.
+- Return ONLY a valid JSON object.
+
+Structure:
+{
+  "mnemonic": "The new, completely different mnemonic."
+}`;
+
+          const aiResponse = await aiManager.generateContent('', prompt, {
+              responseMimeType: "application/json"
+          });
+
+          if (aiResponse.error || !aiResponse.text) {
+              throw new Error(aiResponse.error || "No response received");
+          }
+
+          let jsonStr = aiResponse.text;
+          if (typeof jsonStr === 'string') {
+              if (jsonStr.includes('```json')) {
+                  jsonStr = jsonStr.split('```json')[1].split('```')[0].trim();
+              } else if (jsonStr.includes('```')) {
+                  jsonStr = jsonStr.split('```')[1].split('```')[0].trim();
+              }
+          }
+
+          const details = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+
+          word.mnemonic = details.mnemonic;
+
+          await updateFlashcardDetails(word.id, {
+              mnemonic: details.mnemonic
+          });
+          
+          toast.success("Mnemonic updated");
+      } catch (error) {
+          console.error("Failed to regenerate mnemonic", error);
+          toast.error("Failed to regenerate mnemonic");
+      } finally {
+          setIsRegeneratingMnemonic(false);
+      }
+  };
 
   const handleBackSpeak = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -93,7 +151,7 @@ const FlashcardCard: React.FC<FlashcardCardProps> = ({ word, isFlipped, onFlip, 
     setShowMediaSheet(true);
     
     // If we already have the details, do nothing
-    if (word.englishMeaning && word.greContext && word.usageContext) {
+    if (word.englishMeaning && word.greContext && word.usageContext && word.mnemonic) {
         return;
     }
 
@@ -103,14 +161,22 @@ const FlashcardCard: React.FC<FlashcardCardProps> = ({ word, isFlipped, onFlip, 
     try {
         const { aiManager } = await import('../../../core/ai/aiManager');
         const prompt = `You are a bilingual linguist and vocabulary expert. Provide analysis for the word: "${word.word}".
-Return ONLY a valid JSON object with the following structure:
+IMPORTANT RULES:
+- Write in a natural, conversational mix of Bengali and English.
+- ALWAYS use proper Bengali script (বাংলা অক্ষর) for Bengali parts.
+- NEVER write Bengali words using English letters (NO Banglish/Manglish!). English letters are ONLY for English words.
+- Mnemonic Creation Rule: FIRST, try to find a meaningful smaller word, root, or phonetics INSIDE the word itself to create a clever connection. If that's not possible, use another creative approach.
+- Return ONLY a valid JSON object.
+
+Structure:
 {
   "englishMeaning": "A concise, one-line English explanation of the meaning.",
-  "greContext": "GRE/advanced nuance or context. Write this in a natural, conversational mix of Bengali and English.",
-  "usageContext": "Real-world natural usage scenario. Write this in a natural, conversational mix of Bengali and English."
+  "greContext": "GRE/advanced nuance or context.",
+  "usageContext": "Real-world natural usage scenario.",
+  "mnemonic": "An advanced, smart mnemonic memory trick (নেমোনিক). Remember the rule: break down the word and use its own parts to build the connection first."
 }`;
         
-        const aiResponse = await aiManager.generateContent('gemini-2.5-flash', prompt, {
+        const aiResponse = await aiManager.generateContent('', prompt, {
             responseMimeType: "application/json"
         });
 
@@ -134,12 +200,14 @@ Return ONLY a valid JSON object with the following structure:
         word.englishMeaning = details.englishMeaning;
         word.greContext = details.greContext;
         word.usageContext = details.usageContext;
+        word.mnemonic = details.mnemonic;
 
         // Persist
         await updateFlashcardDetails(word.id, {
             englishMeaning: details.englishMeaning,
             greContext: details.greContext,
-            usageContext: details.usageContext
+            usageContext: details.usageContext,
+            mnemonic: details.mnemonic
         });
 
     } catch (error) {
@@ -413,6 +481,28 @@ Return ONLY a valid JSON object with the following structure:
                                        <h4 className="font-semibold mb-1" style={{ color: currentTheme.textColor }}>GRE Context / Nuance:</h4>
                                        <p style={{ color: currentTheme.subTextColor }} className="leading-relaxed">
                                            {word.greContext}
+                                       </p>
+                                   </div>
+                               )}
+
+                               {word.mnemonic && (
+                                   <div className="bg-[#FFF8E7] border border-[#FFE0A3] p-3 rounded-lg shadow-sm">
+                                       <div className="flex justify-between items-center mb-1.5">
+                                           <h4 className="font-bold flex items-center gap-1.5 text-[#B87C00]">
+                                               <Sparkles size={14} className="text-[#B87C00]" /> 
+                                               Smart Mnemonic
+                                           </h4>
+                                           <button 
+                                               onClick={handleRegenerateMnemonic}
+                                               disabled={isRegeneratingMnemonic}
+                                               className="p-1 rounded-full text-[#B87C00] hover:bg-[#FFE0A3] transition-colors disabled:opacity-50"
+                                               title="Regenerate Mnemonic"
+                                           >
+                                               <RefreshCw size={14} className={isRegeneratingMnemonic ? "animate-spin" : ""} />
+                                           </button>
+                                       </div>
+                                       <p className="text-[#8C5D00] leading-relaxed font-medium">
+                                           {word.mnemonic}
                                        </p>
                                    </div>
                                )}
